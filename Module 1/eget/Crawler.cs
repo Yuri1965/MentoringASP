@@ -117,22 +117,27 @@ namespace Eget
             HandleDownloadedPage(address, _localFileNames[address], response, depth);
         }
 
-        private Uri QueuePage(Uri address, int depth, bool isPrioritized)
+        private Uri QueuePage(Uri address, int depth, bool isResourceLink)
         {
             // Проверим можно ли нам пройти по этой ссылке
-            switch (_options.FollowRestrictions)
+            if (!isResourceLink)
             {
-                case UriFollowRestrictions.FromSameHost:
-                    if (address.Host != _baseUri.Host)
-                        return null;
-                    break;
-                case UriFollowRestrictions.FromSuburl:
-                    if (!_baseUri.IsBaseOf(address))
-                        return null;
-                    break;
-                default:
-                    Debug.Assert(_options.FollowRestrictions == UriFollowRestrictions.NoRestrictions);
-                    break;
+                switch (_options.FollowRestrictions)
+                {
+                    case UriFollowRestrictions.FromSameHost:
+                        if (address.Host != _baseUri.Host)
+                            return null;
+                        break;
+                    case UriFollowRestrictions.FromSuburl:
+                        if (!_baseUri.IsBaseOf(address))
+                            return null;
+                        break;
+                    case UriFollowRestrictions.NoRestrictions:
+                        break;
+                    default:
+                        Debug.Fail("invalid value for UriFollowRestrictions");
+                        break;
+                }
             }
 
             // Проверим глубину ссылок
@@ -150,7 +155,7 @@ namespace Eget
 
             _localFileNames.Add(address, localName);
             _takenFilenames.Add(localName);
-            (isPrioritized ? _prioritizedQueuedUris : _queuedUris).Enqueue(Tuple.Create(address, depth));
+            (isResourceLink ? _prioritizedQueuedUris : _queuedUris).Enqueue(Tuple.Create(address, depth));
 
             return localName;
         }
@@ -165,10 +170,10 @@ namespace Eget
 
         private bool CheckForValidPathByCreatingFile(string path)
         {
-            var directory = Path.GetDirectoryName(path);
-            Debug.Assert(directory != null, "directory != null");
             try
             {
+                var directory = Path.GetDirectoryName(path);
+                Debug.Assert(directory != null, "directory != null");
                 Directory.CreateDirectory(directory);
             }
             catch (ArgumentException)
@@ -191,7 +196,6 @@ namespace Eget
             {
                 return false;
             }
-
 
             try
             {
@@ -223,7 +227,7 @@ namespace Eget
             while (true)
             {
                 ++_tempFileCounter;
-                var uri = new Uri(Path.Combine(_options.OutputDirectory.LocalPath, "tmpfile_" + _tempFileCounter));
+                var uri = new Uri(Path.Combine(_options.OutputDirectory.LocalPath, "tmpFiles\\tmpfile_" + _tempFileCounter));
                 if (!_takenFilenames.Contains(uri))
                     return uri;
             }
@@ -276,7 +280,6 @@ namespace Eget
             Directory.CreateDirectory(Path.GetDirectoryName(absolutePath));
             return new FileStream(absolutePath, FileMode.Create);
         }
-
 
         private void HandleHtml(Uri address, Uri localAddress, Stream input, int depth)
         {

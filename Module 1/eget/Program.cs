@@ -14,6 +14,18 @@ namespace Eget
 
         public static int Main(string[] args)
         {
+            if (args.Length == 0)
+            {
+                Console.Write("Input correct parameters!");
+                Console.WriteLine();
+                Console.Write("Help information to display: eget.exe -h");
+                Console.WriteLine();
+                Console.Write("Press any key for finished...");
+                Console.ReadKey();
+
+                return 0;
+            }
+            
             string inputUrl;
             CrawlerOptions crawlerOptions;
 
@@ -21,8 +33,14 @@ namespace Eget
             switch (cmdArgsStats)
             {
                 case CmdArgsParseStatus.ShowedError:
+                    Console.WriteLine();
+                    Console.Write("Press any key for finished...");
+                    Console.ReadKey();
                     return 1;
                 case CmdArgsParseStatus.ShowedHelp:
+                    Console.WriteLine();
+                    Console.Write("Press any key for finished...");
+                    Console.ReadKey();
                     return 0;
                 case CmdArgsParseStatus.Ok:
                     break;
@@ -32,6 +50,10 @@ namespace Eget
 
             var crawler = new Crawler(crawlerOptions);
             crawler.DownloadPage(new Uri(inputUrl));
+
+            Console.WriteLine();
+            Console.Write("Press any key for finished...");
+            Console.ReadKey();
             return 0;
         }
 
