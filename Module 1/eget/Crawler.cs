@@ -55,11 +55,12 @@ namespace Eget
         private Uri _baseUri = null;
         private int _tempFileCounter = 0;
 
+        private HttpClient client = new HttpClient();
+
         public Crawler(CrawlerOptions options)
         {
             _options = options;
         }
-
 
         public void DownloadPage(Uri address)
         {
@@ -89,32 +90,32 @@ namespace Eget
         {
             LogMessage("Processing {0}", address);
 
-            var client = new HttpClient();
-            HttpResponseMessage response;
+            //var client = new HttpClient();
+            //HttpResponseMessage response;
             try
             {
-                response = client.GetAsync(address).Result;
+                using (HttpResponseMessage response = client.GetAsync(address).Result)
+                {
+                    LogMessage("Status {0}", response.StatusCode);
+                    if (!response.IsSuccessStatusCode || response.Content == null || response.Content.Headers == null)
+                        return;
+
+                    var contentLength = response.Content.Headers.ContentLength;
+                    if (contentLength != null)
+                        LogMessage("Content-Length is {0}", contentLength);
+
+                    var contentType = response.Content.Headers.ContentType;
+                    if (contentType != null)
+                        LogMessage("Content-Type is {0}", contentType);
+
+                    HandleDownloadedPage(address, _localFileNames[address], response, depth);
+                }
             }
             catch (AggregateException e)
             {
                 LogMessage("Couldn't load {0}. Exception fired when loading:\n{1}", address, e);
                 return;
             }
-
-
-            LogMessage("Status {0}", response.StatusCode);
-            if (!response.IsSuccessStatusCode || response.Content == null || response.Content.Headers == null)
-                return;
-
-            var contentLength = response.Content.Headers.ContentLength;
-            if (contentLength != null)
-                LogMessage("Content-Length is {0}", contentLength);
-
-            var contentType = response.Content.Headers.ContentType;
-            if (contentType != null)
-                LogMessage("Content-Type is {0}", contentType);
-
-            HandleDownloadedPage(address, _localFileNames[address], response, depth);
         }
 
         private Uri QueuePage(Uri address, int depth, bool isResourceLink)
@@ -180,14 +181,14 @@ namespace Eget
             {
                 return false;
             }
-            catch (PathTooLongException)
-            {
-                return false;
-            }
-            catch (DirectoryNotFoundException)
-            {
-                return false;
-            }
+            //catch (PathTooLongException)
+            //{
+            //    return false;
+            //}
+            //catch (DirectoryNotFoundException)
+            //{
+            //    return false;
+            //}
             catch (IOException)
             {
                 return false;
@@ -199,9 +200,11 @@ namespace Eget
 
             try
             {
-                var openedFile = File.Open(path, FileMode.Create);
-                openedFile.Close();
-                return true;
+                using (var openedFile = File.Open(path, FileMode.Create))
+                {
+                    openedFile.Close();
+                    return true;
+                }
             }
             catch (PathTooLongException)
             {
@@ -237,9 +240,13 @@ namespace Eget
         {
             // Создадим относительный url вида "<host-name>/<path>"
             var relativePath = address.AbsolutePath;
-            // Windows не позволяет использовать `:` в именах файлов или папок. Заменим их на "_"
+
+            // Windows не позволяет использовать некорректные символы, вроде `:` в именах файлов или папок. Заменим его на "_"
             // Здесь же можно было бы обработать другие некорректные символы, вроде '?', '<', '>' и т.д.
+            // примерно так: var fileName = string.Join("_", fileName.Split(Path.GetInvalidFileNameChars()));
+            // но с наскоку это сделать не получилось, поэтому оставил как есть потому что и так работает
             relativePath = relativePath.Replace(":", "_");
+                
             if (relativePath.EndsWith("/"))
                 relativePath += "index.html";
 
