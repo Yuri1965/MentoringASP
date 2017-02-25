@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -10,7 +11,7 @@ namespace WebServer
     {
         public static int Main(string[] args)
         {
-            if (args.Length < 2)
+            if (args.Length < 3)
             {
                 Console.Write("Input correct parameters!");
                 Console.Write("For example: WebServer.exe <address> <port> <folder>");
@@ -20,41 +21,26 @@ namespace WebServer
 
             try
             {
-                MyHttpServer server = MyHttpServer.GetInstance();
-                server.Initialize(args[0], args[1], args[2]);
-
-                string command = "";
-                while (true)
+                if (!HttpListener.IsSupported)
                 {
-                    command = Console.ReadLine().Trim().ToLower();
-                    switch (command)
-                    {
-                        case "start":
-                            if (server.ServerStateInitialized == ServerState.None)
-                            {
-                                Utils.PrintMessage("WebServer is not initializing... Please input Quit command...", LogMessageType.Error);
-                                break;
-                            }
-                            if (server.ServerStateRunning == ServerState.Stopped || server.ServerStateRunning == ServerState.None)
-                                server.Start();
-                            else
-                                if (server.ServerStateRunning == ServerState.Started)
-                                Utils.PrintMessage("WebServer is running... Please input Stop or Quit command...", LogMessageType.Error);
-                            break;
-                        case "stop":
-                            if (server.ServerStateRunning == ServerState.Started)
-                                server.Stop();
-                            else
-                                Utils.PrintMessage("WebServer is not running... Please input Start command for starting...", LogMessageType.Error);
-                            break;
-                        case "quit":
-                            if (server.ServerStateRunning == ServerState.Started)
-                                server.Stop();
-                            Utils.PrintMessage("Application WebServer finished...");
-                            return 0;
-                        default: break;
-                    }
+                    Utils.PrintMessage("Windows XP SP2 or Server 2003 is required to use the HttpListener class!", LogMessageType.Error);
+                    Console.ReadKey();
+                    return 0;
                 }
+
+                string host = Utils.ParseAddressPort(args[0], args[1]);
+                string directory = Utils.ParseDirectoryName(args[2]);
+
+                if (host.Trim().Equals("") || directory.Trim().Equals(""))
+                {
+                    Utils.PrintMessage("Invalid input parameters...", LogMessageType.Error);
+                    Console.ReadKey();
+                    return 0;
+                }
+
+                MyHttpServer server = new MyHttpServer(new Uri(host), directory);
+                server.Start();
+
             }
             catch (Exception e)
             {
