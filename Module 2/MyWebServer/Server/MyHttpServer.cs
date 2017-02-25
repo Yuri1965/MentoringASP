@@ -60,16 +60,7 @@ namespace WebServer
                         strB.AppendLine(request.Url.AbsoluteUri);
                         Utils.PrintMessage(strB.ToString());
 
-                        string reqMetod = request.HttpMethod;
-                        string respAbsUri = request.Url.AbsoluteUri;
-                        string respAbsUrl = request.Url.AbsolutePath;
-
                         var respQuery = request.QueryString;
-
-                        response.ContentType = "text/html";
-                        response.ContentEncoding = Encoding.UTF8;
-                        response.StatusCode = 200;
-
                         strB.Clear();
                         // Construct a response.
                         foreach (var param in respQuery)
@@ -83,8 +74,11 @@ namespace WebServer
 
                         string responseString = "<HTML><BODY><b>" + strB + "</b></BODY></HTML>";
 
-                        byte[] buffer = System.Text.Encoding.UTF8.GetBytes(responseString);
                         // Get a response stream and write the response to it.
+                        byte[] buffer = System.Text.Encoding.UTF8.GetBytes(responseString);
+                        response.ContentType = "text/html";
+                        response.ContentEncoding = Encoding.UTF8;
+                        response.StatusCode = 200;
                         response.ContentLength64 = buffer.Length;
                         using (System.IO.Stream output = response.OutputStream)
                         {
