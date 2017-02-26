@@ -14,7 +14,7 @@ namespace WebServer
             if (args.Length < 3)
             {
                 Console.Write("Input correct parameters!");
-                Console.Write("For example: WebServer.exe <address> <port> <folder>");
+                Console.Write("For example: WebServer.exe <address> <port> <folderBase> <folderRoot>");
                 Console.ReadKey();
                 return 0;
             }
@@ -29,16 +29,17 @@ namespace WebServer
                 }
 
                 string host = Utils.ParseAddressPort(args[0], args[1]);
-                string directory = Utils.ParseDirectoryName(args[2]);
+                string directoryBase = Utils.ParseDirectoryName(args[2]);
+                string directoryRoot = Utils.ParseDirectoryName(args[3]);
 
-                if (host.Trim().Equals("") || directory.Trim().Equals(""))
+                if (host.Trim().Equals("") || directoryBase.Trim().Equals("") || directoryRoot.Trim().Equals(""))
                 {
                     Utils.PrintMessage("Invalid input parameters...", LogMessageType.Error);
                     Console.ReadKey();
                     return 0;
                 }
 
-                MyHttpServer server = new MyHttpServer(new Uri(host), directory);
+                MyHttpServer server = new MyHttpServer(new Uri(host), directoryBase, directoryRoot);
                 server.Start();
 
             }
@@ -49,7 +50,6 @@ namespace WebServer
 
             return 0;
         }
-
 
     }
 }

@@ -87,6 +87,20 @@ namespace WebServer
 
         public static IDictionary<string, string> MimeTypes { get { return mimeTypeMappings; } }
 
+        public static string[] DefaultFiles =
+        {
+            "index.html",
+            "index.htm",
+            "default.html",
+            "default.htm"
+        };
+
+        public static string[] NoAccessFiles =
+        {
+            "dll",
+            "config"
+        };
+
         public static string ParseAddressPort(string strAddress, string strPort)
         {
             string result = "";
@@ -131,8 +145,6 @@ namespace WebServer
             
             Console.WriteLine(message);
         }
-
-        
 
     }
 }

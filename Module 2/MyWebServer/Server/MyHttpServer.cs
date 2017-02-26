@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -10,14 +11,16 @@ namespace WebServer
 {
     public class MyHttpServer
     {
+        private string baseDirectory;
         private string rootDirectory;
         private Uri host;
 
         private HttpListener serverListener;
 
-        public MyHttpServer(Uri address, string directory)
+        public MyHttpServer(Uri address, string directoryBase, string directoryRoot)
         {
-            rootDirectory = directory;
+            baseDirectory = directoryBase;
+            rootDirectory = directoryRoot;
             host = address;
 
             serverListener = new HttpListener();
@@ -29,7 +32,7 @@ namespace WebServer
         {
             serverListener.Start();
 
-            Utils.PrintMessage("WebServer started...", LogMessageType.Error);
+            Utils.PrintMessage("WebServer started...");
             ListenProcess();
         }
 
@@ -38,7 +41,7 @@ namespace WebServer
             serverListener.Abort();
             serverListener.Stop();
 
-            Utils.PrintMessage("WebServer stopped...", LogMessageType.Error);
+            Utils.PrintMessage("WebServer stopped...");
         }
 
         private void ListenProcess()
@@ -50,43 +53,16 @@ namespace WebServer
                     HttpListenerContext context = (serverListener.GetContextAsync()).Result;
 
                     HttpListenerRequest request = context.Request;
-                    // Obtain a response object.
-                    using (HttpListenerResponse response = context.Response)
-                    {
-                        StringBuilder strB = new StringBuilder();
-                        strB.Append("Request Method: ");
-                        strB.AppendLine(request.HttpMethod);
-                        strB.Append("Request URL: ");
-                        strB.AppendLine(request.Url.AbsoluteUri);
-                        Utils.PrintMessage(strB.ToString());
 
-                        var respQuery = request.QueryString;
-                        strB.Clear();
-                        // Construct a response.
-                        foreach (var param in respQuery)
-                        {
-                            strB.Append(request.QueryString[(string)param]);
-                        }
+                    // Формируем ответ на запрос клиента
+                    StringBuilder strB = new StringBuilder();
+                    strB.Append("Request Method: ");
+                    strB.AppendLine(context.Request.HttpMethod);
+                    strB.Append("Request URL: ");
+                    strB.AppendLine(context.Request.Url.AbsoluteUri);
+                    Utils.PrintMessage(strB.ToString());
 
-                        byte[] bytes = Encoding.Default.GetBytes(strB.ToString());
-                        strB.Clear();
-                        strB.Append(Encoding.UTF8.GetString(bytes));
-
-                        string responseString = "<HTML><BODY><b>" + strB + "</b></BODY></HTML>";
-
-                        // Get a response stream and write the response to it.
-                        byte[] buffer = System.Text.Encoding.UTF8.GetBytes(responseString);
-                        response.ContentType = "text/html";
-                        response.ContentEncoding = Encoding.UTF8;
-                        response.StatusCode = 200;
-                        response.ContentLength64 = buffer.Length;
-                        using (System.IO.Stream output = response.OutputStream)
-                        {
-                            output.Write(buffer, 0, buffer.Length);
-                            // You must close the output stream.
-                            output.Close();
-                        }
-                    }
+                    FileProcess(context);
                 }
                 catch (Exception e)
                 {
@@ -95,7 +71,89 @@ namespace WebServer
             }
         }
 
+        private void FileProcess(HttpListenerContext context)
+        {
+            context.Response.ContentEncoding = Encoding.UTF8;
 
+            var file = context.Request.RawUrl.Substring(1);
+            if (String.IsNullOrEmpty(file) || file.EndsWith("/"))
+            {
+                foreach (string indexFile in Utils.DefaultFiles)
+                {
+                    file = String.Concat(rootDirectory, @"\", indexFile).Replace("/", @"\");
+                    if (File.Exists(file))
+                        break;
+                }
+            }
+            else 
+            {
+                if (!File.Exists(String.Concat(rootDirectory, @"\", file).Replace("/", @"\")))
+                    file = String.Concat(baseDirectory, @"\", file).Replace("/", @"\");
+                else
+                    file = String.Concat(rootDirectory, @"\", file).Replace("/", @"\");
+            }
+
+            // проверка запрета на скачивание файлов с таким расширением
+            foreach (string extFile in Utils.NoAccessFiles)
+            {
+                if (Path.GetExtension(file).Contains(extFile))
+                {
+                    Utils.PrintMessage(String.Format("File {0} no access for download...", file), LogMessageType.Error);
+                    context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                    return;
+                }
+            }
+
+            if (File.Exists(file))
+            {
+                try
+                {
+                    // если есть кеширование и файл не изменялся отправляем код = 304
+                    //if (context.Request.Headers["if-Modified-Since"] != null && context.Request.Headers["if-Modified-Since"] == File.GetLastWriteTime(file).ToString("r"))
+                    //{
+                    //    Utils.PrintMessage(String.Format("File {0} is not modified...", file));
+                    //    context.Response.StatusCode = (int)HttpStatusCode.NotModified;
+                    //    return;
+                    //}
+
+                    using (Stream input = new FileStream(file, FileMode.Open))
+                    {
+                        // добавляем заголовки в ответ
+                        string mime;
+                        context.Response.ContentType = Utils.MimeTypes.TryGetValue(Path.GetExtension(file), out mime)
+                            ? mime
+                            : "application/octet-stream";
+                        context.Response.ContentLength64 = input.Length;
+                        context.Response.AddHeader("Date", DateTime.Now.ToString("r"));
+                        // параметры кеширования для браузера                        
+                        context.Response.AddHeader("Last-Modified", File.GetLastWriteTime(file).ToString("r"));
+                        context.Response.AddHeader("max-age", "86400"); //1 день
+
+                        // контент ответа
+                        byte[] buffer = new byte[1024 * 32];
+                        int nbytes;
+                        while ((nbytes = input.Read(buffer, 0, buffer.Length)) > 0)
+                            context.Response.OutputStream.Write(buffer, 0, nbytes);
+                        input.Close();
+                        Utils.PrintMessage(String.Format("Write file {0} into Response...", file));
+                    }
+                    context.Response.OutputStream.Flush();
+                    context.Response.StatusCode = (int)HttpStatusCode.OK;
+                }
+                catch (Exception e)
+                {
+                    Utils.PrintMessage(String.Format("{0}...", e.Message), LogMessageType.Error);
+                    context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                }
+            }
+            else
+            {
+                Utils.PrintMessage(String.Format("File {0} not found...", file), LogMessageType.Error);
+                context.Response.StatusCode = (int)HttpStatusCode.NotFound;
+            }
+
+            context.Response.OutputStream.Close();
+        }
 
     }
 }
