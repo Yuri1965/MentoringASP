@@ -121,20 +121,6 @@ namespace WebServer
             return result;
         }
 
-        public static string ParseDirectoryName(string path)
-        {
-            try
-            {
-                return Path.GetDirectoryName(path);
-            }
-            catch (Exception e)
-            {
-                PrintMessage(e.Message, LogMessageType.Error);
-            }
-            
-            return "";
-        }
-        
         public static void PrintMessage(string message, LogMessageType messageType = LogMessageType.Info)
         {
             if (messageType == LogMessageType.Info)
@@ -144,6 +130,14 @@ namespace WebServer
                 Console.Write("WebServer error: ");
             
             Console.WriteLine(message);
+        }
+
+        public static Uri GetUriFromPath(string path)
+        {
+            if (!path.EndsWith(Path.DirectorySeparatorChar.ToString()) && !path.EndsWith(Path.AltDirectorySeparatorChar.ToString()))
+                path += Path.DirectorySeparatorChar;
+
+            return new Uri(Path.GetFullPath(path));
         }
 
     }

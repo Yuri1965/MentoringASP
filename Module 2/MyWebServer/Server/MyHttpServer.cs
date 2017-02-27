@@ -1,23 +1,20 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace WebServer
 {
     public class MyHttpServer
     {
-        private string baseDirectory;
-        private string rootDirectory;
-        private Uri host;
+        private readonly Uri baseDirectory;
+        private readonly Uri rootDirectory;
+        private readonly Uri host;
 
-        private HttpListener serverListener;
+        private readonly HttpListener serverListener;
 
-        public MyHttpServer(Uri address, string directoryBase, string directoryRoot)
+        public MyHttpServer(Uri address, Uri directoryBase, Uri directoryRoot)
         {
             baseDirectory = directoryBase;
             rootDirectory = directoryRoot;
@@ -63,6 +60,7 @@ namespace WebServer
                     Utils.PrintMessage(strB.ToString());
 
                     FileProcess(context);
+                    context.Response.Close();
                 }
                 catch (Exception e)
                 {
@@ -75,28 +73,32 @@ namespace WebServer
         {
             context.Response.ContentEncoding = Encoding.UTF8;
 
-            var file = context.Request.RawUrl.Substring(1);
-            if (String.IsNullOrEmpty(file) || file.EndsWith("/"))
+            Uri file;
+            var requestUrl = context.Request.Url;
+            if (requestUrl.Segments.Last().EndsWith("/"))
             {
                 foreach (string indexFile in Utils.DefaultFiles)
                 {
-                    file = String.Concat(rootDirectory, @"\", indexFile).Replace("/", @"\");
-                    if (File.Exists(file))
+                    file = new Uri(rootDirectory, new Uri(indexFile, UriKind.Relative));
+                    if (File.Exists(file.LocalPath))
                         break;
                 }
+                context.Response.StatusCode = (int) HttpStatusCode.NotFound;
+                return;
             }
             else 
             {
-                if (!File.Exists(String.Concat(rootDirectory, @"\", file).Replace("/", @"\")))
-                    file = String.Concat(baseDirectory, @"\", file).Replace("/", @"\");
+                if (!File.Exists(new Uri(rootDirectory, requestUrl.MakeRelativeUri(host)).LocalPath))
+                    file = new Uri(baseDirectory, host.MakeRelativeUri(requestUrl));
                 else
-                    file = String.Concat(rootDirectory, @"\", file).Replace("/", @"\");
+                    file = new Uri(rootDirectory, host.MakeRelativeUri(requestUrl));
             }
 
+            var filePath = file.LocalPath;
             // проверка запрета на скачивание файлов с таким расширением
             foreach (string extFile in Utils.NoAccessFiles)
             {
-                if (Path.GetExtension(file).Contains(extFile))
+                if (Path.GetExtension(filePath).Contains(extFile))
                 {
                     Utils.PrintMessage(String.Format("File {0} no access for download...", file), LogMessageType.Error);
                     context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
@@ -104,41 +106,37 @@ namespace WebServer
                 }
             }
 
-            if (File.Exists(file))
+            if (File.Exists(filePath))
             {
                 try
                 {
                     // если есть кеширование и файл не изменялся отправляем код = 304
-                    //if (context.Request.Headers["if-Modified-Since"] != null && context.Request.Headers["if-Modified-Since"] == File.GetLastWriteTime(file).ToString("r"))
-                    //{
-                    //    Utils.PrintMessage(String.Format("File {0} is not modified...", file));
-                    //    context.Response.StatusCode = (int)HttpStatusCode.NotModified;
-                    //    return;
-                    //}
+                    if (context.Request.Headers["if-Modified-Since"] != null && context.Request.Headers["if-Modified-Since"] == File.GetLastWriteTime(filePath).ToString("r"))
+                    {
+                        Utils.PrintMessage(String.Format("File {0} is not modified...", file));
+                        context.Response.StatusCode = (int)HttpStatusCode.NotModified;
+                        return;
+                    }
 
-                    using (Stream input = new FileStream(file, FileMode.Open))
+                    using (Stream input = new FileStream(filePath, FileMode.Open))
                     {
                         // добавляем заголовки в ответ
                         string mime;
-                        context.Response.ContentType = Utils.MimeTypes.TryGetValue(Path.GetExtension(file), out mime)
+                        context.Response.ContentType = Utils.MimeTypes.TryGetValue(Path.GetExtension(filePath), out mime)
                             ? mime
                             : "application/octet-stream";
                         context.Response.ContentLength64 = input.Length;
+                        context.Response.StatusCode = (int)HttpStatusCode.OK;
                         context.Response.AddHeader("Date", DateTime.Now.ToString("r"));
                         // параметры кеширования для браузера                        
-                        context.Response.AddHeader("Last-Modified", File.GetLastWriteTime(file).ToString("r"));
+                        context.Response.AddHeader("Last-Modified", File.GetLastWriteTime(filePath).ToString("r"));
                         context.Response.AddHeader("max-age", "86400"); //1 день
 
                         // контент ответа
-                        byte[] buffer = new byte[1024 * 32];
-                        int nbytes;
-                        while ((nbytes = input.Read(buffer, 0, buffer.Length)) > 0)
-                            context.Response.OutputStream.Write(buffer, 0, nbytes);
-                        input.Close();
+                        input.CopyTo(context.Response.OutputStream);
                         Utils.PrintMessage(String.Format("Write file {0} into Response...", file));
                     }
                     context.Response.OutputStream.Flush();
-                    context.Response.StatusCode = (int)HttpStatusCode.OK;
                 }
                 catch (Exception e)
                 {

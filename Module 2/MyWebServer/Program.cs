@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace WebServer
 {
@@ -29,8 +25,8 @@ namespace WebServer
                 }
 
                 string host = Utils.ParseAddressPort(args[0], args[1]);
-                string directoryBase = Utils.ParseDirectoryName(args[2]);
-                string directoryRoot = Utils.ParseDirectoryName(args[3]);
+                string directoryBase =  args[2];
+                string directoryRoot = args[3];
 
                 if (host.Trim().Equals("") || directoryBase.Trim().Equals("") || directoryRoot.Trim().Equals(""))
                 {
@@ -39,9 +35,9 @@ namespace WebServer
                     return 0;
                 }
 
-                MyHttpServer server = new MyHttpServer(new Uri(host), directoryBase, directoryRoot);
-                server.Start();
 
+                var server = new MyHttpServer(new Uri(host), Utils.GetUriFromPath(directoryBase), Utils.GetUriFromPath(directoryRoot));
+                server.Start();
             }
             catch (Exception e)
             {
