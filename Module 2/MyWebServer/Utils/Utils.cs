@@ -1,19 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Net;
 using System.IO;
 
 namespace WebServer
 {
     public static class Utils
     {
-        /// <summary>
-        /// Mime Type conversion table
-        /// </summary>
-        private static IDictionary<string, string> mimeTypeMappings =
+        // Коллекция Mime Type
+        private static IDictionary<string, string> mimeTypes =
             new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
             {
                 #region extension to MIME type list
@@ -85,8 +79,11 @@ namespace WebServer
                 #endregion
             };
 
-        public static IDictionary<string, string> MimeTypes { get { return mimeTypeMappings; } }
+        // Коллекция Mime Type
+        public static IDictionary<string, string> MimeTypes { get { return mimeTypes; } }
 
+        // массив названий файлов, которые по умолчанию будем искать в директории
+        // для случаев когда в URL не указано конкретное имя страницы html страницы
         public static string[] DefaultFiles =
         {
             "index.html",
@@ -95,12 +92,14 @@ namespace WebServer
             "default.htm"
         };
 
+        // массив расширений файлов, к которым запрещен доступ с браузера
         public static string[] NoAccessFiles =
         {
             "dll",
             "config"
         };
 
+        // парсит и возвращает IP + порт в виде строки, если НЕ верно введены данные, то возвращает пустую строку
         public static string ParseAddressPort(string strAddress, string strPort)
         {
             string result = "";
@@ -121,17 +120,17 @@ namespace WebServer
             return result;
         }
 
+        // для вывода сообщений в консоль (логирование)
         public static void PrintMessage(string message, LogMessageType messageType = LogMessageType.Info)
         {
             if (messageType == LogMessageType.Info)
-                Console.Write("WebServer info: ");
+                Console.Write("WebServer info: {0}\n", message);
             else
-            if (messageType == LogMessageType.Info)
-                Console.Write("WebServer error: ");
-            
-            Console.WriteLine(message);
+                if (messageType == LogMessageType.Error)
+                    Console.Write("WebServer error: {0}\n", message);
         }
 
+        // получает имя директории в виде Uri
         public static Uri GetUriFromPath(string path)
         {
             if (!path.EndsWith(Path.DirectorySeparatorChar.ToString()) && !path.EndsWith(Path.AltDirectorySeparatorChar.ToString()))
@@ -139,6 +138,5 @@ namespace WebServer
 
             return new Uri(Path.GetFullPath(path));
         }
-
     }
 }
