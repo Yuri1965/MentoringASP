@@ -3,7 +3,7 @@ namespace WebServer
 {
     public enum LogMessageType
     {
-        Error,
-        Info
+        Info = 0,
+        Error = 1
     }
 }

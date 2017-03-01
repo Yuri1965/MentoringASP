@@ -29,11 +29,11 @@ namespace WebServer
                 }
 
                 // читаем и проверяем параметры запуска
-                string host = Utils.ParseAddressPort(args[0], args[1]);
+                Uri host = Utils.ParseAddressPort(args[0], args[1]);
                 string directoryBase = args[2];
                 string directoryRoot = args[3];
 
-                if (host.Trim().Equals("") || directoryBase.Trim().Equals("") || directoryRoot.Trim().Equals(""))
+                if (host == null || string.IsNullOrEmpty(directoryBase.Trim()) || string.IsNullOrEmpty(directoryRoot.Trim()))
                 {
                     Utils.PrintMessage("Invalid input parameters...", LogMessageType.Error);
                     Console.Write("Press any key...\n");
@@ -42,7 +42,7 @@ namespace WebServer
                 }
 
 
-                var server = new MyHttpServer(new Uri(host), Utils.GetUriFromPath(directoryBase), Utils.GetUriFromPath(directoryRoot));
+                var server = new MyHttpServer(host, Utils.GetUriFromPath(directoryBase), Utils.GetUriFromPath(directoryRoot));
                 server.Start();
             }
             catch (Exception e)

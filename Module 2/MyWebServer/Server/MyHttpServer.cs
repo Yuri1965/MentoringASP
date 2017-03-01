@@ -52,7 +52,7 @@ namespace WebServer
         private void ListenProcess()
         {
             // цикл прослушки
-            while (true)
+            while (serverListener.IsListening)
             {
                 try
                 {

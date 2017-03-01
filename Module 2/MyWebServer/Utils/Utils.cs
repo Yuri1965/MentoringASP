@@ -99,10 +99,10 @@ namespace WebServer
             "config"
         };
 
-        // парсит и возвращает IP + порт в виде строки, если НЕ верно введены данные, то возвращает пустую строку
-        public static string ParseAddressPort(string strAddress, string strPort)
+        // парсит и возвращает IP + порт в виде строки, если НЕ верно введены данные, то возвращает null
+        public static Uri ParseAddressPort(string strAddress, string strPort)
         {
-            string result = "";
+            Uri result = null;
 
             int port = 0;
             if (!Int32.TryParse(strPort, out port))
@@ -111,7 +111,7 @@ namespace WebServer
             try
             {
                 UriBuilder myURI = new UriBuilder("http", strAddress, port);
-                result = myURI.Uri.AbsoluteUri;
+                result = new Uri(myURI.Uri.AbsoluteUri);
             }
             catch (Exception e)
             {
