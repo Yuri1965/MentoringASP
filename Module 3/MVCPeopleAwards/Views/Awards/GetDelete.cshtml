@@ -1,0 +1,51 @@
+﻿@model MVCPeopleAwards.Models.AwardModel
+
+@{
+    ViewBag.Title = "Удаление награды";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h3>Вы хотите удалить запись?</h3>
+<div>
+    <h4>Награда</h4>
+    <hr />
+    
+    @{
+        if (Model.Error != null && Model.Error.Trim() != "")
+        {
+            <h4>@Model.Error.ToString()</h4>
+            <hr />
+        }
+    }
+    
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.NameAward)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.NameAward)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.DescriptionAward)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.DescriptionAward)
+        </dd>
+
+    </dl>
+
+    @using (Html.BeginForm("Delete", "Awards", FormMethod.Post)) {
+        @Html.AntiForgeryToken()
+
+        @Html.HiddenFor(model => model.Id)
+
+        <div class="form-actions no-color">
+            @Html.ActionLink("Назад к списку", "Index") |
+            <input type="submit" value="Удалить" class="btn btn-default" />
+        </div>
+    }
+
+</div>
