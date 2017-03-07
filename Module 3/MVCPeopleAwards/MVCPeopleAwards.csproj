@@ -177,8 +177,12 @@
     <Compile Include="DAL\EntityModels\Awards.cs" />
     <Compile Include="DAL\EntityModels\Peoples.cs" />
     <Compile Include="DAL\EntityModels\PeopleAwards.cs" />
+    <Compile Include="Models\PeopleAwardsModel.cs" />
+    <Compile Include="Models\PeopleModelView.cs" />
+    <Compile Include="Models\PeopleModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\AwardsRepository.cs" />
+    <Compile Include="Repositories\PeopleRepository.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="App_Data\MVCPeopleAwards.mdf" />
@@ -225,7 +229,6 @@
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Awards\GetCreate.cshtml" />
     <Content Include="Views\Awards\GetDelete.cshtml" />
-    <Content Include="Views\Awards\GetDetails.cshtml" />
     <Content Include="Views\Awards\GetEdit.cshtml" />
     <Content Include="Views\Awards\Index.cshtml" />
   </ItemGroup>

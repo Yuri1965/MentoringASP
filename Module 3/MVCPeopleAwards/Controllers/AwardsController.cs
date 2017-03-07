@@ -29,28 +29,6 @@ namespace MVCPeopleAwards.Controllers
             return View(awardsModel);
         }
 
-        public ActionResult GetDetails(int? id)
-        {
-            if (id == null || id == 0)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-
-            AwardModel awardModel;
-            try
-            {
-                awardModel = repository.GetAward(id);
-                if (awardModel == null)
-                    return HttpNotFound();
-            }
-            catch
-            {
-                return HttpNotFound();
-            }
-
-            return View(awardModel);
-        }
-
         public ActionResult GetEdit(int? id)
         {
             if (id == null || id == 0)

@@ -13,11 +13,6 @@ namespace MVCPeopleAwards.Models
         {
         }
 
-        //public AwardModel(Awards award)
-        //{
-        //    Award = award;
-        //}
-
         [HiddenInput(DisplayValue = false)]
         public int Id { get; set; }
 

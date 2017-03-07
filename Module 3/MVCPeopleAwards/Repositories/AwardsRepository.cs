@@ -11,6 +11,7 @@ namespace MVCPeopleAwards.Repositories
     {
         private PeopleAwardsDBContext db = new PeopleAwardsDBContext();
 
+        // получает Справочник наград
         public List<AwardModel> GetListAwards()
         {
             List<AwardModel> lst = new List<AwardModel>();
@@ -29,6 +30,7 @@ namespace MVCPeopleAwards.Repositories
             return lst;
         }
 
+        // маппит Entity в Model
         public void AwardMapToAwardModel(Awards source, ref AwardModel dest)
         {
             dest.Id = source.Id;
@@ -36,6 +38,7 @@ namespace MVCPeopleAwards.Repositories
             dest.DescriptionAward = source.DescriptionAward;
         }
 
+        // маппит Model в Entity
         public void AwardModelMapToAward(AwardModel source, ref Awards dest)
         {
             dest.Id = source.Id;
@@ -43,7 +46,8 @@ namespace MVCPeopleAwards.Repositories
             dest.DescriptionAward = source.DescriptionAward;
         }
 
-        public AwardModel GetAward(int? id)
+        //получает запись
+        public AwardModel GetAward(int? id) 
         {
             if (id == null)
                 return null;
@@ -53,12 +57,14 @@ namespace MVCPeopleAwards.Repositories
             return awardModel;
         }
 
+        //для создания новой записи
         public AwardModel GetNewAward()
         {
             AwardModel awardModel = new AwardModel() { Id = 0, NameAward = "", DescriptionAward = "" };
             return awardModel;
         }
 
+        //сохраняет запись - награду
         public void SaveAward(AwardModel awardModel, bool isAdd)
         {
             Awards saveAward = new Awards();
@@ -72,6 +78,7 @@ namespace MVCPeopleAwards.Repositories
             db.SaveChanges();
         }
 
+        //удаляет запись - награду
         public void DeleteAward(int? id)
         {
             if (id != null)
@@ -82,6 +89,7 @@ namespace MVCPeopleAwards.Repositories
             }
         }
 
+        //проверяет наименование награды на уникальность
         public bool CheckNameAward(string nameAward, int id = 0)
         {
             if (db.ListAwards.ToList().FindAll(c => c.NameAward == nameAward && c.Id != id).Count() > 0)
