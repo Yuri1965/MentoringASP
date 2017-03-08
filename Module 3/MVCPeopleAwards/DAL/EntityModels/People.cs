@@ -7,9 +7,9 @@ using System.Web.Mvc;
 
 namespace MVCPeopleAwards.Models
 {
-    public class Peoples
+    public class People
     {
-        public Peoples()
+        public People()
         {
             PeopleAwards = new List<PeopleAwards>();
         }
@@ -20,9 +20,8 @@ namespace MVCPeopleAwards.Models
 
         public string LastName { get; set; }
 
-        [Required]
         [Column(TypeName = "date")]
-        public DateTime? BirthDate { get; set; }
+        public DateTime BirthDate { get; set; }
 
         public virtual ICollection<PeopleAwards> PeopleAwards { get; set; }
     }

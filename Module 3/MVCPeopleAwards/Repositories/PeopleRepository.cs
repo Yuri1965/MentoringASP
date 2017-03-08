@@ -1,4 +1,5 @@
-﻿using MVCPeopleAwards.Models;
+﻿using MVCPeopleAwards.Enums;
+using MVCPeopleAwards.Models;
 using MVCPeopleAwards.Models.DataDBContext;
 using System;
 using System.Collections.Generic;
@@ -8,191 +9,266 @@ using System.Web;
 
 namespace MVCPeopleAwards.Repositories
 {
-    public class PeopleRepository : IDisposable
+    public class PeopleRepository : IDisposable, IRepositoryPeople
     {
-        private PeopleAwardsDBContext db = new PeopleAwardsDBContext();
+        private MainDBContext dbContext;
+
+        public PeopleRepository()
+        {
+            dbContext = new MainDBContext();
+        }
+
+        public PeopleRepository(MainDBContext dbContext)
+        {
+            this.dbContext = dbContext;
+        }
 
         // получает список награжденных
-        public List<PeopleModel> GetListPeoples()
+        public IEnumerable<PeopleModel> GetListPeople()
         {
-            List<PeopleModel> lst = new List<PeopleModel>();
-
-            List<Peoples> entList = db.ListPeoples.ToList();
-
-            PeopleModel peopleModel;
-            foreach (var item in entList)
+            try
             {
-                peopleModel = new PeopleModel();
-                PeopleMapToPeopleModel(item, ref peopleModel);
+                List<PeopleModel> lst = new List<PeopleModel>();
 
-                lst.Add(peopleModel);
+                List<People> entList = dbContext.ListPeoples.ToList();
+
+                PeopleModel peopleModel;
+                foreach (var item in entList)
+                {
+                    peopleModel = new PeopleModel();
+                    PeopleMapToPeopleModel(item, ref peopleModel);
+
+                    lst.Add(peopleModel);
+                }
+                return lst;
             }
-
-            return lst;
+            catch (Exception ex)
+            {
+                Logger.LogException(new Exception(String.Format("Ошибка:\n{0}\n{1}\n{2}", ex.Message, ex.StackTrace, ex.InnerException.StackTrace)));
+                throw;
+            }
         }
 
         // маппит из Entity в Model
-        public void PeopleMapToPeopleModel(Peoples source, ref PeopleModel dest)
+        public void PeopleMapToPeopleModel(People source, ref PeopleModel dest)
         {
-            dest.Id = source.Id;
-            dest.FirstName = source.FirstName;
-            dest.LastName = source.LastName;
-            dest.BirthDate = source.BirthDate;
-
-            List<PeopleAwardsModel> lst = new List<PeopleAwardsModel>();
-
-            List<PeopleAwards> entList = source.PeopleAwards.ToList();
-
-            PeopleAwardsModel peopleAwardModel;
-            foreach (var item in entList)
+            try
             {
-                peopleAwardModel = new PeopleAwardsModel();
+                dest.Id = source.Id;
+                dest.FirstName = source.FirstName;
+                dest.LastName = source.LastName;
+                dest.BirthDate = source.BirthDate;
 
-                peopleAwardModel.Id = item.Id;
-                peopleAwardModel.PeopleID = item.PeopleID;
-                peopleAwardModel.AwardID = item.AwardID;
+                List<PeopleAwardsModel> lst = new List<PeopleAwardsModel>();
 
-                AwardModel award = new AwardModel();
-                award.Id = item.Award.Id;
-                award.NameAward = item.Award.NameAward;
-                award.DescriptionAward = item.Award.DescriptionAward;
-                peopleAwardModel.Award = award;
+                List<PeopleAwards> entList = source.PeopleAwards.ToList();
 
-                lst.Add(peopleAwardModel);
+                PeopleAwardsModel peopleAwardModel;
+                foreach (var item in entList)
+                {
+                    peopleAwardModel = new PeopleAwardsModel();
+
+                    peopleAwardModel.Id = item.Id;
+                    peopleAwardModel.PeopleID = item.PeopleID;
+                    peopleAwardModel.AwardID = item.AwardID;
+
+                    AwardModel award = new AwardModel();
+                    award.Id = item.Award.Id;
+                    award.NameAward = item.Award.NameAward;
+                    award.DescriptionAward = item.Award.DescriptionAward;
+                    peopleAwardModel.Award = award;
+
+                    lst.Add(peopleAwardModel);
+                }
+                dest.PeopleAwards = lst;
             }
-
-            dest.PeopleAwards = lst;
+            catch (Exception ex)
+            {
+                Logger.LogException(new Exception(String.Format("Ошибка:\n{0}\n{1}\n{2}", ex.Message, ex.StackTrace, ex.InnerException.StackTrace)));
+                throw;
+            }
         }
 
         // маппит из Model в Entity
-        public void PeopleModelMapToPeoples(PeopleModel source, ref Peoples dest, bool isPeoplePart = false)
+        public void PeopleModelMapToPeoples(PeopleModel source, ref People dest, bool isPeoplePart = false)
         {
-            dest.Id = source.Id;
-            dest.FirstName = source.FirstName;
-            dest.LastName = source.LastName;
-            dest.BirthDate = source.BirthDate;
-
-            List<PeopleAwards> lst = new List<PeopleAwards>();
-
-            if (isPeoplePart)
+            try
             {
+                dest.Id = source.Id;
+                dest.FirstName = source.FirstName;
+                dest.LastName = source.LastName;
+                dest.BirthDate = source.BirthDate;
+
+                List<PeopleAwards> lst = new List<PeopleAwards>();
+
+                if (isPeoplePart)
+                {
+                    dest.PeopleAwards = lst;
+                    return;
+                }
+
+                List<PeopleAwardsModel> entList = source.PeopleAwards.ToList();
+
+                PeopleAwards peopleAward;
+                foreach (var item in entList)
+                {
+                    peopleAward = new PeopleAwards();
+
+                    peopleAward.Id = item.Id;
+                    peopleAward.PeopleID = item.PeopleID;
+                    peopleAward.AwardID = item.AwardID;
+
+                    Awards award = new Awards();
+                    award.Id = item.Award.Id;
+                    award.NameAward = item.Award.NameAward;
+                    award.DescriptionAward = item.Award.DescriptionAward;
+                    peopleAward.Award = award;
+
+                    lst.Add(peopleAward);
+                }
                 dest.PeopleAwards = lst;
-                return;
             }
-
-            List<PeopleAwardsModel> entList = source.PeopleAwards.ToList();
-
-            PeopleAwards peopleAward;
-            foreach (var item in entList)
+            catch (Exception ex)
             {
-                peopleAward = new PeopleAwards();
-
-                peopleAward.Id = item.Id;
-                peopleAward.PeopleID = item.PeopleID;
-                peopleAward.AwardID = item.AwardID;
-
-                Awards award = new Awards();
-                award.Id = item.Award.Id;
-                award.NameAward = item.Award.NameAward;
-                award.DescriptionAward = item.Award.DescriptionAward;
-                peopleAward.Award = award;
-
-                lst.Add(peopleAward);
+                Logger.LogException(new Exception(String.Format("Ошибка:\n{0}\n{1}\n{2}", ex.Message, ex.StackTrace, ex.InnerException.StackTrace)));
+                throw;
             }
-
-            dest.PeopleAwards = lst;
         }
 
         // получает человека, вместе с наградами
-        public PeopleModel GetPeople(int? id)
+        public PeopleModel GetPeople(int id)
         {
-            if (id == null)
-                return null;
-
-            PeopleModel peopleModel = new PeopleModel();
-            PeopleMapToPeopleModel(db.ListPeoples.Find(id), ref peopleModel);
-            return peopleModel;
-        }
-
-        // для создания нового человека
-        public PeopleModel GetNewPeople()
-        {
-            PeopleModel peopleModel = new PeopleModel() { Id = 0, FirstName = "", LastName = "", BirthDate = null, PeopleAwards = new List<PeopleAwardsModel>() };
-            return peopleModel;
+            try
+            {
+                PeopleModel peopleModel = new PeopleModel();
+                PeopleMapToPeopleModel(dbContext.ListPeoples.Find(id), ref peopleModel);
+                return peopleModel;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogException(new Exception(String.Format("Ошибка:\n{0}\n{1}\n{2}", ex.Message, ex.StackTrace, ex.InnerException.StackTrace)));
+                throw;
+            }
         }
 
         // получает Справочник наград
         public List<AwardModel> GetAwards()
         {
-            AwardsRepository repositoryAwards = new AwardsRepository();
-            return repositoryAwards.GetListAwards();
+            try
+            {
+                AwardsRepository repositoryAwards = new AwardsRepository(dbContext);
+                return repositoryAwards.GetListAward().ToList();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogException(new Exception(String.Format("Ошибка:\n{0}\n{1}\n{2}", ex.Message, ex.StackTrace, ex.InnerException.StackTrace)));
+                throw;
+            }
         }
 
         // сохраняет человека
-        public void SavePeople(PeopleModel peopleModel, bool isAdd)
+        public void SavePeople(PeopleModel peopleModel, Operation operation)
         {
-            Peoples savePeople = new Peoples();
+            People savePeople = new People();
             PeopleModelMapToPeoples(peopleModel, ref savePeople, true);
 
-            if (isAdd)
-                db.ListPeoples.Add(savePeople);
+            if (operation == Operation.Add)
+                dbContext.ListPeoples.Add(savePeople);
             else
-                db.Entry(savePeople).State = EntityState.Modified;
+                dbContext.Entry(savePeople).State = EntityState.Modified;
 
-            db.SaveChanges();
+            try
+            {
+                dbContext.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogException(new Exception(String.Format("Ошибка:\n{0}\n{1}\n{2}", ex.Message, ex.StackTrace, ex.InnerException.StackTrace)));
+                throw;
+            }
         }
 
         // сохраняет награду человека
-        public void SavePeopleAward(int peopleID, int awardID, bool isAdd)
+        public void SavePeopleAward(int peopleID, int awardID, Operation operation)
         {
             PeopleAwards savePeopleAward = new PeopleAwards();
             savePeopleAward.PeopleID = peopleID;
             savePeopleAward.AwardID = awardID;
 
-            if (isAdd)
-                db.ListPeopleAwards.Add(savePeopleAward);
+            if (operation == Operation.Add)
+                dbContext.ListPeopleAwards.Add(savePeopleAward);
             else
-                db.Entry(savePeopleAward).State = EntityState.Modified;
+                dbContext.Entry(savePeopleAward).State = EntityState.Modified;
 
-            db.SaveChanges();
+            try
+            {
+                dbContext.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogException(new Exception(String.Format("Ошибка:\n{0}\n{1}\n{2}", ex.Message, ex.StackTrace, ex.InnerException.StackTrace)));
+                throw;
+            }
         }
 
         // удаляет человека вместе с наградами
-        public void DeletePeople(int? id)
+        public void DeletePeople(int id)
         {
-            if (id != null)
+            try
             {
-                Peoples people = db.ListPeoples.Find(id);
+                People people = dbContext.ListPeoples.Find(id);
 
                 // сначала удалим награды человека
                 var lstAwards = people.PeopleAwards.ToList();
                 foreach (var item in lstAwards)
                 {
-                    db.ListAwards.Remove(item.Award);
-                    db.SaveChanges();
+                    dbContext.ListAwards.Remove(item.Award);
+                    dbContext.SaveChanges();
                 }
 
                 // удалим человека
-                db.ListPeoples.Remove(people);
-                db.SaveChanges();
+                dbContext.ListPeoples.Remove(people);
+                dbContext.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogException(new Exception(String.Format("Ошибка:\n{0}\n{1}\n{2}", ex.Message, ex.StackTrace, ex.InnerException.StackTrace)));
+                throw;
             }
         }
 
         // удаляет награду человека
-        public void DeletePeopleAward(int? id)
+        public void DeletePeopleAward(int id)
         {
-            if (id != null)
+            try
             {
-                PeopleAwards award = db.ListPeopleAwards.Find(id);
+                PeopleAwards award = dbContext.ListPeopleAwards.Find(id);
 
-                db.ListPeopleAwards.Remove(award);
-                db.SaveChanges();
+                dbContext.ListPeopleAwards.Remove(award);
+                dbContext.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogException(new Exception(String.Format("Ошибка:\n{0}\n{1}\n{2}", ex.Message, ex.StackTrace, ex.InnerException.StackTrace)));
+                throw;
             }
         }
 
-        void IDisposable.Dispose()
+        protected void Dispose(bool disposing)
         {
-            ((IDisposable)db).Dispose();
+            if (disposing)
+            {
+                if (dbContext != null)
+                {
+                    dbContext.Dispose();
+                    dbContext = null;
+                }
+            }
+        }
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
     }
 }

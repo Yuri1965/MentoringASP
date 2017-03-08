@@ -7,8 +7,16 @@
 
 <h2>Справочник Награды</h2>
 
+@{ 
+    if (Model.Error != null && Model.Error.Trim() != "")
+    {
+        <h4>@Model.Error.ToString()</h4>
+        <hr />
+    }
+}
+
 <p>
-    @Html.ActionLink("Добавить запись", "GetCreate")
+    @Html.ActionLink("Добавить запись", "CreateAward")
 </p>
 
 <table class="table">
@@ -22,19 +30,19 @@
         <th></th>
     </tr>
 
-@foreach (var item in Model.ListAwards) {
-    <tr>
-        <td>
-            @Html.DisplayFor(modelItem => item.NameAward)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.DescriptionAward)
-        </td>
-        <td>
-            @Html.ActionLink("Изменить", "GetEdit", new { id = item.Id }) |
-            @Html.ActionLink("Удалить", "GetDelete", new { id = item.Id })
-        </td>
-    </tr>
-}
+    @foreach (var item in Model.ListAwards)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.NameAward)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.DescriptionAward)
+            </td>
+            <td>
+                @Html.ActionLink("Изменить", "EditAward", new { id = item.Id }) |
+                @Html.ActionLink("Удалить", "DeleteAward", new { id = item.Id })
+            </td>
+        </tr>
+    }
 </table>
-

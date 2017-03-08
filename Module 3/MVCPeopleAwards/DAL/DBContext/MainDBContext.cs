@@ -6,13 +6,13 @@ using System.Web;
 
 namespace MVCPeopleAwards.Models.DataDBContext
 {
-    public class PeopleAwardsDBContext : DbContext
+    public class MainDBContext : DbContext
     {
-        public DbSet<Peoples> ListPeoples { get; set; }
+        public DbSet<People> ListPeoples { get; set; }
         public DbSet<Awards> ListAwards { get; set; }
         public DbSet<PeopleAwards> ListPeopleAwards { get; set; }
 
-        public PeopleAwardsDBContext(): base("MVCPeopleAwards")
+        public MainDBContext(): base("MVCPeopleAwards")
         {
         }
     }

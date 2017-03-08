@@ -20,18 +20,27 @@ namespace MVCPeopleAwards.Models
 
         [Required(ErrorMessage = "Это поле должно быть заполнено")]
         [StringLength(50, MinimumLength = 3, ErrorMessage = "Длина строки должна быть от 3 до 50 символов")]
-        [Display(Name = "Фамилия")]
+        [Display(Name = "*Фамилия")]
         public string LastName { get; set; }
 
         [Required(ErrorMessage = "Это поле должно быть заполнено")]
         [StringLength(50, MinimumLength = 3, ErrorMessage = "Длина строки должна быть от 3 до 50 символов")]
-        [Display(Name = "Имя")]
+        [Display(Name = "*Имя")]
         public string FirstName { get; set; }
 
         [Required(ErrorMessage = "Это поле должно быть заполнено")]
-        [Display(Name = "Дата рождения")]
+        [Display(Name = "*Дата рождения")]
+        [Remote("CheckBirthDate", "PeoplesAward", HttpMethod = "POST", ErrorMessage = "Возраст может быть от 5 до 120 лет! Введите корректную дату рождения")]
         [Column(TypeName = "date")]
-        public DateTime? BirthDate { get; set; }
+        public DateTime BirthDate { get; set; }
+
+        public string BirthDateStr
+        {
+            get
+            {
+                return GetBirthDateStr();
+            }
+        }
 
         [Display(Name = "Возраст (лет)")]
         public int Age
@@ -44,15 +53,18 @@ namespace MVCPeopleAwards.Models
 
         public List<PeopleAwardsModel> PeopleAwards { get; set; }
 
+        private string error = "";
+        public string Error { get { return error; } set { error = value; } }
+
+        private string GetBirthDateStr()
+        {
+            return BirthDate.ToString("dd.MM.yyyy");
+        }
+
         private int GetAge()
         {
-            if (!this.BirthDate.HasValue)
-                return 0;
-
-            DateTime birthDate = this.BirthDate.GetValueOrDefault();
-
-            int years = DateTime.Now.Year - birthDate.Year;
-            if (DateTime.Now.Month < birthDate.Month || (DateTime.Now.Month == birthDate.Month && DateTime.Now.Day < birthDate.Day))
+            int years = DateTime.Now.Year - this.BirthDate.Year;
+            if (DateTime.Now.Month < this.BirthDate.Month || (DateTime.Now.Month == this.BirthDate.Month && DateTime.Now.Day < this.BirthDate.Day))
                 years--;
             return years;
         }

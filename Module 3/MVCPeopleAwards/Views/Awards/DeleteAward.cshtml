@@ -37,7 +37,7 @@
 
     </dl>
 
-    @using (Html.BeginForm("Delete", "Awards", FormMethod.Post)) {
+    @using (Html.BeginForm("SaveDeleteAward", "Awards", FormMethod.Post)) {
         @Html.AntiForgeryToken()
 
         @Html.HiddenFor(model => model.Id)

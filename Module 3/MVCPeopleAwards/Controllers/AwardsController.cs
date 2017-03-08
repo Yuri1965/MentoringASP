@@ -4,12 +4,18 @@ using System.Web.Mvc;
 using MVCPeopleAwards.Models;
 using MVCPeopleAwards.Repositories;
 using System;
+using MVCPeopleAwards.Enums;
 
 namespace MVCPeopleAwards.Controllers
 {
     public class AwardsController : Controller
     {
-        private AwardsRepository repository = new AwardsRepository();
+        private IRepositoryAward repository;
+
+        public AwardsController(IRepositoryAward rep)
+        {
+            this.repository = rep;
+        }
 
         public ActionResult Index()
         {
@@ -17,7 +23,7 @@ namespace MVCPeopleAwards.Controllers
 
             try
             {
-                awardsModel.ListAwards = repository.GetListAwards();
+                awardsModel.ListAwards = (List<AwardModel>)repository.GetListAward();
             }
             catch
             {
@@ -29,9 +35,9 @@ namespace MVCPeopleAwards.Controllers
             return View(awardsModel);
         }
 
-        public ActionResult GetEdit(int? id)
+        public ActionResult EditAward(int id)
         {
-            if (id == null || id == 0)
+            if (id <= 0)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
@@ -41,36 +47,30 @@ namespace MVCPeopleAwards.Controllers
             {
                 awardModel = repository.GetAward(id);
                 if (awardModel == null)
-                    return HttpNotFound();
+                    return HttpNotFound("Не найдена награда с таким идентификатором");
             }
             catch
             {
-                return HttpNotFound();
+                return HttpNotFound("Ошибка на сервере");
             }
 
             return View(awardModel);
         }
 
-        public ActionResult GetCreate()
+        public ActionResult CreateAward()
         {
-            AwardModel awardModel;
-            try
+            AwardModel awardModel = new AwardModel()
             {
-                awardModel = repository.GetNewAward();
-                if (awardModel == null)
-                    return HttpNotFound();
-            }
-            catch
-            {
-                return HttpNotFound();
-            }
-
+                Id = 0,
+                NameAward = "",
+                DescriptionAward = ""
+            };
             return View(awardModel);
         }
 
-        public ActionResult GetDelete(int? id)
+        public ActionResult DeleteAward(int id)
         {
-            if (id == null || id == 0)
+            if (id <= 0)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
@@ -80,11 +80,11 @@ namespace MVCPeopleAwards.Controllers
             {
                 awardModel = repository.GetAward(id);
                 if (awardModel == null)
-                    return HttpNotFound();
+                    return HttpNotFound("Не найдена награда с таким идентификатором");
             }
             catch
             {
-                return HttpNotFound();
+                return HttpNotFound("Ошибка на сервере");
             }
 
             return View(awardModel);
@@ -92,45 +92,49 @@ namespace MVCPeopleAwards.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult SaveCreate([Bind(Include = "NameAward,DescriptionAward")] AwardModel awardModel)
+        public ActionResult SaveCreateAward([Bind(Include = "NameAward,DescriptionAward")] AwardModel awardModel)
         {
             if (ModelState.IsValid)
             {
                 try
                 {
-                    repository.SaveAward(awardModel, true);
+                    repository.SaveAward(awardModel, Operation.Add);
+                    Logger.logger.Info(String.Format("Добавлена награда:\n Id={0}, NameAward = {1}, DescriptionAward = {2}",
+                            awardModel.Id, awardModel.NameAward, awardModel.DescriptionAward));
                     return RedirectToAction("Index");
                 }
                 catch
                 {
                 }
             }
-            return RedirectToAction("GetCreate", awardModel);
+            return RedirectToAction("CreateAward", awardModel);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult SaveEdit([Bind(Include = "Id,NameAward,DescriptionAward")] AwardModel awardModel)
+        public ActionResult SaveEditAward([Bind(Include = "Id,NameAward,DescriptionAward")] AwardModel awardModel)
         {
             if (ModelState.IsValid)
             {
                 try
                 {
-                    repository.SaveAward(awardModel, false);
+                    repository.SaveAward(awardModel, Operation.Update);
+                    Logger.logger.Info(String.Format("Изменена награда:\n Id={0}, NameAward = {1}, DescriptionAward = {2}",
+                            awardModel.Id, awardModel.NameAward, awardModel.DescriptionAward));
                     return RedirectToAction("Index");
                 }
                 catch
                 {
                 }
             }
-            return RedirectToAction("GetEdit", awardModel);
+            return RedirectToAction("EditAward", awardModel);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int? id)
+        public ActionResult SaveDeleteAward(int id)
         {
-            if (id == null || id == 0)
+            if (id <= 0)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
@@ -138,18 +142,26 @@ namespace MVCPeopleAwards.Controllers
             try
             {
                 repository.DeleteAward(id);
+                Logger.logger.Info(String.Format("Удалена награда:\n Id={0}", id));
             }
             catch
             {
                 AwardModel awardModel;
-                awardModel = repository.GetAward(id);
-                if (awardModel == null)
-                    return HttpNotFound();
-                else
+                try
                 {
-                    awardModel.Error = "Запись не удалена! Возможно на нее есть ссылки в списке награжденных";
-                    return View("GetDelete", awardModel);
+                    awardModel = repository.GetAward(id);
+                    if (awardModel == null)
+                        return HttpNotFound("Не найдена награда с таким идентификатором");
+                    else
+                    {
+                        awardModel.Error = "Запись не удалена! Возможно на нее есть ссылки в списке награжденных";
+                        return View("DeleteAward", awardModel);
+                    }
                 }
+                catch
+                {
+                }
+                return HttpNotFound("Ошибка на сервере");
             }
             return RedirectToAction("Index");
         }
@@ -165,17 +177,9 @@ namespace MVCPeopleAwards.Controllers
             }
             catch
             {
+                return HttpNotFound();
             }
             return Json(true, JsonRequestBehavior.AllowGet);
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                ((IDisposable)repository).Dispose();
-            }
-            base.Dispose(disposing);
         }
     }
 }

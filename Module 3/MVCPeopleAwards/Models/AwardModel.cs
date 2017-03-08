@@ -19,16 +19,15 @@ namespace MVCPeopleAwards.Models
         [Required(ErrorMessage = "Это поле должно быть заполнено")]
         [StringLength(50, MinimumLength = 3, ErrorMessage = "Длина строки должна быть от 3 до 50 символов")]
         [Remote("CheckNameAward", "Awards", AdditionalFields = "Id", HttpMethod = "POST", ErrorMessage = "Такое название награды уже имеется")]
-        [Display(Name = "Название награды")]
+        [Display(Name = "*Название награды")]
         public string NameAward { get; set; }
 
         [Required(ErrorMessage = "Это поле должно быть заполнено")]
         [StringLength(128, MinimumLength = 3, ErrorMessage = "Длина строки должна быть от 3 до 128 символов")]
-        [Display(Name = "Описание награды")]
+        [Display(Name = "*Описание награды")]
         public string DescriptionAward { get; set; }
 
         private string error = "";
         public string Error { get { return error; } set { error = value; } }
-
     }
 }

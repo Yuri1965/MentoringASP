@@ -18,6 +18,6 @@ namespace MVCPeopleAwards.Models
 
         public virtual Awards Award { get; set; }
 
-        public virtual Peoples People { get; set; }
+        public virtual People People { get; set; }
     }
 }
