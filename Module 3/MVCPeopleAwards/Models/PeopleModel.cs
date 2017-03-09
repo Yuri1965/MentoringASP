@@ -16,21 +16,24 @@ namespace MVCPeopleAwards.Models
         }
 
         [HiddenInput(DisplayValue = false)]
+        [Key]
         public int Id { get; set; }
 
         [Required(ErrorMessage = "Это поле должно быть заполнено")]
-        [StringLength(50, MinimumLength = 3, ErrorMessage = "Длина строки должна быть от 3 до 50 символов")]
+        [StringLength(50, MinimumLength = 1, ErrorMessage = "Длина строки должна быть от 1 до 50 символов")]
         [Display(Name = "*Фамилия")]
         public string LastName { get; set; }
 
         [Required(ErrorMessage = "Это поле должно быть заполнено")]
-        [StringLength(50, MinimumLength = 3, ErrorMessage = "Длина строки должна быть от 3 до 50 символов")]
+        [StringLength(50, MinimumLength = 1, ErrorMessage = "Длина строки должна быть от 1 до 50 символов")]
         [Display(Name = "*Имя")]
         public string FirstName { get; set; }
 
         [Required(ErrorMessage = "Это поле должно быть заполнено")]
+        [DataType(DataType.Date)]
+        [DisplayFormat(DataFormatString = "{0:dd.mm.yy}", ApplyFormatInEditMode = true)]
         [Display(Name = "*Дата рождения")]
-        [Remote("CheckBirthDate", "PeoplesAward", HttpMethod = "POST", ErrorMessage = "Возраст может быть от 5 до 120 лет! Введите корректную дату рождения")]
+        //[Remote("CheckBirthDate", "PeoplesAward", HttpMethod = "POST", ErrorMessage = "Возраст может быть от 5 до 120 лет! Введите корректную дату рождения")]
         [Column(TypeName = "date")]
         public DateTime BirthDate { get; set; }
 

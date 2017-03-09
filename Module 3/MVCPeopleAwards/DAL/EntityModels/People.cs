@@ -14,6 +14,7 @@ namespace MVCPeopleAwards.Models
             PeopleAwards = new List<PeopleAwards>();
         }
 
+        [Key]
         public int Id { get; set; }
 
         public string FirstName { get; set; }

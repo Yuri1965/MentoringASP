@@ -171,15 +171,14 @@ namespace MVCPeopleAwards.Repositories
         {
             People savePeople = new People();
             PeopleModelMapToPeoples(peopleModel, ref savePeople, true);
-
-            if (operation == Operation.Add)
-                dbContext.ListPeoples.Add(savePeople);
-            else
-                dbContext.Entry(savePeople).State = EntityState.Modified;
-
             try
             {
+                if (operation == Operation.Add)
+                    dbContext.ListPeoples.Add(savePeople);
+                else
+                    dbContext.Entry(savePeople).State = EntityState.Modified;
                 dbContext.SaveChanges();
+
             }
             catch (Exception ex)
             {

@@ -1,4 +1,5 @@
-﻿using MVCPeopleAwards.Models;
+﻿using MVCPeopleAwards.Enums;
+using MVCPeopleAwards.Models;
 using MVCPeopleAwards.Repositories;
 using System;
 using System.Collections.Generic;
@@ -144,6 +145,81 @@ namespace MVCPeopleAwards.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        public ActionResult SaveCreatePeople([Bind(Include = "LastName,FirstName,BirthDate")] PeopleModel peopleModel)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    // проверка на ввод Даты рождения (возраст от 5 до 120 лет)
+                    if (!UtilHelper.CheckBirthDate(peopleModel.BirthDate))
+                    {
+                        peopleModel.Error = "Возраст может быть от 5 до 120 лет! Введите корректную дату рождения";
+                        return View("CreatePeople", peopleModel);
+                    }
+
+                    repository.SavePeople(peopleModel, Operation.Add);
+                    Logger.logger.Info(String.Format("Добавлен человек:\n Id={0}, LastName={1}, FirstName={2}, BirthDate={3}",
+                            peopleModel.Id, peopleModel.LastName, peopleModel.FirstName, peopleModel.BirthDateStr));
+                    return RedirectToAction("Index");
+                }
+                catch
+                {
+                }
+            }
+            return RedirectToAction("CreatePeople", peopleModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult SaveEditPeople([Bind(Include = "Id,LastName,FirstName,BirthDate")] PeopleModel peopleModel)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    // проверка на ввод Даты рождения (возраст от 5 до 120 лет)
+                    if (!UtilHelper.CheckBirthDate(peopleModel.BirthDate))
+                    {
+                        peopleModel.Error = "Возраст может быть от 5 до 120 лет! Введите корректную дату рождения";
+                        return View("EditPeople", peopleModel);
+                    }
+
+                    repository.SavePeople(peopleModel, Operation.Update);
+                    Logger.logger.Info(String.Format("Изменен человек:\n Id={0}, LastName={1}, FirstName={2}, BirthDate={3}",
+                            peopleModel.Id, peopleModel.LastName, peopleModel.FirstName, peopleModel.BirthDateStr));
+                    return RedirectToAction("Index");
+                }
+                catch
+                {
+                }
+            }
+            return RedirectToAction("EditPeople", peopleModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult SaveDeletePeople(int id)
+        {
+            if (id <= 0)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+
+            try
+            {
+                repository.DeletePeople(id);
+                Logger.logger.Info(String.Format("Удален человек:\n Id={0}", id));
+            }
+            catch
+            {
+                return HttpNotFound("Ошибка на сервере");
+            }
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult DeletePeopleAward(int Id, int peopleID)
         {
             if (Id <= 0 || peopleID <= 0)
@@ -176,20 +252,6 @@ namespace MVCPeopleAwards.Controllers
                 return HttpNotFound("Ошибка на сервере");
             }
             return RedirectToAction("EditPeopleAwards");
-        }
-
-        // проверка на ввод Даты рождения (возраст от 5 до 120 лет)
-        [HttpPost]
-        public ActionResult CheckBirthDate(DateTime checkDate)
-        {
-            int years = DateTime.Now.Year - checkDate.Year;
-            if (DateTime.Now.Month < checkDate.Month || (DateTime.Now.Month == checkDate.Month && DateTime.Now.Day < checkDate.Day))
-                years--;
-
-            if (years < 5 || years > 120)
-                return Json(false, JsonRequestBehavior.AllowGet);
-            else
-                return Json(true, JsonRequestBehavior.AllowGet);
         }
 
         protected override void Dispose(bool disposing)
