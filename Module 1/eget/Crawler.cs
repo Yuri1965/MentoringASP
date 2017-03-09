@@ -169,6 +169,25 @@ namespace Eget
             return GetNextUnusedTempFilename();
         }
 
+        private Uri DeriveDescriptiveName(Uri address)
+        {
+            // Создадим относительный url вида "<host-name>/<path>"
+            var relativePath = address.AbsolutePath;
+
+            // Windows не позволяет использовать некорректные символы, вроде `:` в именах файлов или папок. Заменим его на "_"
+            // Здесь же можно было бы обработать другие некорректные символы, вроде '?', '<', '>' и т.д.
+            // примерно так: var fileName = string.Join("_", fileName.Split(Path.GetInvalidFileNameChars()));
+            // но с наскоку это сделать не получилось, поэтому оставил как есть потому что и так работает
+            relativePath = relativePath.Replace(":", "_");
+
+            if (relativePath.EndsWith("/"))
+                relativePath += "index.html";
+
+            Debug.Assert(relativePath.StartsWith("/"));
+            var relativeUri = new Uri(address.Host + relativePath, UriKind.Relative);
+            return new Uri(_options.OutputDirectory, relativeUri);
+        }
+
         private bool CheckForValidPathByCreatingFile(string path)
         {
             try
@@ -234,25 +253,6 @@ namespace Eget
                 if (!_takenFilenames.Contains(uri))
                     return uri;
             }
-        }
-
-        private Uri DeriveDescriptiveName(Uri address)
-        {
-            // Создадим относительный url вида "<host-name>/<path>"
-            var relativePath = address.AbsolutePath;
-
-            // Windows не позволяет использовать некорректные символы, вроде `:` в именах файлов или папок. Заменим его на "_"
-            // Здесь же можно было бы обработать другие некорректные символы, вроде '?', '<', '>' и т.д.
-            // примерно так: var fileName = string.Join("_", fileName.Split(Path.GetInvalidFileNameChars()));
-            // но с наскоку это сделать не получилось, поэтому оставил как есть потому что и так работает
-            relativePath = relativePath.Replace(":", "_");
-                
-            if (relativePath.EndsWith("/"))
-                relativePath += "index.html";
-
-            Debug.Assert(relativePath.StartsWith("/"));
-            var relativeUri = new Uri(address.Host + relativePath, UriKind.Relative);
-            return new Uri(_options.OutputDirectory, relativeUri);
         }
 
         private void HandleDownloadedPage(Uri address, Uri localAddress, HttpResponseMessage response, int depth)
