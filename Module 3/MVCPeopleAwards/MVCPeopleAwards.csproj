@@ -323,6 +323,7 @@
     <Content Include="Views\PeoplesAward\CreatePeople.cshtml" />
     <Content Include="Views\PeoplesAward\EditPeople.cshtml" />
     <Content Include="Views\PeoplesAward\DeletePeople.cshtml" />
+    <Content Include="Views\PeoplesAward\EditPeopleAwards.cshtml" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

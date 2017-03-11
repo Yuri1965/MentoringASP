@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Web;
+using System.Web.Mvc;
 
 namespace MVCPeopleAwards.Repositories
 {
@@ -152,12 +153,17 @@ namespace MVCPeopleAwards.Repositories
         }
 
         // получает Справочник наград
-        public List<AwardModel> GetAwards()
+        public IEnumerable<SelectListItem> GetAwards()
         {
             try
             {
                 AwardsRepository repositoryAwards = new AwardsRepository(dbContext);
-                return repositoryAwards.GetListAward().ToList();
+                return repositoryAwards.GetListAward().Select(x =>
+                        new SelectListItem
+                        {
+                            Value = x.Id.ToString(),
+                            Text = x.NameAward
+                        });
             }
             catch (Exception ex)
             {
@@ -188,16 +194,13 @@ namespace MVCPeopleAwards.Repositories
         }
 
         // сохраняет награду человека
-        public void SavePeopleAward(int peopleID, int awardID, Operation operation)
+        public void SavePeopleAward(int peopleID, int awardID)
         {
             PeopleAwards savePeopleAward = new PeopleAwards();
             savePeopleAward.PeopleID = peopleID;
             savePeopleAward.AwardID = awardID;
 
-            if (operation == Operation.Add)
-                dbContext.ListPeopleAwards.Add(savePeopleAward);
-            else
-                dbContext.Entry(savePeopleAward).State = EntityState.Modified;
+            dbContext.ListPeopleAwards.Add(savePeopleAward);
 
             try
             {

@@ -37,6 +37,7 @@ namespace MVCPeopleAwards.Controllers
             return View(peopleModel);
         }
 
+        #region People part
         public ActionResult CreatePeople()
         {
             PeopleModel peopleModel = new PeopleModel()
@@ -92,55 +93,6 @@ namespace MVCPeopleAwards.Controllers
             }
 
             return View(peopleModel);
-        }
-
-        public ActionResult EditPeopleAwards(int id)
-        {
-            if (id <= 0)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "Переданы некорректные параметры");
-            }
-
-            PeopleModel peopleModel;
-            try
-            {
-                peopleModel = repository.GetPeople(id);
-                if (peopleModel == null)
-                    return HttpNotFound("Не найден человек с таким идентификатором");
-            }
-            catch
-            {
-                return HttpNotFound("Ошибка на сервере");
-            }
-
-            return View(peopleModel);
-        }
-
-        public ActionResult CreatePeopleAward(int peopleId)
-        {
-            if (peopleId <= 0)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "Переданы некорректные параметры");
-            }
-
-            PeopleModel peopleModel;
-            List<AwardModel> awardsModel;
-            try
-            {
-                peopleModel = repository.GetPeople(peopleId);
-                if (peopleModel == null)
-                    return HttpNotFound("Не найден человек с таким идентификатором");
-                awardsModel = repository.GetAwards();
-                if (awardsModel == null || awardsModel.Count() == 0)
-                    return HttpNotFound("Справочник Награды не заполнен или не удалось загрузить данные из БД");
-                ViewBag.PeopleModel = peopleModel;
-            }
-            catch
-            {
-                return HttpNotFound("Ошибка на сервере");
-            }
-
-            return View(awardsModel);
         }
 
         [HttpPost]
@@ -218,41 +170,123 @@ namespace MVCPeopleAwards.Controllers
             return RedirectToAction("Index");
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult DeletePeopleAward(int Id, int peopleID)
+        #endregion
+
+        private PeopleModel GetPeopleModelForEdit(int id)
         {
-            if (Id <= 0 || peopleID <= 0)
+            PeopleModel peopleModel;
+            try
+            {
+                peopleModel = repository.GetPeople(id);
+                peopleModel.Awards = repository.GetAwards();
+
+                return peopleModel;
+            }
+            catch
+            {
+            }
+
+            return null;
+        }
+
+        public ActionResult EditPeopleAwards(int id)
+        {
+            if (id <= 0)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "Переданы некорректные параметры");
             }
 
+            PeopleModel peopleModel;
             try
             {
-                repository.DeletePeopleAward(Id);
-                Logger.logger.Info(String.Format("Удалена награда человека:\n Id={0}, PeopleID={1}", Id, peopleID));
+                peopleModel = GetPeopleModelForEdit(id);
+                if (peopleModel == null)
+                    return HttpNotFound("Не найден человек с таким идентификатором");
             }
             catch
             {
-                PeopleModel peopleModel;
+                return HttpNotFound("Ошибка на сервере");
+            }
+
+            return View(peopleModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult DeletePeopleAward(int id, int peopleID)
+        {
+            if (id <= 0 || peopleID <= 0)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "Переданы некорректные параметры");
+            }
+
+            PeopleModel peopleModel;
+            try
+            {
+                peopleModel = GetPeopleModelForEdit(peopleID);
+                if (peopleModel == null)
+                    return HttpNotFound("Не найден человек с таким идентификатором");
+
                 try
                 {
-                    peopleModel = repository.GetPeople(peopleID);
+                    repository.DeletePeopleAward(id);
+                    Logger.logger.Info(String.Format("Удалена награда человека:\n Id={0}, PeopleID={1}", id, peopleID));
+
+                    peopleModel = GetPeopleModelForEdit(peopleID);
                     if (peopleModel == null)
                         return HttpNotFound("Не найден человек с таким идентификатором");
-                    else
-                    {
-                        peopleModel.Error = "Запись не удалена! Ошибка на сервере";
-                        return View("EditPeopleAwards", peopleModel);
-                    }
                 }
                 catch
                 {
+                    peopleModel.Error = "Запись не удалена! Ошибка на сервере";
                 }
+
+                return RedirectToAction("EditPeopleAwards", new { id = peopleID });
+            }
+            catch
+            {
                 return HttpNotFound("Ошибка на сервере");
             }
-            return RedirectToAction("EditPeopleAwards");
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult CreatePeopleAward(int peopleID, int SelectedAwardID)
+        {
+            if (peopleID <= 0 || SelectedAwardID <= 0)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "Переданы некорректные параметры");
+            }
+
+            PeopleModel peopleModel;
+            try
+            {
+                peopleModel = GetPeopleModelForEdit(peopleID);
+                if (peopleModel == null)
+                    return HttpNotFound("Не найден человек с таким идентификатором");
+
+                try
+                {
+                    repository.SavePeopleAward(peopleID, SelectedAwardID);
+                    Logger.logger.Info(String.Format("Добавлена награда человека:\n PeopleID={0}, AwardID={1}", peopleID, SelectedAwardID));
+
+                    peopleModel = GetPeopleModelForEdit(peopleID);
+                    if (peopleModel == null)
+                        return HttpNotFound("Не найден человек с таким идентификатором");
+                }
+                catch
+                {
+                    peopleModel.Error = "Запись не добавлена! Ошибка на сервере";
+                }
+
+                return RedirectToAction("EditPeopleAwards", new { id = peopleID });
+            }
+            catch
+            {
+                return HttpNotFound("Ошибка на сервере");
+            }
+        }
+
 
         protected override void Dispose(bool disposing)
         {

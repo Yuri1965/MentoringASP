@@ -33,7 +33,6 @@ namespace MVCPeopleAwards.Models
         [DataType(DataType.Date)]
         [DisplayFormat(DataFormatString = "{0:dd.mm.yy}", ApplyFormatInEditMode = true)]
         [Display(Name = "*Дата рождения")]
-        //[Remote("CheckBirthDate", "PeoplesAward", HttpMethod = "POST", ErrorMessage = "Возраст может быть от 5 до 120 лет! Введите корректную дату рождения")]
         [Column(TypeName = "date")]
         public DateTime BirthDate { get; set; }
 
@@ -55,6 +54,11 @@ namespace MVCPeopleAwards.Models
         }
 
         public List<PeopleAwardsModel> PeopleAwards { get; set; }
+
+        [Display(Name = "Выберите награду")]
+        public int SelectedAwardID { get; set; }
+
+        public IEnumerable<SelectListItem> Awards { get; set; }
 
         private string error = "";
         public string Error { get { return error; } set { error = value; } }

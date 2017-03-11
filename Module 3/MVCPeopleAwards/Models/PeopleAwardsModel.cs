@@ -18,7 +18,7 @@ namespace MVCPeopleAwards.Models
         public int AwardID { get; set; }
 
         [Required]
-        public virtual AwardModel Award { get; set; }
+        public AwardModel Award { get; set; }
 
         private string error = "";
         public string Error { get { return error; } set { error = value; } }

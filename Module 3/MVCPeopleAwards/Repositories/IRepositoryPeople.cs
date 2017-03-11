@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.Mvc;
 
 namespace MVCPeopleAwards.Repositories
 {
@@ -16,8 +17,9 @@ namespace MVCPeopleAwards.Repositories
         void DeletePeople(int id);
         void PeopleMapToPeopleModel(People source, ref PeopleModel dest);
         void PeopleModelMapToPeoples(PeopleModel source, ref People dest, bool isPeoplePart = false);
-        List<AwardModel> GetAwards();
-        void SavePeopleAward(int peopleID, int awardID, Operation operation);
+        IEnumerable<SelectListItem> GetAwards();
+        //List<AwardModel> GetAwards();
+        void SavePeopleAward(int peopleID, int awardID);
         void DeletePeopleAward(int id);
 
     }
