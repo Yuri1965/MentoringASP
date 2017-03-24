@@ -17,10 +17,17 @@
 
 <p>
     @Html.ActionLink("Добавить запись", "CreatePeople")
+    @Html.ActionLink("Скачать список награжденных", "GetPeopleListReport")
 </p>
+
+@*<p>
+</p>*@
 
 <table class="table">
     <tr>
+        <th>
+            @Html.DisplayName("Фото")
+        </th>
         <th>
             @Html.DisplayName("Фамилия")
         </th>
@@ -39,6 +46,16 @@
     @foreach (var item in Model.ListPeople)
     {
         <tr>
+            <td>
+                @if (item.PhotoPeople == null)
+                {
+                    <div class="form-control-static">Нет фото</div>
+                }
+                else
+                {
+                    <img width="75" height="75" src="@Url.Action("GetPhotoPeople", "PeoplesAward", new { item.Id })" />
+                }
+            </td>
             <td>
                 @Html.DisplayFor(modelItem => item.LastName)
             </td>

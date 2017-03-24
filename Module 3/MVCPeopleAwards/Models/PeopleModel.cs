@@ -60,6 +60,11 @@ namespace MVCPeopleAwards.Models
 
         public IEnumerable<SelectListItem> Awards { get; set; }
 
+        [Display(Name = "Фото")]
+        public byte[] PhotoPeople { get; set; }
+
+        public string PhotoMIMEType { get; set; }
+
         private string error = "";
         public string Error { get { return error; } set { error = value; } }
 

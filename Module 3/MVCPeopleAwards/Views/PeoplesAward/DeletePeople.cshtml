@@ -20,6 +20,20 @@
 
     <dl class="dl-horizontal">
         <dt>
+            @Html.DisplayNameFor(model => model.PhotoPeople)
+        </dt>
+        <dd>
+            @if (Model.PhotoPeople == null)
+            {
+                <div class="form-control-static">Нет фото</div>
+            }
+            else
+            {
+                <img width="75" height="75" src="@Url.Action("GetPhotoPeople", "PeoplesAward", new { Model.Id })" />
+            }
+        </dd>
+
+        <dt>
             @Html.DisplayNameFor(model => model.LastName)
         </dt>
 

@@ -54,6 +54,11 @@ namespace MVCPeopleAwards.Repositories
             dest.Id = source.Id;
             dest.NameAward = source.NameAward;
             dest.DescriptionAward = source.DescriptionAward;
+            dest.PhotoAward = source.PhotoAward;
+            if (source.PhotoMIMEType == null || source.PhotoAward == null)
+                dest.PhotoMIMEType = "";
+            else
+                dest.PhotoMIMEType = source.PhotoMIMEType;
         }
 
         // маппит Model в Entity
@@ -62,6 +67,11 @@ namespace MVCPeopleAwards.Repositories
             dest.Id = source.Id;
             dest.NameAward = source.NameAward;
             dest.DescriptionAward = source.DescriptionAward;
+            dest.PhotoAward = source.PhotoAward;
+            if (source.PhotoMIMEType == null || source.PhotoAward == null)
+                dest.PhotoMIMEType = "";
+            else
+                dest.PhotoMIMEType = source.PhotoMIMEType;
         }
 
         //получает запись

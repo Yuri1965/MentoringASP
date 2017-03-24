@@ -27,6 +27,11 @@ namespace MVCPeopleAwards.Models
         [Display(Name = "*Описание награды")]
         public string DescriptionAward { get; set; }
 
+        [Display(Name = "Фото награды")]
+        public byte[] PhotoAward { get; set; }
+
+        public string PhotoMIMEType { get; set; }
+
         private string error = "";
         public string Error { get { return error; } set { error = value; } }
     }

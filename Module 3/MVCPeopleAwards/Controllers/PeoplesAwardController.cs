@@ -3,6 +3,7 @@ using MVCPeopleAwards.Models;
 using MVCPeopleAwards.Repositories;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Web;
@@ -95,9 +96,59 @@ namespace MVCPeopleAwards.Controllers
             return View(peopleModel);
         }
 
+        // получает список награжденных в виде файла txt (отчет)
+        public ActionResult GetPeopleListReport()
+        {
+            PeopleModelView peopleModel = new PeopleModelView();
+
+            try
+            {
+                peopleModel.ListPeople = repository.GetListPeople().ToList();
+
+                var result = peopleModel.GeListPeopleToMemory();
+                if (result != null)
+                {
+                    var memoryStream = new MemoryStream(result);
+                    return new FileStreamResult(memoryStream, "text/plain") { FileDownloadName = "ReportPeople.txt" };
+                }
+                else
+                    peopleModel.Error = "Не удалось сформировать список награжденных из БД";
+            }
+            catch
+            {
+                // создаем пустой список в случае неудачи и заполняем текст ошибки
+                peopleModel.ListPeople = new List<PeopleModel>();
+                peopleModel.Error = "Не удалось получить список награжденных из БД";
+            }
+
+            return View(peopleModel);
+        }
+
+        public ActionResult GetPhotoPeople(int id)
+        {
+            if (id <= 0)
+            {
+                return null;
+            }
+
+            PeopleModel peopleModel;
+            try
+            {
+                peopleModel = repository.GetPeople(id);
+                if (peopleModel == null)
+                    return null;
+
+                return File(peopleModel.PhotoPeople, peopleModel.PhotoMIMEType);
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult SaveCreatePeople([Bind(Include = "LastName,FirstName,BirthDate")] PeopleModel peopleModel)
+        public ActionResult SaveCreatePeople([Bind(Include = "LastName,FirstName,BirthDate")] PeopleModel peopleModel, HttpPostedFileBase photo = null)
         {
             if (ModelState.IsValid)
             {
@@ -108,6 +159,14 @@ namespace MVCPeopleAwards.Controllers
                     {
                         peopleModel.Error = "Возраст может быть от 5 до 120 лет! Введите корректную дату рождения";
                         return View("CreatePeople", peopleModel);
+                    }
+
+                    peopleModel.PhotoMIMEType = "";
+                    if (photo != null)
+                    {
+                        peopleModel.PhotoMIMEType = photo.ContentType;
+                        peopleModel.PhotoPeople = new byte[photo.ContentLength];
+                        photo.InputStream.Read(peopleModel.PhotoPeople, 0, photo.ContentLength);
                     }
 
                     repository.SavePeople(peopleModel, Operation.Add);
@@ -124,7 +183,7 @@ namespace MVCPeopleAwards.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult SaveEditPeople([Bind(Include = "Id,LastName,FirstName,BirthDate")] PeopleModel peopleModel)
+        public ActionResult SaveEditPeople([Bind(Include = "Id,LastName,FirstName,BirthDate,PhotoPeople,PhotoMIMEType")] PeopleModel peopleModel, HttpPostedFileBase photo = null)
         {
             if (ModelState.IsValid)
             {
@@ -135,6 +194,13 @@ namespace MVCPeopleAwards.Controllers
                     {
                         peopleModel.Error = "Возраст может быть от 5 до 120 лет! Введите корректную дату рождения";
                         return View("EditPeople", peopleModel);
+                    }
+
+                    if (photo != null)
+                    {
+                        peopleModel.PhotoMIMEType = photo.ContentType;
+                        peopleModel.PhotoPeople = new byte[photo.ContentLength];
+                        photo.InputStream.Read(peopleModel.PhotoPeople, 0, photo.ContentLength);
                     }
 
                     repository.SavePeople(peopleModel, Operation.Update);
@@ -286,7 +352,6 @@ namespace MVCPeopleAwards.Controllers
                 return HttpNotFound("Ошибка на сервере");
             }
         }
-
 
         protected override void Dispose(bool disposing)
         {

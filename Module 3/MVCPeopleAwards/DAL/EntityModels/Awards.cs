@@ -20,6 +20,9 @@ namespace MVCPeopleAwards.Models
 
         public string DescriptionAward { get; set; }
 
+        public byte[] PhotoAward { get; set; }
+        public string PhotoMIMEType { get; set; }
+
         public virtual ICollection<PeopleAwards> PeopleAwards { get; set; }
     }
 }

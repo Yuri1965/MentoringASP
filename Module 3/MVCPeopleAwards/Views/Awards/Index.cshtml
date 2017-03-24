@@ -22,6 +22,9 @@
 <table class="table">
     <tr>
         <th>
+            @Html.DisplayName("Фото награды")
+        </th>
+        <th>
             @Html.DisplayName("Наименование награды")
         </th>
         <th>
@@ -33,6 +36,17 @@
     @foreach (var item in Model.ListAwards)
     {
         <tr>
+            <td>
+                @if (item.PhotoAward == null)
+                {
+                    <div class="form-control-static">Нет фото</div>
+                }
+                else
+                {
+                    <img width="75" height="75" src="@Url.Action("GetPhotoAward", "Awards", new { item.Id })" />
+                }
+            </td>
+
             <td>
                 @Html.DisplayFor(modelItem => item.NameAward)
             </td>

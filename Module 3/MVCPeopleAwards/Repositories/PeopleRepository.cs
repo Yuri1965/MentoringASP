@@ -59,6 +59,11 @@ namespace MVCPeopleAwards.Repositories
                 dest.FirstName = source.FirstName;
                 dest.LastName = source.LastName;
                 dest.BirthDate = source.BirthDate;
+                dest.PhotoPeople = source.PhotoPeople;
+                if (source.PhotoMIMEType == null || source.PhotoPeople == null)
+                    dest.PhotoMIMEType = "";
+                else
+                    dest.PhotoMIMEType = source.PhotoMIMEType;
 
                 List<PeopleAwardsModel> lst = new List<PeopleAwardsModel>();
 
@@ -77,6 +82,9 @@ namespace MVCPeopleAwards.Repositories
                     award.Id = item.Award.Id;
                     award.NameAward = item.Award.NameAward;
                     award.DescriptionAward = item.Award.DescriptionAward;
+                    award.PhotoAward = item.Award.PhotoAward;
+                    award.PhotoMIMEType = item.Award.PhotoMIMEType;
+
                     peopleAwardModel.Award = award;
 
                     lst.Add(peopleAwardModel);
@@ -99,6 +107,11 @@ namespace MVCPeopleAwards.Repositories
                 dest.FirstName = source.FirstName;
                 dest.LastName = source.LastName;
                 dest.BirthDate = source.BirthDate;
+                dest.PhotoPeople = source.PhotoPeople;
+                if (source.PhotoMIMEType == null || source.PhotoPeople == null)
+                    dest.PhotoMIMEType = "";
+                else
+                    dest.PhotoMIMEType = source.PhotoMIMEType;
 
                 List<PeopleAwards> lst = new List<PeopleAwards>();
 
@@ -123,6 +136,9 @@ namespace MVCPeopleAwards.Repositories
                     award.Id = item.Award.Id;
                     award.NameAward = item.Award.NameAward;
                     award.DescriptionAward = item.Award.DescriptionAward;
+                    award.PhotoAward = item.Award.PhotoAward;
+                    award.PhotoMIMEType = item.Award.PhotoMIMEType;
+
                     peopleAward.Award = award;
 
                     lst.Add(peopleAward);
@@ -224,7 +240,7 @@ namespace MVCPeopleAwards.Repositories
                 var lstAwards = people.PeopleAwards.ToList();
                 foreach (var item in lstAwards)
                 {
-                    dbContext.ListAwards.Remove(item.Award);
+                    dbContext.ListPeopleAwards.Remove(item);
                     dbContext.SaveChanges();
                 }
 

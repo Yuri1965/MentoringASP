@@ -19,6 +19,20 @@
 
     <dl class="dl-horizontal">
         <dt>
+            @Html.DisplayNameFor(model => model.PhotoPeople)
+        </dt>
+        <dd>
+            @if (Model.PhotoPeople == null)
+            {
+                <div class="form-control-static">Нет фото</div>
+            }
+            else
+            {
+                <img width="75" height="75" src="@Url.Action("GetPhotoPeople", "PeoplesAward", new { Model.Id })" />
+            }
+        </dd>
+
+        <dt>
             @Html.DisplayNameFor(model => model.LastName)
         </dt>
 
@@ -75,12 +89,13 @@
             <input type="submit" value="Добавить награду" class="btn btn-default" />
         </div>
     }
-
-    @*    @Html.ActionLink("Добавить награду", "CreatePeopleAward")*@
 </p>
 
 <table class="table">
     <tr>
+        <th>
+            @Html.DisplayName("Фото награды")
+        </th>
         <th>
             @Html.DisplayName("Наименование награды")
         </th>
@@ -93,6 +108,16 @@
     @foreach (var item in Model.PeopleAwards)
     {
         <tr>
+            <td>
+                @if (item.Award.PhotoAward == null)
+                {
+                    <div class="form-control-static">Нет фото</div>
+                }
+                else
+                {
+                    <img width="75" height="75" src="@Url.Action("GetPhotoAward", "Awards", new { item.Award.Id })" />
+                }
+            </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Award.NameAward)
             </td>

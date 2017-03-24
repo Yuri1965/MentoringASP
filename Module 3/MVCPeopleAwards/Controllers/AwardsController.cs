@@ -5,6 +5,7 @@ using MVCPeopleAwards.Models;
 using MVCPeopleAwards.Repositories;
 using System;
 using MVCPeopleAwards.Enums;
+using System.Web;
 
 namespace MVCPeopleAwards.Controllers
 {
@@ -63,7 +64,9 @@ namespace MVCPeopleAwards.Controllers
             {
                 Id = 0,
                 NameAward = "",
-                DescriptionAward = ""
+                DescriptionAward = "",
+                PhotoAward = null,
+                PhotoMIMEType = ""
             };
             return View(awardModel);
         }
@@ -90,14 +93,56 @@ namespace MVCPeopleAwards.Controllers
             return View(awardModel);
         }
 
+        public ActionResult GetPhotoAward(int id)
+        {
+            if (id <= 0)
+            {
+                return null;
+            }
+
+            AwardModel awardModel;
+            try
+            {
+                awardModel = repository.GetAward(id);
+                if (awardModel == null)
+                    return null;
+
+                return File(awardModel.PhotoAward, awardModel.PhotoMIMEType);
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public ActionResult GetPhoto(HttpPostedFileBase photo)
+        {
+            return File(photo.InputStream, photo.ContentType);
+            //try
+            //{
+            //}
+            //catch
+            //{
+            //    return null;
+            //}
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult SaveCreateAward([Bind(Include = "NameAward,DescriptionAward")] AwardModel awardModel)
+        public ActionResult SaveCreateAward([Bind(Include = "NameAward,DescriptionAward,PhotoAward,PhotoMIMEType")] AwardModel awardModel, HttpPostedFileBase photo = null)
         {
             if (ModelState.IsValid)
             {
                 try
                 {
+                    awardModel.PhotoMIMEType = "";
+                    if (photo != null)
+                    {
+                        awardModel.PhotoMIMEType = photo.ContentType;
+                        awardModel.PhotoAward = new byte[photo.ContentLength];
+                        photo.InputStream.Read(awardModel.PhotoAward, 0, photo.ContentLength);
+                    }
+
                     repository.SaveAward(awardModel, Operation.Add);
                     Logger.logger.Info(String.Format("Добавлена награда:\n Id={0}, NameAward = {1}, DescriptionAward = {2}",
                             awardModel.Id, awardModel.NameAward, awardModel.DescriptionAward));
@@ -112,12 +157,19 @@ namespace MVCPeopleAwards.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult SaveEditAward([Bind(Include = "Id,NameAward,DescriptionAward")] AwardModel awardModel)
+        public ActionResult SaveEditAward([Bind(Include = "Id,NameAward,DescriptionAward,PhotoAward,PhotoMIMEType")] AwardModel awardModel, HttpPostedFileBase photo = null)
         {
             if (ModelState.IsValid)
             {
                 try
                 {
+                    if (photo != null)
+                    {
+                        awardModel.PhotoMIMEType = photo.ContentType;
+                        awardModel.PhotoAward = new byte[photo.ContentLength];
+                        photo.InputStream.Read(awardModel.PhotoAward, 0, photo.ContentLength);
+                    }
+
                     repository.SaveAward(awardModel, Operation.Update);
                     Logger.logger.Info(String.Format("Изменена награда:\n Id={0}, NameAward = {1}, DescriptionAward = {2}",
                             awardModel.Id, awardModel.NameAward, awardModel.DescriptionAward));

@@ -7,10 +7,10 @@
 
 <h2>Изменить запись</h2>
 
-@using (Html.BeginForm("SaveEditAward", "Awards", FormMethod.Post))
+@using (Html.BeginForm("SaveEditAward", "Awards", FormMethod.Post, new { enctype = "multipart/form-data" }))
 {
     @Html.AntiForgeryToken()
-    
+
     <div class="form-horizontal">
         <h4>Награда</h4>
         <hr />
@@ -25,12 +25,14 @@
 
         @Html.ValidationSummary(true, "", new { @class = "text-danger" })
         @Html.HiddenFor(model => model.Id)
+        @Html.HiddenFor(model => model.PhotoMIMEType)
+        @Html.HiddenFor(model => model.PhotoAward)
 
         <div class="form-group">
             @Html.LabelFor(model => model.NameAward, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
                 @Html.EditorFor(model => model.NameAward, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.NameAward, "",  new { @class = "text-danger" })
+                @Html.ValidationMessageFor(model => model.NameAward, "", new { @class = "text-danger" })
             </div>
         </div>
 
@@ -43,13 +45,30 @@
         </div>
 
         <div class="form-group">
+            @Html.LabelFor(model => model.PhotoAward, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="editor-field">
+                @if (Model.PhotoAward == null)
+                {
+                    <div class="form-control-static">Нет фото</div>
+                }
+                else
+                {
+                    <img width="75" height="75" src="@Url.Action("GetPhotoAward", "Awards", new { Model.Id })" />
+                }
+                <div>
+                    Выберите файл для загрузки: <input type="file" name="photo" accept="image/jpg, image/png, image/jpeg" size="40" />
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
             <div class="col-md-offset-2 col-md-10">
                 @Html.ActionLink("Назад к списку", "Index") |
                 <input type="submit" value="Сохранить" class="btn btn-default" />
             </div>
         </div>
     </div>
-}
+            }
 
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")
