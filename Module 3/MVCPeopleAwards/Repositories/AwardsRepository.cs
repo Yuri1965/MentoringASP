@@ -56,9 +56,15 @@ namespace MVCPeopleAwards.Repositories
             dest.DescriptionAward = source.DescriptionAward;
             dest.PhotoAward = source.PhotoAward;
             if (source.PhotoMIMEType == null || source.PhotoAward == null)
+            {
                 dest.PhotoMIMEType = "";
+                dest.ImageIsEmpty = true;
+            }
             else
+            {
                 dest.PhotoMIMEType = source.PhotoMIMEType;
+                dest.ImageIsEmpty = false;
+            }
         }
 
         // маппит Model в Entity

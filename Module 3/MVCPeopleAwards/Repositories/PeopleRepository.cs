@@ -61,9 +61,15 @@ namespace MVCPeopleAwards.Repositories
                 dest.BirthDate = source.BirthDate;
                 dest.PhotoPeople = source.PhotoPeople;
                 if (source.PhotoMIMEType == null || source.PhotoPeople == null)
+                {
                     dest.PhotoMIMEType = "";
+                    dest.ImageIsEmpty = true;
+                }
                 else
+                {
                     dest.PhotoMIMEType = source.PhotoMIMEType;
+                    dest.ImageIsEmpty = false;
+                }
 
                 List<PeopleAwardsModel> lst = new List<PeopleAwardsModel>();
 

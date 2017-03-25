@@ -23,18 +23,24 @@ namespace MVCPeopleAwards
                         "~/Scripts/modernizr-*"));
 
             bundles.Add(new ScriptBundle("~/bundles/bootstrap").Include(
-                      "~/Scripts/bootstrap.js",
-                      "~/Scripts/respond.js"));
-
-            //bundles.Add(new ScriptBundle("~/bundles/datetime").Include(
-            //    "~/Scripts/moment*",
-            //    "~/Scripts/bootstrap-datetimepicker*"));
+                      //"~/Scripts/plugins/canvas-to-blob.min.js",
+                      //"~/Scripts/plugins/sortable.min.js",
+                      //"~/Scripts/plugins/purify.min.js",
+                      "~/Scripts/moment-with-locales.min.js",
+                      "~/Scripts/fileinput.min.js",
+                      "~/Scripts/locales/ru.js",
+                      "~/Scripts/bootstrap.min.js",
+                      "~/Scripts/bootstrap-datetimepicker.min.js",
+                      "~/Scripts/respond.js"
+                      ));
 
             bundles.Add(new StyleBundle("~/Content/css").Include(
                       "~/Content/bootstrap*",
-                      "~/Content/site.css",
-                      "~/Content/themes/base/*css")
-                      );
+                      "~/Content/themes/base/*css",
+                      "~/Content/bootstrap-fileinput/css/fileinput.min.css",
+                      "~/Content/site.css"
+                     ));
+
         }
     }
 }

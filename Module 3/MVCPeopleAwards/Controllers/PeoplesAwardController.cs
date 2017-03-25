@@ -47,6 +47,9 @@ namespace MVCPeopleAwards.Controllers
                 FirstName = "",
                 LastName = "",
                 BirthDate = DateTime.Now.Date.AddYears(-16),
+                ImageIsEmpty = true,
+                PhotoMIMEType = "",
+                PhotoPeople = null,
                 PeopleAwards = new List<PeopleAwardsModel>()
             };
             return View(peopleModel);
@@ -183,7 +186,7 @@ namespace MVCPeopleAwards.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult SaveEditPeople([Bind(Include = "Id,LastName,FirstName,BirthDate,PhotoPeople,PhotoMIMEType")] PeopleModel peopleModel, HttpPostedFileBase photo = null)
+        public ActionResult SaveEditPeople([Bind(Include = "Id,LastName,FirstName,BirthDate,PhotoPeople,PhotoMIMEType,ImageIsEmpty")] PeopleModel peopleModel, HttpPostedFileBase photo = null)
         {
             if (ModelState.IsValid)
             {
@@ -201,6 +204,13 @@ namespace MVCPeopleAwards.Controllers
                         peopleModel.PhotoMIMEType = photo.ContentType;
                         peopleModel.PhotoPeople = new byte[photo.ContentLength];
                         photo.InputStream.Read(peopleModel.PhotoPeople, 0, photo.ContentLength);
+                    }
+
+                    // если фото было удалено пользователем
+                    if (peopleModel.ImageIsEmpty)
+                    {
+                        peopleModel.PhotoMIMEType = "";
+                        peopleModel.PhotoPeople = null;
                     }
 
                     repository.SavePeople(peopleModel, Operation.Update);

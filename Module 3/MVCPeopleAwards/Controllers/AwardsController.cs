@@ -66,6 +66,7 @@ namespace MVCPeopleAwards.Controllers
                 NameAward = "",
                 DescriptionAward = "",
                 PhotoAward = null,
+                ImageIsEmpty = true,
                 PhotoMIMEType = ""
             };
             return View(awardModel);
@@ -157,7 +158,7 @@ namespace MVCPeopleAwards.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult SaveEditAward([Bind(Include = "Id,NameAward,DescriptionAward,PhotoAward,PhotoMIMEType")] AwardModel awardModel, HttpPostedFileBase photo = null)
+        public ActionResult SaveEditAward([Bind(Include = "Id,NameAward,DescriptionAward,PhotoAward,PhotoMIMEType,ImageIsEmpty")] AwardModel awardModel, HttpPostedFileBase photo = null)
         {
             if (ModelState.IsValid)
             {
@@ -168,6 +169,13 @@ namespace MVCPeopleAwards.Controllers
                         awardModel.PhotoMIMEType = photo.ContentType;
                         awardModel.PhotoAward = new byte[photo.ContentLength];
                         photo.InputStream.Read(awardModel.PhotoAward, 0, photo.ContentLength);
+                    }
+
+                    // если фото было удалено пользователем
+                    if (awardModel.ImageIsEmpty)
+                    {
+                        awardModel.PhotoMIMEType = "";
+                        awardModel.PhotoAward = null;
                     }
 
                     repository.SaveAward(awardModel, Operation.Update);

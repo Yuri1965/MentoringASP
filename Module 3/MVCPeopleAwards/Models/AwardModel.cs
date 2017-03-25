@@ -32,6 +32,8 @@ namespace MVCPeopleAwards.Models
 
         public string PhotoMIMEType { get; set; }
 
+        public bool ImageIsEmpty { get; set; }
+
         private string error = "";
         public string Error { get { return error; } set { error = value; } }
     }

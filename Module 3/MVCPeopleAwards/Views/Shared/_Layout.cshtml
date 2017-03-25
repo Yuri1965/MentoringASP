@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@ViewBag.Title</title>
     @Styles.Render("~/Content/css")
-    @Scripts.Render("~/bundles/modernizr")
 </head>
 <body>
     <div class="navbar navbar-inverse navbar-fixed-top">
@@ -33,12 +32,22 @@
     </div>
 
     @Scripts.Render("~/bundles/jquery")
-    @Scripts.Render("~/bundles/bootstrap")
-    @Styles.Render("~/Content/themes/base/css")
     @Scripts.Render("~/bundles/jqueryui")
-
+    @Scripts.Render("~/bundles/bootstrap")
+    @Scripts.Render("~/bundles/modernizr")
 
     @RenderSection("scripts", required: false)
+    
+    <script type="text/javascript">
+        $('#photo').on('filecleared', function(event) {
+            $('#ImageIsEmpty').val('true');
+        });
+
+        $('#photo').on('fileloaded', function (event) {
+            $('#ImageIsEmpty').val('false');
+        });
+    </script>
+    
     <!--если браузер не создает специального поля для date, то добавляем datepicker-->
     <script type="text/javascript">
     $(function () {

@@ -41,18 +41,14 @@
 
         <div class="form-group">
             @Html.LabelFor(model => model.PhotoAward, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="editor-field">
-                @if (Model.PhotoAward == null)
-                {
-                    <div class="form-control-static">Нет фото</div>
-                }
-                else
-                {
-                    <img width="75" height="75" src="@Url.Action("GetPhotoAward", "Awards", new { Model.Id })" />
-                }
-                <div>
-                    Выберите файл для загрузки: <input type="file" name="photo" accept="image/jpg, image/png, image/jpeg" size="40" />
-                </div>
+            <div class="col-md-10">
+                <input id="photo" name="photo" type="file" class="file"
+                       accept="image/jpg, image/png, image/jpeg"
+                       data-language="ru"
+                       data-show-upload="false"
+                       data-max-file-size="2048"
+                       data-max-file-count="1"
+                       data-preview-file-type="text" />
             </div>
         </div>
 
