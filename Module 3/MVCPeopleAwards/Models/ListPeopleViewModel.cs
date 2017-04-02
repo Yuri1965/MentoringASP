@@ -3,12 +3,12 @@ using System.IO;
 
 namespace MVCPeopleAwards.Models
 {
-    public class PeopleModelView
+    public class ListPeopleViewModel
     {
         private string error = "";
         public string Error { get { return error; } set { error = value; } }
 
-        public List<PeopleModel> ListPeople { get; set; }
+        public List<PeopleViewModel> ListPeople { get; set; }
 
         // для формирования отчета по списку награжденных в виде текстового файла
         public byte[] GeListPeopleToMemory()

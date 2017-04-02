@@ -1,6 +1,7 @@
 ﻿using MVCPeopleAwards.Enums;
 using MVCPeopleAwards.Models;
 using MVCPeopleAwards.Repositories;
+using MvcSiteMapProvider;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -22,7 +23,7 @@ namespace MVCPeopleAwards.Controllers
 
         public ActionResult Index()
         {
-            PeopleModelView peopleModel = new PeopleModelView();
+            ListPeopleViewModel peopleModel = new ListPeopleViewModel();
 
             try
             {
@@ -31,49 +32,51 @@ namespace MVCPeopleAwards.Controllers
             catch
             {
                 // создаем пустой список в случае неудачи и заполняем текст ошибки
-                peopleModel.ListPeople = new List<PeopleModel>();
+                peopleModel.ListPeople = new List<PeopleViewModel>();
                 peopleModel.Error = "Не удалось получить список награжденных из БД";
             }
 
+            ViewBag.Title = "Список награжденных";
             return View(peopleModel);
         }
 
         #region People part
-        public ActionResult CreatePeople()
+        public ActionResult CreateEditPeople(int id)
         {
-            PeopleModel peopleModel = new PeopleModel()
-            {
-                Id = 0,
-                FirstName = "",
-                LastName = "",
-                BirthDate = DateTime.Now.Date.AddYears(-16),
-                ImageIsEmpty = true,
-                PhotoMIMEType = "",
-                PhotoPeople = null,
-                PeopleAwards = new List<PeopleAwardsModel>()
-            };
-            return View(peopleModel);
-        }
+            PeopleViewModel peopleModel;
 
-        public ActionResult EditPeople(int id)
-        {
+            // если переход в режим Новая запись
             if (id <= 0)
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "Переданы некорректные параметры");
+                peopleModel = new PeopleViewModel()
+                {
+                    Id = 0,
+                    FirstName = "",
+                    LastName = "",
+                    BirthDate = DateTime.Now.Date.AddYears(-16),
+                    ImageIsEmpty = true,
+                    PhotoMIMEType = "",
+                    PhotoPeople = null,
+                    PeopleAwards = new List<ListPeopleAwardsViewModel>()
+                };
+                ViewBag.Title = "Добавление записи";
+            }
+            else
+            {
+                try
+                {
+                    peopleModel = repository.GetPeople(id);
+                    if (peopleModel == null)
+                        return HttpNotFound("Не найден человек с таким идентификатором");
+                }
+                catch
+                {
+                    return HttpNotFound("Ошибка на сервере");
+                }
+                ViewBag.Title = "Изменение записи";
             }
 
-            PeopleModel peopleModel;
-            try
-            {
-                peopleModel = repository.GetPeople(id);
-                if (peopleModel == null)
-                    return HttpNotFound("Не найден человек с таким идентификатором");
-            }
-            catch
-            {
-                return HttpNotFound("Ошибка на сервере");
-            }
-
+            SiteMaps.Current.CurrentNode.Title = ViewBag.Title;
             return View(peopleModel);
         }
 
@@ -84,7 +87,7 @@ namespace MVCPeopleAwards.Controllers
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "Переданы некорректные параметры");
             }
 
-            PeopleModel peopleModel;
+            PeopleViewModel peopleModel;
             try
             {
                 peopleModel = repository.GetPeople(id);
@@ -96,13 +99,14 @@ namespace MVCPeopleAwards.Controllers
                 return HttpNotFound("Ошибка на сервере");
             }
 
+            ViewBag.Title = "Удаление записи";
             return View(peopleModel);
         }
 
         // получает список награжденных в виде файла txt (отчет)
         public ActionResult GetPeopleListReport()
         {
-            PeopleModelView peopleModel = new PeopleModelView();
+            ListPeopleViewModel peopleModel = new ListPeopleViewModel();
 
             try
             {
@@ -120,7 +124,7 @@ namespace MVCPeopleAwards.Controllers
             catch
             {
                 // создаем пустой список в случае неудачи и заполняем текст ошибки
-                peopleModel.ListPeople = new List<PeopleModel>();
+                peopleModel.ListPeople = new List<PeopleViewModel>();
                 peopleModel.Error = "Не удалось получить список награжденных из БД";
             }
 
@@ -134,7 +138,7 @@ namespace MVCPeopleAwards.Controllers
                 return null;
             }
 
-            PeopleModel peopleModel;
+            PeopleViewModel peopleModel;
             try
             {
                 peopleModel = repository.GetPeople(id);
@@ -151,8 +155,10 @@ namespace MVCPeopleAwards.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult SaveCreatePeople([Bind(Include = "LastName,FirstName,BirthDate")] PeopleModel peopleModel, HttpPostedFileBase photo = null)
+        public ActionResult SavePeople([Bind(Include = "Id,LastName,FirstName,BirthDate,PhotoPeople,PhotoMIMEType,ImageIsEmpty")] PeopleViewModel peopleModel, HttpPostedFileBase photo = null)
         {
+            bool saveCreateMode = (peopleModel.Id == 0) ? true : false;
+
             if (ModelState.IsValid)
             {
                 try
@@ -161,68 +167,50 @@ namespace MVCPeopleAwards.Controllers
                     if (!UtilHelper.CheckBirthDate(peopleModel.BirthDate))
                     {
                         peopleModel.Error = "Возраст может быть от 5 до 120 лет! Введите корректную дату рождения";
-                        return View("CreatePeople", peopleModel);
+                        return View("CreateEditPeople", peopleModel);
                     }
 
-                    peopleModel.PhotoMIMEType = "";
-                    if (photo != null)
-                    {
-                        peopleModel.PhotoMIMEType = photo.ContentType;
-                        peopleModel.PhotoPeople = new byte[photo.ContentLength];
-                        photo.InputStream.Read(peopleModel.PhotoPeople, 0, photo.ContentLength);
-                    }
-
-                    repository.SavePeople(peopleModel, Operation.Add);
-                    Logger.logger.Info(String.Format("Добавлен человек:\n Id={0}, LastName={1}, FirstName={2}, BirthDate={3}",
-                            peopleModel.Id, peopleModel.LastName, peopleModel.FirstName, peopleModel.BirthDateStr));
-                    return RedirectToAction("Index");
-                }
-                catch
-                {
-                }
-            }
-            return RedirectToAction("CreatePeople", peopleModel);
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult SaveEditPeople([Bind(Include = "Id,LastName,FirstName,BirthDate,PhotoPeople,PhotoMIMEType,ImageIsEmpty")] PeopleModel peopleModel, HttpPostedFileBase photo = null)
-        {
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    // проверка на ввод Даты рождения (возраст от 5 до 120 лет)
-                    if (!UtilHelper.CheckBirthDate(peopleModel.BirthDate))
-                    {
-                        peopleModel.Error = "Возраст может быть от 5 до 120 лет! Введите корректную дату рождения";
-                        return View("EditPeople", peopleModel);
-                    }
-
-                    if (photo != null)
-                    {
-                        peopleModel.PhotoMIMEType = photo.ContentType;
-                        peopleModel.PhotoPeople = new byte[photo.ContentLength];
-                        photo.InputStream.Read(peopleModel.PhotoPeople, 0, photo.ContentLength);
-                    }
-
-                    // если фото было удалено пользователем
-                    if (peopleModel.ImageIsEmpty)
-                    {
+                    // если добавляем запись
+                    if (saveCreateMode)
                         peopleModel.PhotoMIMEType = "";
-                        peopleModel.PhotoPeople = null;
+
+                    if (photo != null)
+                    {
+                        peopleModel.PhotoMIMEType = photo.ContentType;
+                        peopleModel.PhotoPeople = new byte[photo.ContentLength];
+                        photo.InputStream.Read(peopleModel.PhotoPeople, 0, photo.ContentLength);
                     }
 
-                    repository.SavePeople(peopleModel, Operation.Update);
-                    Logger.logger.Info(String.Format("Изменен человек:\n Id={0}, LastName={1}, FirstName={2}, BirthDate={3}",
-                            peopleModel.Id, peopleModel.LastName, peopleModel.FirstName, peopleModel.BirthDateStr));
+                    // если изменяем запись
+                    if (!saveCreateMode)
+                        // если фото было удалено пользователем
+                        if (peopleModel.ImageIsEmpty)
+                        {
+                            peopleModel.PhotoMIMEType = "";
+                            peopleModel.PhotoPeople = null;
+                        }
+
+                    // если добавляем запись
+                    if (saveCreateMode)
+                    {
+                        repository.SavePeople(peopleModel, Operation.Add);
+                        Logger.logger.Info(String.Format("Добавлен человек:\n LastName={0}, FirstName={1}, BirthDate={2}",
+                                peopleModel.LastName, peopleModel.FirstName, peopleModel.BirthDateStr));
+                    }
+                    else
+                    {
+                        repository.SavePeople(peopleModel, Operation.Update);
+                        Logger.logger.Info(String.Format("Изменен человек:\n Id={0}, LastName={1}, FirstName={2}, BirthDate={3}",
+                                peopleModel.Id, peopleModel.LastName, peopleModel.FirstName, peopleModel.BirthDateStr));
+                    }
                     return RedirectToAction("Index");
                 }
-                catch
+                catch (Exception e)
                 {
+                    Logger.LogException(e);
                 }
             }
-            return RedirectToAction("EditPeople", peopleModel);
+            return RedirectToAction("CreateEditPeople", peopleModel.Id);
         }
 
         [HttpPost]
@@ -248,9 +236,9 @@ namespace MVCPeopleAwards.Controllers
 
         #endregion
 
-        private PeopleModel GetPeopleModelForEdit(int id)
+        private PeopleViewModel GetPeopleModelForEdit(int id)
         {
-            PeopleModel peopleModel;
+            PeopleViewModel peopleModel;
             try
             {
                 peopleModel = repository.GetPeople(id);
@@ -272,7 +260,7 @@ namespace MVCPeopleAwards.Controllers
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "Переданы некорректные параметры");
             }
 
-            PeopleModel peopleModel;
+            PeopleViewModel peopleModel;
             try
             {
                 peopleModel = GetPeopleModelForEdit(id);
@@ -284,6 +272,7 @@ namespace MVCPeopleAwards.Controllers
                 return HttpNotFound("Ошибка на сервере");
             }
 
+            ViewBag.Title = "Список наград человека";
             return View(peopleModel);
         }
 
@@ -296,7 +285,7 @@ namespace MVCPeopleAwards.Controllers
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "Переданы некорректные параметры");
             }
 
-            PeopleModel peopleModel;
+            PeopleViewModel peopleModel;
             try
             {
                 peopleModel = GetPeopleModelForEdit(peopleID);
@@ -334,7 +323,7 @@ namespace MVCPeopleAwards.Controllers
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "Переданы некорректные параметры");
             }
 
-            PeopleModel peopleModel;
+            PeopleViewModel peopleModel;
             try
             {
                 peopleModel = GetPeopleModelForEdit(peopleID);
@@ -371,6 +360,5 @@ namespace MVCPeopleAwards.Controllers
             }
             base.Dispose(disposing);
         }
-
     }
 }

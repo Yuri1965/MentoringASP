@@ -23,18 +23,18 @@ namespace MVCPeopleAwards.Repositories
         }
 
         // получает Справочник наград
-        public IEnumerable<AwardModel> GetListAward()
+        public IEnumerable<AwardViewModel> GetListAward()
         {
-            List<AwardModel> lst = new List<AwardModel>();
+            List<AwardViewModel> lst = new List<AwardViewModel>();
 
             try
             {
                 List<Awards> entList = dbContext.ListAwards.ToList();
 
-                AwardModel awardModel;
+                AwardViewModel awardModel;
                 foreach (var item in entList)
                 {
-                    awardModel = new AwardModel();
+                    awardModel = new AwardViewModel();
                     AwardMapToAwardModel(item, ref awardModel);
 
                     lst.Add(awardModel);
@@ -49,7 +49,7 @@ namespace MVCPeopleAwards.Repositories
         }
 
         // маппит Entity в Model
-        public void AwardMapToAwardModel(Awards source, ref AwardModel dest)
+        public void AwardMapToAwardModel(Awards source, ref AwardViewModel dest)
         {
             dest.Id = source.Id;
             dest.NameAward = source.NameAward;
@@ -68,7 +68,7 @@ namespace MVCPeopleAwards.Repositories
         }
 
         // маппит Model в Entity
-        public void AwardModelMapToAward(AwardModel source, ref Awards dest)
+        public void AwardModelMapToAward(AwardViewModel source, ref Awards dest)
         {
             dest.Id = source.Id;
             dest.NameAward = source.NameAward;
@@ -81,9 +81,9 @@ namespace MVCPeopleAwards.Repositories
         }
 
         //получает запись
-        public AwardModel GetAward(int id)
+        public AwardViewModel GetAward(int id)
         {
-            AwardModel awardModel = new AwardModel();
+            AwardViewModel awardModel = new AwardViewModel();
             try
             {
                 AwardMapToAwardModel(dbContext.ListAwards.Find(id), ref awardModel);
@@ -97,7 +97,7 @@ namespace MVCPeopleAwards.Repositories
         }
 
         //сохраняет запись - награду
-        public void SaveAward(AwardModel awardModel, Operation operation)
+        public void SaveAward(AwardViewModel awardModel, Operation operation)
         {
             Awards saveAward = new Awards();
             AwardModelMapToAward(awardModel, ref saveAward);

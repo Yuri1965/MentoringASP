@@ -10,12 +10,12 @@ namespace MVCPeopleAwards.Repositories
 {
     public interface IRepositoryAward
     {
-        IEnumerable<AwardModel> GetListAward();
-        AwardModel GetAward(int id);
-        void SaveAward(AwardModel item, Operation operation);
+        IEnumerable<AwardViewModel> GetListAward();
+        AwardViewModel GetAward(int id);
+        void SaveAward(AwardViewModel item, Operation operation);
         void DeleteAward(int id);
-        void AwardMapToAwardModel(Awards source, ref AwardModel dest);
-        void AwardModelMapToAward(AwardModel source, ref Awards dest);
+        void AwardMapToAwardModel(Awards source, ref AwardViewModel dest);
+        void AwardModelMapToAward(AwardViewModel source, ref Awards dest);
         bool CheckNameAward(string nameAward, int id = 0);
     }
 }

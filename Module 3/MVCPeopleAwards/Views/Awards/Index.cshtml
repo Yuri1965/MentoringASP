@@ -1,22 +1,10 @@
-﻿@model MVCPeopleAwards.Models.AwardsModelView
+﻿@model MVCPeopleAwards.Models.ListAwardsViewModel
 
-@{
-    ViewBag.Title = "Справочник Награды";
-    Layout = "~/Views/Shared/_Layout.cshtml";
-}
-
-<h2>Справочник Награды</h2>
-
-@{ 
-    if (Model.Error != null && Model.Error.Trim() != "")
-    {
-        <h4>@Model.Error.ToString()</h4>
-        <hr />
-    }
-}
+@* частичное представление на общую верстку для справочника Награды*@
+@Html.Partial("~/Views/Awards/PartialView/LayoutAwards.cshtml")
 
 <p>
-    @Html.ActionLink("Добавить запись", "CreateAward")
+    @Html.ActionLink("Добавить запись", "CreateEditAward", new { Id = 0 })
 </p>
 
 <table class="table">
@@ -54,7 +42,7 @@
                 @Html.DisplayFor(modelItem => item.DescriptionAward)
             </td>
             <td>
-                @Html.ActionLink("Изменить", "EditAward", new { id = item.Id }) |
+                @Html.ActionLink("Изменить", "CreateEditAward", new { id = item.Id }) |
                 @Html.ActionLink("Удалить", "DeleteAward", new { id = item.Id })
             </td>
         </tr>

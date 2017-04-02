@@ -25,18 +25,18 @@ namespace MVCPeopleAwards.Repositories
         }
 
         // получает список награжденных
-        public IEnumerable<PeopleModel> GetListPeople()
+        public IEnumerable<PeopleViewModel> GetListPeople()
         {
             try
             {
-                List<PeopleModel> lst = new List<PeopleModel>();
+                List<PeopleViewModel> lst = new List<PeopleViewModel>();
 
                 List<People> entList = dbContext.ListPeoples.ToList();
 
-                PeopleModel peopleModel;
+                PeopleViewModel peopleModel;
                 foreach (var item in entList)
                 {
-                    peopleModel = new PeopleModel();
+                    peopleModel = new PeopleViewModel();
                     PeopleMapToPeopleModel(item, ref peopleModel);
 
                     lst.Add(peopleModel);
@@ -51,7 +51,7 @@ namespace MVCPeopleAwards.Repositories
         }
 
         // маппит из Entity в Model
-        public void PeopleMapToPeopleModel(People source, ref PeopleModel dest)
+        public void PeopleMapToPeopleModel(People source, ref PeopleViewModel dest)
         {
             try
             {
@@ -71,20 +71,20 @@ namespace MVCPeopleAwards.Repositories
                     dest.ImageIsEmpty = false;
                 }
 
-                List<PeopleAwardsModel> lst = new List<PeopleAwardsModel>();
+                List<ListPeopleAwardsViewModel> lst = new List<ListPeopleAwardsViewModel>();
 
                 List<PeopleAwards> entList = source.PeopleAwards.ToList();
 
-                PeopleAwardsModel peopleAwardModel;
+                ListPeopleAwardsViewModel peopleAwardModel;
                 foreach (var item in entList)
                 {
-                    peopleAwardModel = new PeopleAwardsModel();
+                    peopleAwardModel = new ListPeopleAwardsViewModel();
 
                     peopleAwardModel.Id = item.Id;
                     peopleAwardModel.PeopleID = item.PeopleID;
                     peopleAwardModel.AwardID = item.AwardID;
 
-                    AwardModel award = new AwardModel();
+                    AwardViewModel award = new AwardViewModel();
                     award.Id = item.Award.Id;
                     award.NameAward = item.Award.NameAward;
                     award.DescriptionAward = item.Award.DescriptionAward;
@@ -105,7 +105,7 @@ namespace MVCPeopleAwards.Repositories
         }
 
         // маппит из Model в Entity
-        public void PeopleModelMapToPeoples(PeopleModel source, ref People dest, bool isPeoplePart = false)
+        public void PeopleModelMapToPeoples(PeopleViewModel source, ref People dest, bool isPeoplePart = false)
         {
             try
             {
@@ -127,7 +127,7 @@ namespace MVCPeopleAwards.Repositories
                     return;
                 }
 
-                List<PeopleAwardsModel> entList = source.PeopleAwards.ToList();
+                List<ListPeopleAwardsViewModel> entList = source.PeopleAwards.ToList();
 
                 PeopleAwards peopleAward;
                 foreach (var item in entList)
@@ -159,11 +159,11 @@ namespace MVCPeopleAwards.Repositories
         }
 
         // получает человека, вместе с наградами
-        public PeopleModel GetPeople(int id)
+        public PeopleViewModel GetPeople(int id)
         {
             try
             {
-                PeopleModel peopleModel = new PeopleModel();
+                PeopleViewModel peopleModel = new PeopleViewModel();
                 PeopleMapToPeopleModel(dbContext.ListPeoples.Find(id), ref peopleModel);
                 return peopleModel;
             }
@@ -195,7 +195,7 @@ namespace MVCPeopleAwards.Repositories
         }
 
         // сохраняет человека
-        public void SavePeople(PeopleModel peopleModel, Operation operation)
+        public void SavePeople(PeopleViewModel peopleModel, Operation operation)
         {
             People savePeople = new People();
             PeopleModelMapToPeoples(peopleModel, ref savePeople, true);

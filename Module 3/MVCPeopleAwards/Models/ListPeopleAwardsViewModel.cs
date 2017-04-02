@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Web;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace MVCPeopleAwards.Models
 {
-    public class PeopleAwardsModel
+    public class ListPeopleAwardsViewModel
     {
         public int Id { get; set; }
 
@@ -18,7 +14,7 @@ namespace MVCPeopleAwards.Models
         public int AwardID { get; set; }
 
         [Required]
-        public AwardModel Award { get; set; }
+        public AwardViewModel Award { get; set; }
 
         private string error = "";
         public string Error { get { return error; } set { error = value; } }

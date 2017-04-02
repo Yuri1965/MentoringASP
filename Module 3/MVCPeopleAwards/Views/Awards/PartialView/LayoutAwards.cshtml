@@ -1,0 +1,9 @@
+﻿<h2>@ViewBag.Title</h2>
+
+@{
+    if (Model.Error != null && Model.Error.Trim() != "")
+    {
+        <h4>@Model.Error.ToString()</h4>
+        <hr />
+    }
+}

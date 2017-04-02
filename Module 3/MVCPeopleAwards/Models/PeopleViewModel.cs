@@ -2,17 +2,15 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Web;
 using System.Web.Mvc;
 
 namespace MVCPeopleAwards.Models
 {
-    public class PeopleModel
+    public class PeopleViewModel
     {
-        public PeopleModel()
+        public PeopleViewModel()
         {
-            PeopleAwards = new List<PeopleAwardsModel>();
+            PeopleAwards = new List<ListPeopleAwardsViewModel>();
         }
 
         [HiddenInput(DisplayValue = false)]
@@ -53,7 +51,7 @@ namespace MVCPeopleAwards.Models
             }
         }
 
-        public List<PeopleAwardsModel> PeopleAwards { get; set; }
+        public List<ListPeopleAwardsViewModel> PeopleAwards { get; set; }
 
         [Display(Name = "Выберите награду")]
         public int SelectedAwardID { get; set; }

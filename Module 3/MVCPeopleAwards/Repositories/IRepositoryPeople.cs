@@ -11,12 +11,12 @@ namespace MVCPeopleAwards.Repositories
 {
     public interface IRepositoryPeople
     {
-        IEnumerable<PeopleModel> GetListPeople();
-        PeopleModel GetPeople(int id);
-        void SavePeople(PeopleModel item, Operation operation);
+        IEnumerable<PeopleViewModel> GetListPeople();
+        PeopleViewModel GetPeople(int id);
+        void SavePeople(PeopleViewModel item, Operation operation);
         void DeletePeople(int id);
-        void PeopleMapToPeopleModel(People source, ref PeopleModel dest);
-        void PeopleModelMapToPeoples(PeopleModel source, ref People dest, bool isPeoplePart = false);
+        void PeopleMapToPeopleModel(People source, ref PeopleViewModel dest);
+        void PeopleModelMapToPeoples(PeopleViewModel source, ref People dest, bool isPeoplePart = false);
         IEnumerable<SelectListItem> GetAwards();
         //List<AwardModel> GetAwards();
         void SavePeopleAward(int peopleID, int awardID);

@@ -18,6 +18,8 @@ namespace MVCPeopleAwards.Models.DataDBContext
         {
         }
 
-        public System.Data.Entity.DbSet<MVCPeopleAwards.Models.PeopleModel> PeopleModels { get; set; }
+        public System.Data.Entity.DbSet<MVCPeopleAwards.Models.PeopleViewModel> PeopleModels { get; set; }
+
+        public System.Data.Entity.DbSet<MVCPeopleAwards.Models.AwardViewModel> AwardViewModels { get; set; }
     }
 }

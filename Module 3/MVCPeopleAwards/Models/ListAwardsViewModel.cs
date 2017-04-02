@@ -2,11 +2,11 @@
 
 namespace MVCPeopleAwards.Models
 {
-    public class AwardsModelView
+    public class ListAwardsViewModel
     {
         private string error = "";
         public string Error { get { return error; } set { error = value; } }
 
-        public List<AwardModel> ListAwards { get; set; }
+        public List<AwardViewModel> ListAwards { get; set; }
     }
 }

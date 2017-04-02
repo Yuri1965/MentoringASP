@@ -6,6 +6,7 @@ using MVCPeopleAwards.Repositories;
 using System;
 using MVCPeopleAwards.Enums;
 using System.Web;
+using MvcSiteMapProvider;
 
 namespace MVCPeopleAwards.Controllers
 {
@@ -20,55 +21,58 @@ namespace MVCPeopleAwards.Controllers
 
         public ActionResult Index()
         {
-            AwardsModelView awardsModel = new AwardsModelView();
+            ListAwardsViewModel awardsModel = new ListAwardsViewModel();
 
             try
             {
-                awardsModel.ListAwards = (List<AwardModel>)repository.GetListAward();
+                awardsModel.ListAwards = (List<AwardViewModel>)repository.GetListAward();
             }
             catch
             {
                 // создаем пустой список в случае неудачи и заполняем текст ошибки
-                awardsModel.ListAwards = new List<AwardModel>();
+                awardsModel.ListAwards = new List<AwardViewModel>();
                 awardsModel.Error = "Не удалось получить список наград из БД";
             }
 
+            ViewBag.Title = "Справочник Награды";
             return View(awardsModel);
         }
 
-        public ActionResult EditAward(int id)
+        public ActionResult CreateEditAward(int id)
         {
+            AwardViewModel awardModel;
+
+            // если переход в режим Новая запись
             if (id <= 0)
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                awardModel = new AwardViewModel()
+                {
+                    Id = 0,
+                    NameAward = "",
+                    DescriptionAward = "",
+                    PhotoAward = null,
+                    ImageIsEmpty = true,
+                    PhotoMIMEType = ""
+                };
+                ViewBag.Title = "Добавление записи";
+            }
+            else
+            {
+                try
+                {
+                    awardModel = repository.GetAward(id);
+                    if (awardModel == null)
+                        return HttpNotFound("Не найдена награда с таким идентификатором");
+                }
+                catch
+                {
+                    return HttpNotFound("Ошибка на сервере");
+                }
+
+                ViewBag.Title = "Изменение записи";
             }
 
-            AwardModel awardModel;
-            try
-            {
-                awardModel = repository.GetAward(id);
-                if (awardModel == null)
-                    return HttpNotFound("Не найдена награда с таким идентификатором");
-            }
-            catch
-            {
-                return HttpNotFound("Ошибка на сервере");
-            }
-
-            return View(awardModel);
-        }
-
-        public ActionResult CreateAward()
-        {
-            AwardModel awardModel = new AwardModel()
-            {
-                Id = 0,
-                NameAward = "",
-                DescriptionAward = "",
-                PhotoAward = null,
-                ImageIsEmpty = true,
-                PhotoMIMEType = ""
-            };
+            SiteMaps.Current.CurrentNode.Title = ViewBag.Title;
             return View(awardModel);
         }
 
@@ -79,7 +83,7 @@ namespace MVCPeopleAwards.Controllers
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
 
-            AwardModel awardModel;
+            AwardViewModel awardModel;
             try
             {
                 awardModel = repository.GetAward(id);
@@ -91,6 +95,7 @@ namespace MVCPeopleAwards.Controllers
                 return HttpNotFound("Ошибка на сервере");
             }
 
+            ViewBag.Title = "Удаление записи";
             return View(awardModel);
         }
 
@@ -101,7 +106,7 @@ namespace MVCPeopleAwards.Controllers
                 return null;
             }
 
-            AwardModel awardModel;
+            AwardViewModel awardModel;
             try
             {
                 awardModel = repository.GetAward(id);
@@ -116,78 +121,57 @@ namespace MVCPeopleAwards.Controllers
             }
         }
 
-        public ActionResult GetPhoto(HttpPostedFileBase photo)
-        {
-            return File(photo.InputStream, photo.ContentType);
-            //try
-            //{
-            //}
-            //catch
-            //{
-            //    return null;
-            //}
-        }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult SaveCreateAward([Bind(Include = "NameAward,DescriptionAward,PhotoAward,PhotoMIMEType")] AwardModel awardModel, HttpPostedFileBase photo = null)
+        public ActionResult SaveAward([Bind(Include = "Id,NameAward,DescriptionAward,PhotoAward,PhotoMIMEType")] AwardViewModel awardModel, HttpPostedFileBase photo = null)
         {
+            bool saveCreateMode = (awardModel.Id == 0) ? true : false;
+
             if (ModelState.IsValid)
             {
                 try
                 {
-                    awardModel.PhotoMIMEType = "";
-                    if (photo != null)
-                    {
-                        awardModel.PhotoMIMEType = photo.ContentType;
-                        awardModel.PhotoAward = new byte[photo.ContentLength];
-                        photo.InputStream.Read(awardModel.PhotoAward, 0, photo.ContentLength);
-                    }
-
-                    repository.SaveAward(awardModel, Operation.Add);
-                    Logger.logger.Info(String.Format("Добавлена награда:\n Id={0}, NameAward = {1}, DescriptionAward = {2}",
-                            awardModel.Id, awardModel.NameAward, awardModel.DescriptionAward));
-                    return RedirectToAction("Index");
-                }
-                catch
-                {
-                }
-            }
-            return RedirectToAction("CreateAward", awardModel);
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult SaveEditAward([Bind(Include = "Id,NameAward,DescriptionAward,PhotoAward,PhotoMIMEType,ImageIsEmpty")] AwardModel awardModel, HttpPostedFileBase photo = null)
-        {
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    if (photo != null)
-                    {
-                        awardModel.PhotoMIMEType = photo.ContentType;
-                        awardModel.PhotoAward = new byte[photo.ContentLength];
-                        photo.InputStream.Read(awardModel.PhotoAward, 0, photo.ContentLength);
-                    }
-
-                    // если фото было удалено пользователем
-                    if (awardModel.ImageIsEmpty)
-                    {
+                    // если добавляем запись
+                    if (saveCreateMode)
                         awardModel.PhotoMIMEType = "";
-                        awardModel.PhotoAward = null;
+
+                    if (photo != null)
+                    {
+                        awardModel.PhotoMIMEType = photo.ContentType;
+                        awardModel.PhotoAward = new byte[photo.ContentLength];
+                        photo.InputStream.Read(awardModel.PhotoAward, 0, photo.ContentLength);
                     }
 
-                    repository.SaveAward(awardModel, Operation.Update);
-                    Logger.logger.Info(String.Format("Изменена награда:\n Id={0}, NameAward = {1}, DescriptionAward = {2}",
-                            awardModel.Id, awardModel.NameAward, awardModel.DescriptionAward));
+                    // если изменяем запись
+                    if (!saveCreateMode)
+                        // если фото было удалено пользователем
+                        if (awardModel.ImageIsEmpty)
+                        {
+                            awardModel.PhotoMIMEType = "";
+                            awardModel.PhotoAward = null;
+                        }
+
+                    // если добавляем запись
+                    if (saveCreateMode)
+                    {
+                        repository.SaveAward(awardModel, Operation.Add);
+                        Logger.logger.Info(String.Format("Добавлена награда:\n NameAward = {0}, DescriptionAward = {1}",
+                                awardModel.NameAward, awardModel.DescriptionAward));
+                    }
+                    else
+                    {
+                        repository.SaveAward(awardModel, Operation.Update);
+                        Logger.logger.Info(String.Format("Изменена награда:\n Id={0}, NameAward = {1}, DescriptionAward = {2}",
+                                awardModel.Id, awardModel.NameAward, awardModel.DescriptionAward));
+                    }
                     return RedirectToAction("Index");
                 }
-                catch
+                catch (Exception e)
                 {
+                    Logger.LogException(e);
                 }
             }
-            return RedirectToAction("EditAward", awardModel);
+            return RedirectToAction("CreateEditAward", awardModel.Id);
         }
 
         [HttpPost]
@@ -206,7 +190,7 @@ namespace MVCPeopleAwards.Controllers
             }
             catch
             {
-                AwardModel awardModel;
+                AwardViewModel awardModel;
                 try
                 {
                     awardModel = repository.GetAward(id);
@@ -240,6 +224,15 @@ namespace MVCPeopleAwards.Controllers
                 return HttpNotFound();
             }
             return Json(true, JsonRequestBehavior.AllowGet);
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                ((IDisposable)repository).Dispose();
+            }
+            base.Dispose(disposing);
         }
     }
 }

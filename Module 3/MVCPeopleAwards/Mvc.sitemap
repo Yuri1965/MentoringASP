@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<mvcSiteMap xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xmlns="http://mvcsitemap.codeplex.com/schemas/MvcSiteMap-File-4.0"
+            xsi:schemaLocation="http://mvcsitemap.codeplex.com/schemas/MvcSiteMap-File-4.0 MvcSiteMapSchema.xsd">
+
+  <mvcSiteMapNode title="Главная" controller="PeoplesAward" action="Index">
+    <mvcSiteMapNode title="Список награжденных" controller="PeoplesAward" action="Index">
+      <mvcSiteMapNode title="Заполните данные" controller="PeoplesAward" action="CreateEditPeople" preservedRouteParameters="id"/>
+      <mvcSiteMapNode title="Удаление записи" controller="PeoplesAward" action="DeletePeople" preservedRouteParameters="id"/>
+      <mvcSiteMapNode title="Список наград человека" controller="PeoplesAward" action="EditPeopleAwards" preservedRouteParameters="id"/>
+    </mvcSiteMapNode>
+
+    <mvcSiteMapNode title="Справочник Награды" controller="Awards" action="Index" >
+      <mvcSiteMapNode title="Заполните данные" controller="Awards" action="CreateEditAward" preservedRouteParameters="id"/>
+      <mvcSiteMapNode title="Удаление записи" controller="Awards" action="DeleteAward" preservedRouteParameters="id"/>
+    </mvcSiteMapNode>
+
+  </mvcSiteMapNode>
+
+</mvcSiteMap>

@@ -1,27 +1,20 @@
-﻿@model MVCPeopleAwards.Models.AwardModel
+﻿@model MVCPeopleAwards.Models.AwardViewModel
 
-@{
-    ViewBag.Title = "Новая запись";
-    Layout = "~/Views/Shared/_Layout.cshtml";
-}
+@* частичное представление на общую верстку для справочника Награды*@
+@Html.Partial("~/Views/Awards/PartialView/LayoutAwards.cshtml")
 
-@using (Html.BeginForm("SaveCreateAward", "Awards", FormMethod.Post, new { enctype = "multipart/form-data" })) 
+@using (Html.BeginForm("SaveAward", "Awards", FormMethod.Post, new { enctype = "multipart/form-data" }))
 {
     @Html.AntiForgeryToken()
-    
-    <div class="form-horizontal">
-        <h4>Награда</h4>
-        <hr />
 
-        @{
-            if (Model.Error != null && Model.Error.Trim() != "")
-            {
-                <h4>@Model.Error.ToString()</h4>
-                <hr />
-            }
-        }
+    <div class="form-horizontal">
 
         @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+        @Html.HiddenFor(model => model.Id)
+        @Html.HiddenFor(model => model.PhotoMIMEType)
+        @Html.HiddenFor(model => model.PhotoAward)
+        @Html.HiddenFor(model => model.ImageIsEmpty)
 
         <div class="form-group">
             @Html.LabelFor(model => model.NameAward, htmlAttributes: new { @class = "control-label col-md-2" })
@@ -39,22 +32,12 @@
             </div>
         </div>
 
-        <div class="form-group">
-            @Html.LabelFor(model => model.PhotoAward, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                <input id="photo" name="photo" type="file" class="file"
-                       accept="image/jpg, image/png, image/jpeg"
-                       data-language="ru"
-                       data-show-upload="false"
-                       data-max-file-size="2048"
-                       data-max-file-count="1"
-                       data-preview-file-type="text" />
-            </div>
-        </div>
+        @* частичное представление на элемент Фото*@
+        @Html.Partial("~/Views/Awards/PartialView/PhotoElement.cshtml", ViewData.Model)
 
         <div class="form-group">
             <div class="col-md-offset-2 col-md-10">
-                @Html.ActionLink("Назад к списку", "Index") |
+                @Html.ActionLink("Назад к списку", "Index", "Awards") |
                 <input type="submit" value="Сохранить" class="btn btn-default" />
             </div>
         </div>
@@ -63,4 +46,14 @@
 
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")
+
+    <script type="text/javascript">
+        $('#photo').on('filecleared', function (event) {
+            $('#ImageIsEmpty').val('true');
+        });
+
+        $('#photo').on('fileloaded', function (event) {
+            $('#ImageIsEmpty').val('false');
+        });
+    </script>
 }

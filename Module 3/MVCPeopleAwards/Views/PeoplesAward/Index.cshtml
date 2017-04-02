@@ -1,27 +1,12 @@
-﻿@model MVCPeopleAwards.Models.PeopleModelView
+﻿@model MVCPeopleAwards.Models.ListPeopleViewModel
 
-@{
-    ViewBag.Title = "Список награжденных";
-    Layout = "~/Views/Shared/_Layout.cshtml";
-}
-
-<h2>Список награжденных</h2>
-
-@{
-    if (Model.Error != null && Model.Error.Trim() != "")
-    {
-        <h4>@Model.Error.ToString()</h4>
-        <hr />
-    }
-}
+@* частичное представление на общую верстку для списка Награжденных*@
+@Html.Partial("~/Views/PeoplesAward/PartialView/LayoutPeople.cshtml")
 
 <p>
-    @Html.ActionLink("Добавить запись", "CreatePeople")
+    @Html.ActionLink("Добавить запись", "CreateEditPeople", new { Id = 0 })
     @Html.ActionLink("Скачать список награжденных", "GetPeopleListReport")
 </p>
-
-@*<p>
-</p>*@
 
 <table class="table">
     <tr>
@@ -69,7 +54,7 @@
                 @Html.DisplayFor(modelItem => item.Age)
             </td>
             <td>
-                @Html.ActionLink("Изменить", "EditPeople", new { id = item.Id }) |
+                @Html.ActionLink("Изменить", "CreateEditPeople", new { id = item.Id }) |
                 @Html.ActionLink("Награды", "EditPeopleAwards", new { id = item.Id }) |
                 @Html.ActionLink("Удалить", "DeletePeople", new { id = item.Id })
             </td>
