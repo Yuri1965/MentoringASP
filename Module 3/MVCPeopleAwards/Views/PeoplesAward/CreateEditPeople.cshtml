@@ -1,6 +1,6 @@
 ﻿@model MVCPeopleAwards.Models.PeopleViewModel
 
-@* частичное представление на общую верстку для списка Награжденных*@
+@* на общую верстку для списка Награжденных*@
 @Html.Partial("~/Views/PeoplesAward/PartialView/LayoutPeople.cshtml")
 
 @using (Html.BeginForm("SavePeople", "PeoplesAward", FormMethod.Post, new { enctype = "multipart/form-data" }))
@@ -12,8 +12,6 @@
         @Html.ValidationSummary(true, "", new { @class = "text-danger" })
 
         @Html.HiddenFor(model => model.Id)
-        @Html.HiddenFor(model => model.PhotoMIMEType)
-        @Html.HiddenFor(model => model.PhotoPeople)
         @Html.HiddenFor(model => model.ImageIsEmpty)
 
         <div class="form-group">
@@ -35,10 +33,8 @@
         <div class="form-group">
             @Html.LabelFor(model => model.BirthDate, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
-                @{ Html.EnableClientValidation(false); }
                 @Html.EditorFor(model => model.BirthDate, new { htmlAttributes = new { @Value = Model.BirthDateStr, @class = "form-control" } })
                 @Html.ValidationMessageFor(model => model.BirthDate, "", new { @class = "text-danger" })
-                @{ Html.EnableClientValidation(true); }
             </div>
         </div>
 
@@ -56,16 +52,6 @@
 
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")
-
-    <script type="text/javascript">
-        $('#photo').on('filecleared', function (event) {
-            $('#ImageIsEmpty').val('true');
-        });
-
-        $('#photo').on('fileloaded', function (event) {
-            $('#ImageIsEmpty').val('false');
-        });
-    </script>
 
     <!--если браузер не создает специального поля для date, то добавляем datepicker-->
     <script type="text/javascript">
@@ -97,6 +83,20 @@
                         };
                  $.datepicker.setDefaults($.datepicker.regional['ru']);
                 }
+            });
+    </script>
+
+    <script>
+        $('#BirthDate').removeAttr("data-val-date");
+    </script>
+
+    <script type="text/javascript">
+        $('#PhotoPeople').on('filecleared', function (event) {
+                $('#ImageIsEmpty').val('true');
+            });
+
+        $('#PhotoPeople').on('fileloaded', function (event) {
+                $('#ImageIsEmpty').val('false');
             });
     </script>
 }

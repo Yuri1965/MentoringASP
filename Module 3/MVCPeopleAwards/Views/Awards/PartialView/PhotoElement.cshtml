@@ -6,10 +6,11 @@
         @* Если находимся в режиме редактирования записи *@
         @if (Model.PhotoAward != null && Model.Id > 0)
         {
-            <input id="photo" name="photo" type="file" class="file"
+            <input id="PhotoAward" name="PhotoAward" type="file" class="file"
                    accept="image/jpg, image/png, image/jpeg"
                    data-language="ru"
                    data-show-upload="false"
+                   data-show-remove="false"
                    data-max-file-size="2048"
                    data-max-file-count="1"
                    data-preview-file-type="text"
@@ -17,7 +18,7 @@
         }
         else
         {
-            <input id="photo" name="photo" type="file" class="file"
+            <input id="PhotoAward" name="PhotoAward" type="file" class="file" data-val="true" data-val-length="Это поле должно быть заполнено"
                    accept="image/jpg, image/png, image/jpeg"
                    data-language="ru"
                    data-show-upload="false"
@@ -25,6 +26,7 @@
                    data-max-file-count="1"
                    data-preview-file-type="text" />
         }
+        @Html.ValidationMessageFor(model => model.PhotoAward, "", new { @class = "text-danger" })
     </div>
 </div>
 

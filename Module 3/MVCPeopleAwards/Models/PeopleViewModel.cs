@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Web;
 using System.Web.Mvc;
 
 namespace MVCPeopleAwards.Models
@@ -31,7 +32,6 @@ namespace MVCPeopleAwards.Models
         [DataType(DataType.Date)]
         [DisplayFormat(DataFormatString = "{0:dd.mm.yy}", ApplyFormatInEditMode = true)]
         [Display(Name = "*Дата рождения")]
-        [Column(TypeName = "date")]
         public DateTime BirthDate { get; set; }
 
         public string BirthDateStr
@@ -54,12 +54,13 @@ namespace MVCPeopleAwards.Models
         public List<ListPeopleAwardsViewModel> PeopleAwards { get; set; }
 
         [Display(Name = "Выберите награду")]
+        [Remote("CheckPeopleAward", "PeoplesAward", AdditionalFields = "peopleId", HttpMethod = "POST", ErrorMessage = "Такая награда уже имеется")]
         public int SelectedAwardID { get; set; }
 
         public IEnumerable<SelectListItem> Awards { get; set; }
 
         [Display(Name = "Фото")]
-        public byte[] PhotoPeople { get; set; }
+        public HttpPostedFileBase PhotoPeople { get; set; }
 
         public string PhotoMIMEType { get; set; }
 

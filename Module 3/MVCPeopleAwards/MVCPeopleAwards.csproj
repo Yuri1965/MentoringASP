@@ -162,10 +162,10 @@
     <Compile Include="Controllers\AwardsController.cs" />
     <Compile Include="Controllers\PeoplesAwardController.cs" />
     <Compile Include="DependencyInjection\InjectDependencyResolver.cs" />
-    <Compile Include="Enums\Operation.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\ExtHttpPostedFileBase.cs" />
     <Compile Include="Logger\Logger.cs" />
     <Compile Include="Models\AwardViewModel.cs" />
     <Compile Include="Models\ListAwardsViewModel.cs" />

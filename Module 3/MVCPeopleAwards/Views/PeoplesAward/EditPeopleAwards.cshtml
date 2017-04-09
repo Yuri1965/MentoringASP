@@ -1,6 +1,6 @@
 ﻿@model MVCPeopleAwards.Models.PeopleViewModel
 
-@* частичное представление на общую верстку для списка Награжденных*@
+@* на общую верстку для списка Награжденных*@
 @Html.Partial("~/Views/PeoplesAward/PartialView/LayoutPeople.cshtml")
 
 @* частичное представление для вывода информации о человеке*@
@@ -14,8 +14,9 @@
     @using (Html.BeginForm("CreatePeopleAward", "PeoplesAward", FormMethod.Post))
     {
         @Html.AntiForgeryToken()
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
 
-        <input type="hidden" value=@Model.Id name="peopleID" />
+        <input type="hidden" value=@Model.Id name="peopleId" />
 
         <div class="editor-label">
             @Html.LabelFor(m => m.SelectedAwardID)
@@ -23,6 +24,7 @@
 
         <div class="editor-field">
             @Html.DropDownListFor(m => m.SelectedAwardID, @Model.Awards)
+            @Html.ValidationMessageFor(m => m.SelectedAwardID, "", new { @class = "text-danger" })
         </div>
 
         <div class="form-actions no-color">
@@ -55,7 +57,7 @@
                 }
                 else
                 {
-                    <img width="75" height="75" src="@Url.Action("GetPhotoAward", "Awards", new { item.Award.Id })" />
+                    <img width="75" height="75" src="@Url.Action("GetPhotoAward", "Awards", new { item.Award.Id })" title = @item.Award.NameAward />
                 }
             </td>
             <td>
@@ -70,7 +72,7 @@
                     @Html.AntiForgeryToken()
 
                     <input type="hidden" value=@item.Id name="id" />
-                    <input type="hidden" value=@item.PeopleID name="peopleID" />
+                    <input type="hidden" value=@item.PeopleID name="peopleId" />
 
                     <div class="form-actions no-color">
                         <input type="submit" value="Удалить" class="btn btn-default" />
@@ -80,4 +82,8 @@
         </tr>
     }
 </table>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
 

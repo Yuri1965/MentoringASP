@@ -1,6 +1,6 @@
 ﻿@model MVCPeopleAwards.Models.AwardViewModel
 
-@* частичное представление на общую верстку для справочника Награды*@
+@* на общую верстку для списка Наград*@
 @Html.Partial("~/Views/Awards/PartialView/LayoutAwards.cshtml")
 
 @using (Html.BeginForm("SaveAward", "Awards", FormMethod.Post, new { enctype = "multipart/form-data" }))
@@ -12,8 +12,6 @@
         @Html.ValidationSummary(true, "", new { @class = "text-danger" })
 
         @Html.HiddenFor(model => model.Id)
-        @Html.HiddenFor(model => model.PhotoMIMEType)
-        @Html.HiddenFor(model => model.PhotoAward)
         @Html.HiddenFor(model => model.ImageIsEmpty)
 
         <div class="form-group">
@@ -27,7 +25,7 @@
         <div class="form-group">
             @Html.LabelFor(model => model.DescriptionAward, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
-                @Html.EditorFor(model => model.DescriptionAward, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.TextAreaFor(model => model.DescriptionAward, new { @class = "form-control", @rows = "3", @cols = "100" })
                 @Html.ValidationMessageFor(model => model.DescriptionAward, "", new { @class = "text-danger" })
             </div>
         </div>
@@ -48,12 +46,12 @@
     @Scripts.Render("~/bundles/jqueryval")
 
     <script type="text/javascript">
-        $('#photo').on('filecleared', function (event) {
-            $('#ImageIsEmpty').val('true');
-        });
+        $('#PhotoAward').on('filecleared', function (event) {
+                    $('#ImageIsEmpty').val('true');
+                });
 
-        $('#photo').on('fileloaded', function (event) {
-            $('#ImageIsEmpty').val('false');
-        });
+        $('#PhotoAward').on('fileloaded', function (event) {
+                    $('#ImageIsEmpty').val('false');
+                });
     </script>
 }

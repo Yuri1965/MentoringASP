@@ -17,9 +17,5 @@ namespace MVCPeopleAwards.Models.DataDBContext
         public MainDBContext(): base("MVCPeopleAwards")
         {
         }
-
-        public System.Data.Entity.DbSet<MVCPeopleAwards.Models.PeopleViewModel> PeopleModels { get; set; }
-
-        public System.Data.Entity.DbSet<MVCPeopleAwards.Models.AwardViewModel> AwardViewModels { get; set; }
     }
 }

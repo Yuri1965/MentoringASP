@@ -1,9 +1,9 @@
-﻿using MVCPeopleAwards.Enums;
+﻿using MVCPeopleAwards.Helpers;
 using MVCPeopleAwards.Models;
 using MVCPeopleAwards.Models.DataDBContext;
 using System;
 using System.Collections.Generic;
-using System.Data.Entity;
+using System.Data.Entity.Migrations;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -59,7 +59,12 @@ namespace MVCPeopleAwards.Repositories
                 dest.FirstName = source.FirstName;
                 dest.LastName = source.LastName;
                 dest.BirthDate = source.BirthDate;
-                dest.PhotoPeople = source.PhotoPeople;
+
+                if (source.PhotoPeople == null)
+                    dest.PhotoPeople = null;
+                else
+                    dest.PhotoPeople = (HttpPostedFileBase)new ExtHttpPostedFileBase(source.PhotoPeople);
+
                 if (source.PhotoMIMEType == null || source.PhotoPeople == null)
                 {
                     dest.PhotoMIMEType = "";
@@ -88,11 +93,17 @@ namespace MVCPeopleAwards.Repositories
                     award.Id = item.Award.Id;
                     award.NameAward = item.Award.NameAward;
                     award.DescriptionAward = item.Award.DescriptionAward;
-                    award.PhotoAward = item.Award.PhotoAward;
+
+                    if (item.Award.PhotoAward != null)
+                    {
+                        award.PhotoAward = (HttpPostedFileBase)new ExtHttpPostedFileBase(item.Award.PhotoAward);
+                        award.ImageIsEmpty = false;
+                    }
+                    else award.ImageIsEmpty = true;
+
                     award.PhotoMIMEType = item.Award.PhotoMIMEType;
 
                     peopleAwardModel.Award = award;
-
                     lst.Add(peopleAwardModel);
                 }
                 dest.PeopleAwards = lst;
@@ -113,7 +124,12 @@ namespace MVCPeopleAwards.Repositories
                 dest.FirstName = source.FirstName;
                 dest.LastName = source.LastName;
                 dest.BirthDate = source.BirthDate;
-                dest.PhotoPeople = source.PhotoPeople;
+
+                if (source.PhotoPeople == null)
+                    dest.PhotoPeople = null;
+                else
+                    dest.PhotoPeople = UtilHelper.HttpPostedFileBaseToByte(source.PhotoPeople);
+
                 if (source.PhotoMIMEType == null || source.PhotoPeople == null)
                     dest.PhotoMIMEType = "";
                 else
@@ -142,7 +158,10 @@ namespace MVCPeopleAwards.Repositories
                     award.Id = item.Award.Id;
                     award.NameAward = item.Award.NameAward;
                     award.DescriptionAward = item.Award.DescriptionAward;
-                    award.PhotoAward = item.Award.PhotoAward;
+
+                    if (item.Award.PhotoAward != null)
+                        award.PhotoAward = UtilHelper.HttpPostedFileBaseToByte(item.Award.PhotoAward);
+
                     award.PhotoMIMEType = item.Award.PhotoMIMEType;
 
                     peopleAward.Award = award;
@@ -195,18 +214,14 @@ namespace MVCPeopleAwards.Repositories
         }
 
         // сохраняет человека
-        public void SavePeople(PeopleViewModel peopleModel, Operation operation)
+        public void SavePeople(PeopleViewModel peopleModel)
         {
             People savePeople = new People();
             PeopleModelMapToPeoples(peopleModel, ref savePeople, true);
             try
             {
-                if (operation == Operation.Add)
-                    dbContext.ListPeoples.Add(savePeople);
-                else
-                    dbContext.Entry(savePeople).State = EntityState.Modified;
+                dbContext.Set<People>().AddOrUpdate(savePeople);
                 dbContext.SaveChanges();
-
             }
             catch (Exception ex)
             {
@@ -270,6 +285,23 @@ namespace MVCPeopleAwards.Repositories
 
                 dbContext.ListPeopleAwards.Remove(award);
                 dbContext.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogException(new Exception(String.Format("Ошибка:\n{0}\n{1}\n{2}", ex.Message, ex.StackTrace, ex.InnerException.StackTrace)));
+                throw;
+            }
+        }
+
+        //проверяет Награду на уникальность в списке Наград человека
+        public bool CheckPeopleAward(int idAward, int idPeople)
+        {
+            try
+            {
+                if (dbContext.ListPeopleAwards.ToList().FindAll(c => c.AwardID == idAward && c.PeopleID == idPeople).Count() > 0)
+                    return true;
+                else
+                    return false;
             }
             catch (Exception ex)
             {

@@ -25,11 +25,14 @@ namespace MVCPeopleAwards.Models
                         itemPeople.Id, itemPeople.LastName, itemPeople.FirstName, itemPeople.BirthDateStr, itemPeople.Age));
                     streamWriter.WriteLine("Награды: ");
 
-                    foreach (var itemPeopleAward in itemPeople.PeopleAwards)
-                    {
-                        streamWriter.WriteLine(string.Format("ID: {0}, Наименование награды: {1}, Описание награды: {2}",
-                            itemPeopleAward.AwardID, itemPeopleAward.Award.NameAward, itemPeopleAward.Award.DescriptionAward));
-                    }
+                    if (itemPeople.PeopleAwards != null && itemPeople.PeopleAwards.Count > 0)
+                        foreach (var itemPeopleAward in itemPeople.PeopleAwards)
+                        {
+                            streamWriter.WriteLine(string.Format("ID: {0}, Наименование награды: {1}, Описание награды: {2}",
+                                itemPeopleAward.AwardID, itemPeopleAward.Award.NameAward, itemPeopleAward.Award.DescriptionAward));
+                        }
+                    else
+                        streamWriter.WriteLine("Нет наград");
 
                     streamWriter.WriteLine("");
                 }

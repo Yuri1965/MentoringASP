@@ -4,8 +4,6 @@ using System.Web.Mvc;
 using MVCPeopleAwards.Models;
 using MVCPeopleAwards.Repositories;
 using System;
-using MVCPeopleAwards.Enums;
-using System.Web;
 using MvcSiteMapProvider;
 
 namespace MVCPeopleAwards.Controllers
@@ -113,7 +111,7 @@ namespace MVCPeopleAwards.Controllers
                 if (awardModel == null)
                     return null;
 
-                return File(awardModel.PhotoAward, awardModel.PhotoMIMEType);
+                return File(UtilHelper.HttpPostedFileBaseToByte(awardModel.PhotoAward), awardModel.PhotoMIMEType);
             }
             catch
             {
@@ -123,7 +121,7 @@ namespace MVCPeopleAwards.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult SaveAward([Bind(Include = "Id,NameAward,DescriptionAward,PhotoAward,PhotoMIMEType")] AwardViewModel awardModel, HttpPostedFileBase photo = null)
+        public ActionResult SaveAward([Bind(Include = "Id,NameAward,DescriptionAward,PhotoAward,ImageIsEmpty")] AwardViewModel awardModel)
         {
             bool saveCreateMode = (awardModel.Id == 0) ? true : false;
 
@@ -131,39 +129,43 @@ namespace MVCPeopleAwards.Controllers
             {
                 try
                 {
-                    // если добавляем запись
-                    if (saveCreateMode)
-                        awardModel.PhotoMIMEType = "";
-
-                    if (photo != null)
-                    {
-                        awardModel.PhotoMIMEType = photo.ContentType;
-                        awardModel.PhotoAward = new byte[photo.ContentLength];
-                        photo.InputStream.Read(awardModel.PhotoAward, 0, photo.ContentLength);
-                    }
-
                     // если изменяем запись
-                    if (!saveCreateMode)
+                    if (!saveCreateMode && awardModel.PhotoAward == null)
                         // если фото было удалено пользователем
                         if (awardModel.ImageIsEmpty)
                         {
-                            awardModel.PhotoMIMEType = "";
                             awardModel.PhotoAward = null;
+                            awardModel.PhotoMIMEType = "";
                         }
-
-                    // если добавляем запись
-                    if (saveCreateMode)
-                    {
-                        repository.SaveAward(awardModel, Operation.Add);
-                        Logger.logger.Info(String.Format("Добавлена награда:\n NameAward = {0}, DescriptionAward = {1}",
-                                awardModel.NameAward, awardModel.DescriptionAward));
-                    }
+                        else
+                        {
+                            AwardViewModel tmpAwardModel = repository.GetAward(awardModel.Id);
+                            awardModel.PhotoAward = tmpAwardModel.PhotoAward;
+                            awardModel.PhotoMIMEType = tmpAwardModel.PhotoMIMEType;
+                        }
                     else
                     {
-                        repository.SaveAward(awardModel, Operation.Update);
+                        if (awardModel.PhotoAward != null && awardModel.PhotoAward.ContentLength > 0)
+                            awardModel.PhotoMIMEType = awardModel.PhotoAward.ContentType;
+                        else
+                            awardModel.PhotoMIMEType = "";
+                    }
+
+                    // проверка на обязательный ввод Фото награды
+                    if (awardModel.PhotoAward == null || awardModel.PhotoAward.ContentLength <= 0)
+                    {
+                        ModelState.AddModelError("PhotoAward", "Это поле должно быть заполнено");
+                        return View("CreateEditAward", awardModel);
+                    }
+
+                    repository.SaveAward(awardModel);
+                    if (saveCreateMode)
+                        Logger.logger.Info(String.Format("Добавлена награда:\n NameAward = {0}, DescriptionAward = {1}",
+                                awardModel.NameAward, awardModel.DescriptionAward));
+                    else
                         Logger.logger.Info(String.Format("Изменена награда:\n Id={0}, NameAward = {1}, DescriptionAward = {2}",
                                 awardModel.Id, awardModel.NameAward, awardModel.DescriptionAward));
-                    }
+
                     return RedirectToAction("Index");
                 }
                 catch (Exception e)
@@ -171,6 +173,8 @@ namespace MVCPeopleAwards.Controllers
                     Logger.LogException(e);
                 }
             }
+            else return View("CreateEditAward", awardModel);
+
             return RedirectToAction("CreateEditAward", awardModel.Id);
         }
 
@@ -221,7 +225,7 @@ namespace MVCPeopleAwards.Controllers
             }
             catch
             {
-                return HttpNotFound();
+                return HttpNotFound("Ошибка на сервере");
             }
             return Json(true, JsonRequestBehavior.AllowGet);
         }

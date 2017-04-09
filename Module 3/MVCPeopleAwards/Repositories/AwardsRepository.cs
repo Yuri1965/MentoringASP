@@ -1,10 +1,11 @@
-﻿using MVCPeopleAwards.Enums;
+﻿using MVCPeopleAwards.Helpers;
 using MVCPeopleAwards.Models;
 using MVCPeopleAwards.Models.DataDBContext;
 using System;
 using System.Collections.Generic;
-using System.Data.Entity;
+using System.Data.Entity.Migrations;
 using System.Linq;
+using System.Web;
 
 namespace MVCPeopleAwards.Repositories
 {
@@ -53,8 +54,17 @@ namespace MVCPeopleAwards.Repositories
         {
             dest.Id = source.Id;
             dest.NameAward = source.NameAward;
-            dest.DescriptionAward = source.DescriptionAward;
-            dest.PhotoAward = source.PhotoAward;
+
+            if (source.DescriptionAward == null)
+                dest.DescriptionAward = "";
+            else
+                dest.DescriptionAward = source.DescriptionAward;
+
+            if (source.PhotoAward == null)
+                dest.PhotoAward = null;
+            else
+                dest.PhotoAward = (HttpPostedFileBase)new ExtHttpPostedFileBase(source.PhotoAward);
+
             if (source.PhotoMIMEType == null || source.PhotoAward == null)
             {
                 dest.PhotoMIMEType = "";
@@ -72,8 +82,17 @@ namespace MVCPeopleAwards.Repositories
         {
             dest.Id = source.Id;
             dest.NameAward = source.NameAward;
-            dest.DescriptionAward = source.DescriptionAward;
-            dest.PhotoAward = source.PhotoAward;
+
+            if (source.DescriptionAward == null)
+                dest.DescriptionAward = "";
+            else
+                dest.DescriptionAward = source.DescriptionAward;
+
+            if (source.PhotoAward == null)
+                dest.PhotoAward = null;
+            else
+                dest.PhotoAward = UtilHelper.HttpPostedFileBaseToByte(source.PhotoAward);
+
             if (source.PhotoMIMEType == null || source.PhotoAward == null)
                 dest.PhotoMIMEType = "";
             else
@@ -97,18 +116,13 @@ namespace MVCPeopleAwards.Repositories
         }
 
         //сохраняет запись - награду
-        public void SaveAward(AwardViewModel awardModel, Operation operation)
+        public void SaveAward(AwardViewModel awardModel)
         {
             Awards saveAward = new Awards();
             AwardModelMapToAward(awardModel, ref saveAward);
-
-            if (operation == Operation.Add)
-                dbContext.ListAwards.Add(saveAward);
-            else
-                dbContext.Entry(saveAward).State = EntityState.Modified;
-
             try
             {
+                dbContext.Set<Awards>().AddOrUpdate(saveAward);
                 dbContext.SaveChanges();
             }
             catch (Exception ex)
