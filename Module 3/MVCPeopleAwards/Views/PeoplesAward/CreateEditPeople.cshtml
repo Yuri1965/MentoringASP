@@ -1,7 +1,9 @@
 ﻿@model MVCPeopleAwards.Models.PeopleViewModel
 
-@* на общую верстку для списка Награжденных*@
-@Html.Partial("~/Views/PeoplesAward/PartialView/LayoutPeople.cshtml")
+@* на общую верстку для списка Наград*@
+@{
+    Layout = "~/Views/PeoplesAward/PartialView/LayoutPeople.cshtml";
+}
 
 @using (Html.BeginForm("SavePeople", "PeoplesAward", FormMethod.Post, new { enctype = "multipart/form-data" }))
 {

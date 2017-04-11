@@ -1,4 +1,8 @@
-﻿<h2>@ViewBag.Title</h2>
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>@ViewBag.Title</h2>
 
 @{
     if (Model.Error != null && Model.Error.Trim() != "")
@@ -7,3 +11,6 @@
         <hr />
     }
 }
+
+@RenderBody()
+@RenderSection("Scripts", false)

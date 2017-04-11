@@ -1,7 +1,9 @@
 ﻿@model MVCPeopleAwards.Models.AwardViewModel
 
 @* на общую верстку для списка Наград*@
-@Html.Partial("~/Views/Awards/PartialView/LayoutAwards.cshtml")
+@{
+    Layout = "~/Views/Awards/PartialView/LayoutAwards.cshtml";
+}
 
 <h3>Вы хотите удалить запись?</h3>
 <div>
