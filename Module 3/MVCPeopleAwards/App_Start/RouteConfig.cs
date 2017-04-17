@@ -13,6 +13,9 @@ namespace MVCPeopleAwards
         {
             routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
 
+            //регистрация атрибутов Route, прописанных в методах контроллеров
+            routes.MapMvcAttributeRoutes();
+
             routes.MapRoute(
                 name: "Default",
                 url: "{controller}/{action}/{id}",

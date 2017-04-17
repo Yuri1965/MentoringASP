@@ -6,7 +6,7 @@
 }
 
 <p>
-    @Html.ActionLink("Добавить запись", "CreateEditAward", new { Id = 0 })
+    @Html.ActionLink("Добавить запись", "CreateAward")
 </p>
 
 <table class="table">
@@ -29,11 +29,13 @@
             <td>
                 @if (item.PhotoAward == null)
                 {
-                    <div class="form-control-static">Нет фото</div>
+                    @Html.ActionLink("Нет фото", "GetAwardById", "Awards", new { id = item.Id }, new { @class = "awardItem" })
                 }
                 else
                 {
-                    <img width="75" height="75" src="@Url.Action("GetPhotoAward", "Awards", new { item.Id })" />
+                    <a href="@Url.Action("GetAwardById", "Awards", new { id = item.Id })" class="awardItem">
+                        <img width="75" height="75" src="@Url.Action("GetPhotoAward", "Awards", new { item.Id })" title=@item.NameAward />
+                    </a>
                 }
             </td>
 
@@ -44,7 +46,7 @@
                 @Html.DisplayFor(modelItem => item.DescriptionAward)
             </td>
             <td>
-                @Html.ActionLink("Изменить", "CreateEditAward", new { id = item.Id }) |
+                @Html.ActionLink("Изменить", "EditAward", new { id = item.Id }) |
                 @Html.ActionLink("Удалить", "DeleteAward", new { id = item.Id })
             </td>
         </tr>

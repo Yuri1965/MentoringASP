@@ -24,13 +24,16 @@ namespace MVCPeopleAwards.Repositories
         }
 
         // получает Справочник наград
-        public IEnumerable<AwardViewModel> GetListAward()
+        public IEnumerable<AwardViewModel> GetListAward(string nameAward = "")
         {
             List<AwardViewModel> lst = new List<AwardViewModel>();
-
             try
             {
-                List<Awards> entList = dbContext.ListAwards.ToList();
+                List<Awards> entList;
+                if (nameAward.Trim().Equals(""))
+                    entList = dbContext.ListAwards.ToList();
+                else
+                    entList = dbContext.ListAwards.ToList().FindAll(x => x.NameAward.Contains(nameAward));
 
                 AwardViewModel awardModel;
                 foreach (var item in entList)
@@ -99,14 +102,39 @@ namespace MVCPeopleAwards.Repositories
                 dest.PhotoMIMEType = source.PhotoMIMEType;
         }
 
-        //получает запись
-        public AwardViewModel GetAward(int id)
+        //получает запись по идентификатору
+        public AwardViewModel GetAwardById(int id)
         {
             AwardViewModel awardModel = new AwardViewModel();
             try
             {
                 AwardMapToAwardModel(dbContext.ListAwards.Find(id), ref awardModel);
                 return awardModel;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogException(new Exception(String.Format("Ошибка:\n{0}\n{1}\n{2}", ex.Message, ex.StackTrace, ex.InnerException.StackTrace)));
+                throw;
+            }
+        }
+
+        //получает запись по наименованию
+        public AwardViewModel GetAwardByName(string nameAward)
+        {
+            if (nameAward == null || nameAward.Trim().Equals(""))
+                return null;
+
+            AwardViewModel awardModel = new AwardViewModel();
+            try
+            {
+                var award = dbContext.ListAwards.FirstOrDefault(x => x.NameAward == nameAward);
+                if (award != null)
+                {
+                    AwardMapToAwardModel(award, ref awardModel);
+                    return awardModel;
+                }
+                else
+                    return null;
             }
             catch (Exception ex)
             {

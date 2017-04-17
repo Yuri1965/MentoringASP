@@ -8,6 +8,11 @@
 @* частичное представление для вывода информации о человеке*@
 @Html.Partial("~/Views/PeoplesAward/PartialView/PeopleInfo.cshtml", Model)
 
+@* модальная форма для вывода информации о награде человека*@
+<div id="modDialog" class="modal fade">
+    <div id="dialogContent" class="modal-dialog"></div>
+</div>
+
 <p>
     @Html.ActionLink("Назад к списку", "Index")
 </p>
@@ -55,11 +60,13 @@
             <td>
                 @if (item.Award.PhotoAward == null)
                 {
-                    <div class="form-control-static">Нет фото</div>
+                    @Html.ActionLink("Нет фото", "GetAwardInfo", "Awards", new { id = item.Award.Id }, new { @class = "awardItem" })
                 }
                 else
                 {
-                    <img width="75" height="75" src="@Url.Action("GetPhotoAward", "Awards", new { item.Award.Id })" title = @item.Award.NameAward />
+                    <a href="@Url.Action("GetAwardInfo", "Awards", new { id = item.Award.Id })" class = "awardItem">
+                        <img width="75" height="75" src="@Url.Action("GetPhotoAward", "Awards", new { item.Award.Id })" title = @item.Award.NameAward />
+                    </a>
                 }
             </td>
             <td>
@@ -87,5 +94,19 @@
 
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")
+
+    <script type="text/javascript">
+
+        $(function () {
+            $.ajaxSetup({ cache: false });
+           $(".awardItem").click(function (e) {
+                e.preventDefault();
+                $.get(this.href, function (data) {
+                    $('#dialogContent').html(data);
+                    $('#modDialog').modal('show');
+                });
+            });
+        })
+    </script>
 }
 

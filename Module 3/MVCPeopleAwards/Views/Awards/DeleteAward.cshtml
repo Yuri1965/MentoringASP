@@ -8,36 +8,8 @@
 <h3>Вы хотите удалить запись?</h3>
 <div>
     
-    <dl class="dl-horizontal">
-        <dt>
-            @Html.DisplayNameFor(model => model.PhotoAward)
-        </dt>
-        <dd>
-            @if (Model.PhotoAward == null)
-            {
-                <div class="form-control-static">Нет фото</div>
-            }
-            else
-            {
-                <img width="75" height="75" src="@Url.Action("GetPhotoAward", "Awards", new { Model.Id })" />
-            }
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.NameAward)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.NameAward)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.DescriptionAward)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.DescriptionAward)
-        </dd>
-
-    </dl>
+    @* частичное представление для вывода информации о награде*@
+    @Html.Partial("~/Views/Awards/PartialView/AwardInfo.cshtml", Model)
 
     @using (Html.BeginForm("SaveDeleteAward", "Awards", FormMethod.Post)) {
         @Html.AntiForgeryToken()

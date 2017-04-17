@@ -17,84 +17,166 @@ namespace MVCPeopleAwards.Controllers
             this.repository = rep;
         }
 
+        [Route("awards")]
         public ActionResult Index()
         {
             ListAwardsViewModel awardsModel = new ListAwardsViewModel();
-
             try
             {
                 awardsModel.ListAwards = (List<AwardViewModel>)repository.GetListAward();
             }
-            catch
+            catch (Exception e)
             {
+                Logger.LogException(e);
+
                 // создаем пустой список в случае неудачи и заполняем текст ошибки
                 awardsModel.ListAwards = new List<AwardViewModel>();
                 awardsModel.Error = "Не удалось получить список наград из БД";
             }
 
             ViewBag.Title = "Справочник Награды";
-            return View(awardsModel);
+            return View("Index", awardsModel);
         }
 
-        public ActionResult CreateEditAward(int id)
+        [Route("awards/{nameAward:regex(^([a-zA-Zа-яА-Я0-9 -]+)$)}")]
+        public ActionResult GetAwardsByName(string nameAward)
         {
-            AwardViewModel awardModel;
-
-            // если переход в режим Новая запись
-            if (id <= 0)
+            ListAwardsViewModel awardsModel = new ListAwardsViewModel();
+            try
             {
-                awardModel = new AwardViewModel()
-                {
-                    Id = 0,
-                    NameAward = "",
-                    DescriptionAward = "",
-                    PhotoAward = null,
-                    ImageIsEmpty = true,
-                    PhotoMIMEType = ""
-                };
-                ViewBag.Title = "Добавление записи";
+                awardsModel.ListAwards = (List<AwardViewModel>)repository.GetListAward(nameAward);
             }
-            else
+            catch (Exception e)
             {
-                try
-                {
-                    awardModel = repository.GetAward(id);
-                    if (awardModel == null)
-                        return HttpNotFound("Не найдена награда с таким идентификатором");
-                }
-                catch
-                {
-                    return HttpNotFound("Ошибка на сервере");
-                }
+                Logger.LogException(e);
 
-                ViewBag.Title = "Изменение записи";
+                // создаем пустой список в случае неудачи и заполняем текст ошибки
+                awardsModel.ListAwards = new List<AwardViewModel>();
+                awardsModel.Error = "Не удалось получить список наград из БД";
             }
 
-            SiteMaps.Current.CurrentNode.Title = ViewBag.Title;
-            return View(awardModel);
+            ViewBag.Title = "Справочник Награды";
+            return View("Index", awardsModel);
         }
 
-        public ActionResult DeleteAward(int id)
+        [Route("award/{id:int:min(1)}", Order = 1)]
+        public ActionResult GetAwardById(int id)
         {
-            if (id <= 0)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-
             AwardViewModel awardModel;
             try
             {
-                awardModel = repository.GetAward(id);
+                awardModel = repository.GetAwardById(id);
                 if (awardModel == null)
                     return HttpNotFound("Не найдена награда с таким идентификатором");
             }
-            catch
+            catch (Exception e)
             {
+                Logger.LogException(e);
+                return HttpNotFound("Ошибка на сервере");
+            }
+
+            ViewBag.Title = "Информация о записи";
+            SiteMaps.Current.CurrentNode.Title = ViewBag.Title;
+            return View("AwardDetail", awardModel);
+        }
+
+        [Route("award/{nameAward:regex(^([a-zA-Zа-яА-Я0-9 -]+)$)}", Order = 2)]
+        public ActionResult GetAwardByName(string nameAward)
+        {
+            AwardViewModel awardModel;
+            try
+            {
+                awardModel = repository.GetAwardByName(nameAward);
+                if (awardModel == null)
+                    return HttpNotFound(String.Format("Не найдена награда с наименованием = {0}", nameAward));
+
+                ViewBag.Title = "Информация о записи";
+                SiteMaps.Current.CurrentNode.Title = ViewBag.Title;
+                return View("AwardDetail", awardModel);
+            }
+            catch (Exception e)
+            {
+                Logger.LogException(e);
+                return HttpNotFound("Ошибка на сервере");
+            }
+        }
+
+        public ActionResult GetAwardInfo(int id)
+        {
+            AwardViewModel awardModel;
+            try
+            {
+                awardModel = repository.GetAwardById(id);
+                if (awardModel == null)
+                    return HttpNotFound("Не найдена награда с таким идентификатором");
+            }
+            catch (Exception e)
+            {
+                Logger.LogException(e);
+                return HttpNotFound("Ошибка на сервере");
+            }
+
+            return PartialView("ModalAwardDetail", awardModel);
+        }
+
+        [Route("create-award")]
+        public ActionResult CreateAward()
+        {
+            AwardViewModel awardModel = new AwardViewModel()
+            {
+                Id = 0,
+                NameAward = "",
+                DescriptionAward = "",
+                PhotoAward = null,
+                ImageIsEmpty = true,
+                PhotoMIMEType = ""
+            };
+            ViewBag.Title = "Добавление записи";
+
+            SiteMaps.Current.CurrentNode.Title = ViewBag.Title;
+            return View("CreateEditAward", awardModel);
+        }
+
+        [Route("award/{id:int:min(1)}/edit")]
+        public ActionResult EditAward(int id)
+        {
+            AwardViewModel awardModel;
+            try
+            {
+                awardModel = repository.GetAwardById(id);
+                if (awardModel == null)
+                    return HttpNotFound("Не найдена награда с таким идентификатором");
+            }
+            catch (Exception e)
+            {
+                Logger.LogException(e);
+                return HttpNotFound("Ошибка на сервере");
+            }
+
+            ViewBag.Title = "Изменение записи";
+
+            SiteMaps.Current.CurrentNode.Title = ViewBag.Title;
+            return View("CreateEditAward", awardModel);
+        }
+
+        [Route("award/{id:int:min(1)}/delete")]
+        public ActionResult DeleteAward(int id)
+        {
+            AwardViewModel awardModel;
+            try
+            {
+                awardModel = repository.GetAwardById(id);
+                if (awardModel == null)
+                    return HttpNotFound("Не найдена награда с таким идентификатором");
+            }
+            catch (Exception e)
+            {
+                Logger.LogException(e);
                 return HttpNotFound("Ошибка на сервере");
             }
 
             ViewBag.Title = "Удаление записи";
-            return View(awardModel);
+            return View("DeleteAward", awardModel);
         }
 
         public ActionResult GetPhotoAward(int id)
@@ -107,14 +189,15 @@ namespace MVCPeopleAwards.Controllers
             AwardViewModel awardModel;
             try
             {
-                awardModel = repository.GetAward(id);
+                awardModel = repository.GetAwardById(id);
                 if (awardModel == null)
                     return null;
 
                 return File(UtilHelper.HttpPostedFileBaseToByte(awardModel.PhotoAward), awardModel.PhotoMIMEType);
             }
-            catch
+            catch (Exception e)
             {
+                Logger.LogException(e);
                 return null;
             }
         }
@@ -139,7 +222,7 @@ namespace MVCPeopleAwards.Controllers
                         }
                         else
                         {
-                            AwardViewModel tmpAwardModel = repository.GetAward(awardModel.Id);
+                            AwardViewModel tmpAwardModel = repository.GetAwardById(awardModel.Id);
                             awardModel.PhotoAward = tmpAwardModel.PhotoAward;
                             awardModel.PhotoMIMEType = tmpAwardModel.PhotoMIMEType;
                         }
@@ -184,7 +267,7 @@ namespace MVCPeopleAwards.Controllers
         {
             if (id <= 0)
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                return HttpNotFound("Не найдена награда с таким идентификатором");
             }
 
             try
@@ -192,12 +275,14 @@ namespace MVCPeopleAwards.Controllers
                 repository.DeleteAward(id);
                 Logger.logger.Info(String.Format("Удалена награда:\n Id={0}", id));
             }
-            catch
+            catch (Exception e)
             {
+                Logger.LogException(e);
+
                 AwardViewModel awardModel;
                 try
                 {
-                    awardModel = repository.GetAward(id);
+                    awardModel = repository.GetAwardById(id);
                     if (awardModel == null)
                         return HttpNotFound("Не найдена награда с таким идентификатором");
                     else
@@ -206,8 +291,9 @@ namespace MVCPeopleAwards.Controllers
                         return View("DeleteAward", awardModel);
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
+                    Logger.LogException(ex);
                 }
                 return HttpNotFound("Ошибка на сервере");
             }
@@ -223,8 +309,9 @@ namespace MVCPeopleAwards.Controllers
                 if (repository.CheckNameAward(nameAward, id))
                     return Json(false, JsonRequestBehavior.AllowGet);
             }
-            catch
+            catch (Exception ex)
             {
+                Logger.LogException(ex);
                 return HttpNotFound("Ошибка на сервере");
             }
             return Json(true, JsonRequestBehavior.AllowGet);
