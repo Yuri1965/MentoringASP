@@ -27,64 +27,41 @@ namespace MVCPeopleAwards.Controllers
             {
                 peopleModel.ListPeople = repository.GetListPeople().ToList();
             }
-            catch
+            catch (Exception e)
             {
+                Logger.LogException(e);
+
                 // создаем пустой список в случае неудачи и заполняем текст ошибки
                 peopleModel.ListPeople = new List<PeopleViewModel>();
                 peopleModel.Error = "Не удалось получить список награжденных из БД";
             }
 
             ViewBag.Title = "Список награжденных";
-            return View(peopleModel);
+            return View("Index", peopleModel);
         }
 
         #region People part
-        public ActionResult CreateEditPeople(int id)
+        public ActionResult CreatePeople()
         {
-            PeopleViewModel peopleModel;
-
-            // если переход в режим Новая запись
-            if (id <= 0)
+            PeopleViewModel peopleModel = new PeopleViewModel()
             {
-                peopleModel = new PeopleViewModel()
-                {
-                    Id = 0,
-                    FirstName = "",
-                    LastName = "",
-                    BirthDate = DateTime.Now.Date.AddYears(-16),
-                    ImageIsEmpty = true,
-                    PhotoMIMEType = "",
-                    PhotoPeople = null,
-                    PeopleAwards = new List<ListPeopleAwardsViewModel>()
-                };
-                ViewBag.Title = "Добавление записи";
-            }
-            else
-            {
-                try
-                {
-                    peopleModel = repository.GetPeople(id);
-                    if (peopleModel == null)
-                        return HttpNotFound("Не найден человек с таким идентификатором");
-                }
-                catch
-                {
-                    return HttpNotFound("Ошибка на сервере");
-                }
-                ViewBag.Title = "Изменение записи";
-            }
+                Id = 0,
+                FirstName = "",
+                LastName = "",
+                BirthDate = DateTime.Now.Date.AddYears(-16),
+                ImageIsEmpty = true,
+                PhotoMIMEType = "",
+                PhotoPeople = null,
+                PeopleAwards = new List<ListPeopleAwardsViewModel>()
+            };
 
+            ViewBag.Title = "Добавление записи";
             SiteMaps.Current.CurrentNode.Title = ViewBag.Title;
-            return View(peopleModel);
+            return View("CreateEditPeople", peopleModel);
         }
 
-        public ActionResult DeletePeople(int id)
+        public ActionResult EditPeople(int id)
         {
-            if (id <= 0)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "Переданы некорректные параметры");
-            }
-
             PeopleViewModel peopleModel;
             try
             {
@@ -92,8 +69,29 @@ namespace MVCPeopleAwards.Controllers
                 if (peopleModel == null)
                     return HttpNotFound("Не найден человек с таким идентификатором");
             }
-            catch
+            catch (Exception e)
             {
+                Logger.LogException(e);
+                return HttpNotFound("Ошибка на сервере");
+            }
+
+            ViewBag.Title = "Изменение записи";
+            SiteMaps.Current.CurrentNode.Title = ViewBag.Title;
+            return View("CreateEditPeople", peopleModel);
+        }
+
+        public ActionResult DeletePeople(int id)
+        {
+            PeopleViewModel peopleModel;
+            try
+            {
+                peopleModel = repository.GetPeople(id);
+                if (peopleModel == null)
+                    return HttpNotFound("Не найден человек с таким идентификатором");
+            }
+            catch (Exception e)
+            {
+                Logger.LogException(e);
                 return HttpNotFound("Ошибка на сервере");
             }
 

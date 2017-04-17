@@ -131,8 +131,8 @@ namespace MVCPeopleAwards.Controllers
                 ImageIsEmpty = true,
                 PhotoMIMEType = ""
             };
-            ViewBag.Title = "Добавление записи";
 
+            ViewBag.Title = "Добавление записи";
             SiteMaps.Current.CurrentNode.Title = ViewBag.Title;
             return View("CreateEditAward", awardModel);
         }
@@ -154,7 +154,6 @@ namespace MVCPeopleAwards.Controllers
             }
 
             ViewBag.Title = "Изменение записи";
-
             SiteMaps.Current.CurrentNode.Title = ViewBag.Title;
             return View("CreateEditAward", awardModel);
         }
@@ -176,6 +175,7 @@ namespace MVCPeopleAwards.Controllers
             }
 
             ViewBag.Title = "Удаление записи";
+            SiteMaps.Current.CurrentNode.Title = ViewBag.Title;
             return View("DeleteAward", awardModel);
         }
 

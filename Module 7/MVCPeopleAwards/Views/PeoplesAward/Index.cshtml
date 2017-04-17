@@ -6,7 +6,7 @@
 }
 
 <p>
-    @Html.ActionLink("Добавить запись", "CreateEditPeople", new { Id = 0 })
+    @Html.ActionLink("Добавить запись", "CreatePeople")
     @Html.ActionLink("Скачать список награжденных", "GetPeopleListReport")
 </p>
 
@@ -56,7 +56,7 @@
                 @Html.DisplayFor(modelItem => item.Age)
             </td>
             <td>
-                @Html.ActionLink("Изменить", "CreateEditPeople", new { id = item.Id }) |
+                @Html.ActionLink("Изменить", "EditPeople", new { id = item.Id }) |
                 @Html.ActionLink("Награды", "EditPeopleAwards", new { id = item.Id }) |
                 @Html.ActionLink("Удалить", "DeletePeople", new { id = item.Id })
             </td>
