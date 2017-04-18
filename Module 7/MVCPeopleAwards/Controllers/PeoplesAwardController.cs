@@ -40,6 +40,26 @@ namespace MVCPeopleAwards.Controllers
             return View("Index", peopleModel);
         }
 
+        public ActionResult GetPeoplesByName(string namePeople)
+        {
+            ListPeopleViewModel peopleModel = new ListPeopleViewModel();
+            try
+            {
+                peopleModel.ListPeople = (List<PeopleViewModel>)repository.GetListPeople(namePeople);
+            }
+            catch (Exception e)
+            {
+                Logger.LogException(e);
+
+                // создаем пустой список в случае неудачи и заполняем текст ошибки
+                peopleModel.ListPeople = new List<PeopleViewModel>();
+                peopleModel.Error = "Не удалось получить список награжденных из БД";
+            }
+
+            ViewBag.Title = "Список награжденных";
+            return View("Index", peopleModel);
+        }
+
         #region People part
         public ActionResult CreatePeople()
         {
@@ -227,6 +247,7 @@ namespace MVCPeopleAwards.Controllers
 
         #endregion
 
+        #region People info with Award part
         private PeopleViewModel GetPeopleModelForEdit(int id)
         {
             PeopleViewModel peopleModel;
@@ -371,6 +392,8 @@ namespace MVCPeopleAwards.Controllers
             }
             return Json(true, JsonRequestBehavior.AllowGet);
         }
+
+        #endregion People info with Award part
 
         protected override void Dispose(bool disposing)
         {

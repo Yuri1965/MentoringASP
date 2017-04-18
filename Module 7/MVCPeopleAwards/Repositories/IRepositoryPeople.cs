@@ -6,7 +6,7 @@ namespace MVCPeopleAwards.Repositories
 {
     public interface IRepositoryPeople
     {
-        IEnumerable<PeopleViewModel> GetListPeople();
+        IEnumerable<PeopleViewModel> GetListPeople(string namePeople = "");
         PeopleViewModel GetPeople(int id);
         void SavePeople(PeopleViewModel item);
         void DeletePeople(int id);

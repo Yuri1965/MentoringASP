@@ -25,13 +25,17 @@ namespace MVCPeopleAwards.Repositories
         }
 
         // получает список награжденных
-        public IEnumerable<PeopleViewModel> GetListPeople()
+        public IEnumerable<PeopleViewModel> GetListPeople(string namePeople = "")
         {
             try
             {
                 List<PeopleViewModel> lst = new List<PeopleViewModel>();
 
-                List<People> entList = dbContext.ListPeoples.ToList();
+                List<People> entList;
+                if (namePeople.Trim().Equals(""))
+                    entList = dbContext.ListPeoples.ToList();
+                else
+                    entList = dbContext.ListPeoples.ToList().FindAll(x => x.FirstName.Contains(namePeople));
 
                 PeopleViewModel peopleModel;
                 foreach (var item in entList)

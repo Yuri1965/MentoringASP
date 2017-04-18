@@ -26,6 +26,16 @@ namespace MVCPeopleAwards
                 defaults: new { controller = "PeoplesAward", action = "Index" }
             );
 
+            //Список Награжденных с указанным именем
+            routes.MapRoute(
+                name: "GetListPeoplesByName",
+                url: "peoples/{namePeople}",
+                defaults: new { controller = "PeoplesAward", action = "GetPeoplesByName" },
+                constraints: 
+                    new { namePeople = new CompoundRouteConstraint(new IRouteConstraint[] 
+                    { new RegexRouteConstraint("^([a-zA-Zа-яА-Я -]+)$"), new MinLengthRouteConstraint(2), new MaxLengthRouteConstraint(50) }) }
+            );
+
             //Добавить человека
             routes.MapRoute(
                 name: "GetAddPeople",
