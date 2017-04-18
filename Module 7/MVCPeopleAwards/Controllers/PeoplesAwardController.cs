@@ -212,18 +212,14 @@ namespace MVCPeopleAwards.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult SaveDeletePeople(int id)
         {
-            if (id <= 0)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-
             try
             {
                 repository.DeletePeople(id);
                 Logger.logger.Info(String.Format("Удален человек:\n Id={0}", id));
             }
-            catch
+            catch (Exception e)
             {
+                Logger.LogException(e);
                 return HttpNotFound("Ошибка на сервере");
             }
             return RedirectToAction("Index");
@@ -241,8 +237,9 @@ namespace MVCPeopleAwards.Controllers
 
                 return peopleModel;
             }
-            catch
+            catch (Exception e)
             {
+                Logger.LogException(e);
             }
 
             return null;
@@ -250,11 +247,6 @@ namespace MVCPeopleAwards.Controllers
 
         public ActionResult EditPeopleAwards(int id)
         {
-            if (id <= 0)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "Переданы некорректные параметры");
-            }
-
             PeopleViewModel peopleModel;
             try
             {
@@ -262,13 +254,14 @@ namespace MVCPeopleAwards.Controllers
                 if (peopleModel == null)
                     return HttpNotFound("Не найден человек с таким идентификатором");
             }
-            catch
+            catch (Exception e)
             {
+                Logger.LogException(e);
                 return HttpNotFound("Ошибка на сервере");
             }
 
             ViewBag.Title = "Список наград человека";
-            return View(peopleModel);
+            return View("EditPeopleAwards", peopleModel);
         }
 
         [HttpPost]
@@ -296,15 +289,17 @@ namespace MVCPeopleAwards.Controllers
                     if (peopleModel == null)
                         return HttpNotFound("Не найден человек с таким идентификатором");
                 }
-                catch
+                catch (Exception e)
                 {
+                    Logger.LogException(e);
                     peopleModel.Error = "Запись не удалена! Ошибка на сервере";
                 }
 
                 return RedirectToAction("EditPeopleAwards", new { id = peopleID });
             }
-            catch
+            catch (Exception ex)
             {
+                Logger.LogException(ex);
                 return HttpNotFound("Ошибка на сервере");
             }
         }
@@ -336,15 +331,17 @@ namespace MVCPeopleAwards.Controllers
                         if (peopleModel == null)
                             return HttpNotFound("Не найден человек с таким идентификатором");
                     }
-                    catch
+                    catch (Exception ex)
                     {
+                        Logger.LogException(ex);
                         peopleModel.Error = "Запись не добавлена! Ошибка на сервере";
                     }
 
                     return RedirectToAction("EditPeopleAwards", new { id = peopleId });
                 }
-                catch
+                catch (Exception e)
                 {
+                    Logger.LogException(e);
                     return HttpNotFound("Ошибка на сервере");
                 }
             }
@@ -353,6 +350,7 @@ namespace MVCPeopleAwards.Controllers
                 PeopleViewModel peopleModel = GetPeopleModelForEdit(peopleId);
                 if (peopleModel == null)
                     return HttpNotFound("Не найден человек с таким идентификатором");
+
                 return View("EditPeopleAwards", peopleModel);
             }
         }
@@ -366,8 +364,9 @@ namespace MVCPeopleAwards.Controllers
                 if (repository.CheckPeopleAward(selectedAwardID, peopleId))
                     return Json(false, JsonRequestBehavior.AllowGet);
             }
-            catch
+            catch (Exception e)
             {
+                Logger.LogException(e);
                 return HttpNotFound("Ошибка на сервере");
             }
             return Json(true, JsonRequestBehavior.AllowGet);

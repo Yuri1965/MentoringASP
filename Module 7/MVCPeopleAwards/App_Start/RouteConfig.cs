@@ -49,6 +49,13 @@ namespace MVCPeopleAwards
                 constraints: new { id = new CompoundRouteConstraint(new IRouteConstraint[] { new IntRouteConstraint(), new MinRouteConstraint(1) }) }
             );
 
+            //Информация о человеке с наградами
+            routes.MapRoute(
+                name: "GetPeopleAwards",
+                url: "people/{id}",
+                defaults: new { controller = "PeoplesAward", action = "EditPeopleAwards" },
+                constraints: new { id = new CompoundRouteConstraint(new IRouteConstraint[] { new IntRouteConstraint(), new MinRouteConstraint(1) }) }
+            );
 
             #endregion People Routes
 

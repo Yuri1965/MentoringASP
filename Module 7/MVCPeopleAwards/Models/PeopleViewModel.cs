@@ -20,11 +20,13 @@ namespace MVCPeopleAwards.Models
 
         [Required(ErrorMessage = "Это поле должно быть заполнено")]
         [StringLength(50, MinimumLength = 1, ErrorMessage = "Длина строки должна быть от 1 до 50 символов")]
+        [RegularExpression("^([a-zA-Zа-яА-Я -]+)$", ErrorMessage = "Фамилия может содержать буквы, Пробел или знак Дефиса")]
         [Display(Name = "*Фамилия")]
         public string LastName { get; set; }
 
         [Required(ErrorMessage = "Это поле должно быть заполнено")]
         [StringLength(50, MinimumLength = 1, ErrorMessage = "Длина строки должна быть от 1 до 50 символов")]
+        [RegularExpression("^([a-zA-Zа-яА-Я -]+)$", ErrorMessage = "Имя может содержать буквы, Пробел или знак Дефиса")]
         [Display(Name = "*Имя")]
         public string FirstName { get; set; }
 
