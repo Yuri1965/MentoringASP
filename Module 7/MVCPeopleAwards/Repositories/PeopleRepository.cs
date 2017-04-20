@@ -197,6 +197,38 @@ namespace MVCPeopleAwards.Repositories
             }
         }
 
+        //получает человека вместе с наградами по имени и фамилии
+        public PeopleViewModel GetPeopleByFullName(string fullNamePeople)
+        {
+            try
+            {
+                //надо распарсить на Имя и Фамилию
+                fullNamePeople = fullNamePeople.Trim();
+                if (fullNamePeople.Equals(""))
+                    return null;
+
+                //через Split будет работать медленее
+                //и у нас надо брать только первый символ "_"  в качестве разделителя
+                int index = fullNamePeople.IndexOf("_", 0);
+                var firstName = fullNamePeople.Substring(0, index).Trim();
+                var lastName = fullNamePeople.Substring(index + 1, fullNamePeople.Length - (index + 1)).Trim();
+
+                //поиск в БД человека по переданным параметрам (берем 1 найденного с наименьшей датой рождения)
+                var people = dbContext.ListPeoples.Where(x => x.FirstName == firstName && x.LastName == lastName).OrderBy(x => x.BirthDate).FirstOrDefault();
+                if (people == null)
+                    return null;
+
+                PeopleViewModel peopleModel = new PeopleViewModel();
+                PeopleMapToPeopleModel(people, ref peopleModel);
+                return peopleModel;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogException(new Exception(String.Format("Ошибка:\n{0}\n{1}\n{2}", ex.Message, ex.StackTrace, ex.InnerException.StackTrace)));
+                throw;
+            }
+        }
+
         // получает Справочник наград
         public IEnumerable<SelectListItem> GetAwards()
         {

@@ -33,7 +33,7 @@ namespace MVCPeopleAwards
                 defaults: new { controller = "PeoplesAward", action = "GetPeoplesByName" },
                 constraints: 
                     new { namePeople = new CompoundRouteConstraint(new IRouteConstraint[] 
-                    { new RegexRouteConstraint("^([a-zA-Zа-яА-Я -]+)$"), new MinLengthRouteConstraint(2), new MaxLengthRouteConstraint(50) }) }
+                        { new RegexRouteConstraint("^([a-zA-Zа-яА-Я -]+)$"), new MinLengthRouteConstraint(2), new MaxLengthRouteConstraint(50) }) }
             );
 
             //Добавить человека
@@ -65,6 +65,19 @@ namespace MVCPeopleAwards
                 url: "people/{id}",
                 defaults: new { controller = "PeoplesAward", action = "EditPeopleAwards" },
                 constraints: new { id = new CompoundRouteConstraint(new IRouteConstraint[] { new IntRouteConstraint(), new MinRouteConstraint(1) }) }
+            );
+
+            //Информация о человеке с наградами
+            routes.MapRoute(
+                name: "GetPeopleAwardsByFullName",
+                url: "people/{fullNamePeople}",
+                defaults: new { controller = "PeoplesAward", action = "GetPeopleByFullName" },
+                constraints:
+                    new
+                    {
+                        fullNamePeople = new CompoundRouteConstraint(new IRouteConstraint[]
+                        { new RegexRouteConstraint("^([a-zA-Zа-яА-Я_-]+)$"), new MinLengthRouteConstraint(2), new MaxLengthRouteConstraint(101) })
+                    }
             );
 
             #endregion People Routes

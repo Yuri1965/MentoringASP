@@ -60,6 +60,27 @@ namespace MVCPeopleAwards.Controllers
             return View("Index", peopleModel);
         }
 
+        public ActionResult GetPeopleByFullName(string fullNamePeople)
+        {
+            PeopleViewModel peopleModel;
+            try
+            {
+                peopleModel = repository.GetPeopleByFullName(fullNamePeople);
+                if (peopleModel == null)
+                    return HttpNotFound("Не найден человек с такими параметрами");
+
+                peopleModel.Awards = repository.GetAwards();
+            }
+            catch (Exception e)
+            {
+                Logger.LogException(e);
+                return HttpNotFound("Ошибка на сервере");
+            }
+
+            ViewBag.Title = "Список наград человека";
+            return View("EditPeopleAwards", peopleModel);
+        }
+
         #region People part
         public ActionResult CreatePeople()
         {
