@@ -31,13 +31,13 @@ namespace MVCPeopleAwards.Filters
                 var routeValues = new RouteValueDictionary();
                 routeValues.Add("Action", "ShowError");
                 routeValues.Add("Controller", "Error");
-                routeValues.Add("errorModel", errorModel);
 
                 SiteMaps.Current.CurrentNode.Title = "Ошибка";
 
-                filterContext.Result = new ViewResult() { ViewName = "Error", ViewData = new ViewDataDictionary(errorModel) };
+                //filterContext.Result = new ViewResult() { ViewName = "Error", ViewData = new ViewDataDictionary(errorModel) };
 
-                //new RedirectToRouteResult("Error", routeValues);
+                filterContext.Controller.TempData["errorModel"] = errorModel;
+                filterContext.Result = new RedirectToRouteResult(routeValues);
 
                 filterContext.ExceptionHandled = true;
             }

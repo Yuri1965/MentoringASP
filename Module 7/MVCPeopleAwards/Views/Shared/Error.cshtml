@@ -24,6 +24,8 @@
         @Html.DisplayFor(model => model.MessageError)
     </dd>
 
+@if (@Model.StackTraceError != null && !@Model.StackTraceError.Trim().Equals(""))
+{
     <dt>
         @Html.DisplayNameFor(model => model.StackTraceError)
     </dt>
@@ -33,4 +35,5 @@
             new { @class = "form-control", @rows = "20", @cols = "300", @style = "width:100%; padding:5px; overflow:auto", @readonly = "readonly" })
         </div>
     </dd>
+}
 </dl>

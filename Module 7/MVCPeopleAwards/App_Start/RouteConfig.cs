@@ -17,11 +17,11 @@ namespace MVCPeopleAwards
             //регистрация атрибутов Route, прописанных в методах контроллеров
             routes.MapMvcAttributeRoutes();
 
-            //routes.MapRoute(
-            //    name: "Error",
-            //    url: "error",
-            //    defaults: new { controller = "Error", action = "ShowError" }
-            //);
+            routes.MapRoute(
+                name: "Error",
+                url: "error",
+                defaults: new { controller = "Error", action = "ShowError" }
+            );
 
             #region People Routes
 
