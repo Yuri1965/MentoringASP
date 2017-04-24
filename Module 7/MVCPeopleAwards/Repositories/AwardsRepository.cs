@@ -48,7 +48,7 @@ namespace MVCPeopleAwards.Repositories
             catch (Exception ex)
             {
                 Logger.LogException(new Exception(String.Format("Ошибка:\n{0}\n{1}\n{2}", ex.Message, ex.StackTrace, ex.InnerException.StackTrace)));
-                throw;
+                throw ex;
             }
         }
 
@@ -113,8 +113,8 @@ namespace MVCPeopleAwards.Repositories
             }
             catch (Exception ex)
             {
-                Logger.LogException(new Exception(String.Format("Ошибка:\n{0}\n{1}\n{2}", ex.Message, ex.StackTrace, ex.InnerException.StackTrace)));
-                throw;
+                //    Logger.LogException(new Exception(String.Format("Ошибка:\n{0}\n{1}\n{2}", ex.Message, ex.StackTrace, ex.InnerException.StackTrace)));
+                throw ex;
             }
         }
 
@@ -139,7 +139,7 @@ namespace MVCPeopleAwards.Repositories
             catch (Exception ex)
             {
                 Logger.LogException(new Exception(String.Format("Ошибка:\n{0}\n{1}\n{2}", ex.Message, ex.StackTrace, ex.InnerException.StackTrace)));
-                throw;
+                throw ex;
             }
         }
 
@@ -156,7 +156,7 @@ namespace MVCPeopleAwards.Repositories
             catch (Exception ex)
             {
                 Logger.LogException(new Exception(String.Format("Ошибка:\n{0}\n{1}\n{2}", ex.Message, ex.StackTrace, ex.InnerException.StackTrace)));
-                throw;
+                throw ex;
             }
         }
 
@@ -172,7 +172,7 @@ namespace MVCPeopleAwards.Repositories
             catch (Exception ex)
             {
                 Logger.LogException(new Exception(String.Format("Ошибка:\n{0}\n{1}\n{2}", ex.Message, ex.StackTrace, ex.InnerException.StackTrace)));
-                throw;
+                throw ex;
             }
         }
 
@@ -189,7 +189,7 @@ namespace MVCPeopleAwards.Repositories
             catch (Exception ex)
             {
                 Logger.LogException(new Exception(String.Format("Ошибка:\n{0}\n{1}\n{2}", ex.Message, ex.StackTrace, ex.InnerException.StackTrace)));
-                throw;
+                throw ex;
             }
         }
 

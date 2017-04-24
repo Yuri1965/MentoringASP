@@ -1,4 +1,5 @@
-﻿using System.Web;
+﻿using MVCPeopleAwards.Filters;
+using System.Web;
 using System.Web.Mvc;
 
 namespace MVCPeopleAwards
@@ -8,6 +9,9 @@ namespace MVCPeopleAwards
         public static void RegisterGlobalFilters(GlobalFilterCollection filters)
         {
             filters.Add(new HandleErrorAttribute());
+
+            filters.Add(new ExceptionFilter());
+            filters.Add(new LoggingFilter());
         }
     }
 }

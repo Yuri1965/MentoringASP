@@ -231,10 +231,10 @@ namespace MVCPeopleAwards.Controllers
 
                     repository.SavePeople(peopleModel);
                     if (saveCreateMode)
-                        Logger.logger.Info(String.Format("Добавлен человек:\n LastName={0}, FirstName={1}, BirthDate={2}",
+                        Logger.logger.Trace(String.Format("Добавлен человек:\n LastName={0}, FirstName={1}, BirthDate={2}",
                                 peopleModel.LastName, peopleModel.FirstName, peopleModel.BirthDateStr));
                     else
-                        Logger.logger.Info(String.Format("Изменен человек:\n Id={0}, LastName={1}, FirstName={2}, BirthDate={3}",
+                        Logger.logger.Trace(String.Format("Изменен человек:\n Id={0}, LastName={1}, FirstName={2}, BirthDate={3}",
                                 peopleModel.Id, peopleModel.LastName, peopleModel.FirstName, peopleModel.BirthDateStr));
 
                     return RedirectToAction("Index");
@@ -256,7 +256,7 @@ namespace MVCPeopleAwards.Controllers
             try
             {
                 repository.DeletePeople(id);
-                Logger.logger.Info(String.Format("Удален человек:\n Id={0}", id));
+                Logger.logger.Trace(String.Format("Удален человек:\n Id={0}", id));
             }
             catch (Exception e)
             {
@@ -325,7 +325,7 @@ namespace MVCPeopleAwards.Controllers
                 try
                 {
                     repository.DeletePeopleAward(id);
-                    Logger.logger.Info(String.Format("Удалена награда человека:\n Id={0}, PeopleID={1}", id, peopleID));
+                    Logger.logger.Trace(String.Format("Удалена награда человека:\n Id={0}, PeopleID={1}", id, peopleID));
 
                     peopleModel = GetPeopleModelForEdit(peopleID);
                     if (peopleModel == null)
@@ -367,7 +367,7 @@ namespace MVCPeopleAwards.Controllers
                     try
                     {
                         repository.SavePeopleAward(peopleId, SelectedAwardID);
-                        Logger.logger.Info(String.Format("Добавлена награда человека:\n PeopleID={0}, AwardID={1}", peopleId, SelectedAwardID));
+                        Logger.logger.Trace(String.Format("Добавлена награда человека:\n PeopleID={0}, AwardID={1}", peopleId, SelectedAwardID));
 
                         peopleModel = GetPeopleModelForEdit(peopleId);
                         if (peopleModel == null)

@@ -160,14 +160,18 @@
     <Compile Include="App_Start\NinjectWebCommon.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\AwardsController.cs" />
+    <Compile Include="Controllers\ErrorController.cs" />
     <Compile Include="Controllers\PeoplesAwardController.cs" />
     <Compile Include="DependencyInjection\InjectDependencyResolver.cs" />
+    <Compile Include="Filters\ExceptionFilter.cs" />
+    <Compile Include="Filters\LoggingFilter.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Helpers\ExtHttpPostedFileBase.cs" />
     <Compile Include="Logger\Logger.cs" />
     <Compile Include="Models\AwardViewModel.cs" />
+    <Compile Include="Models\ErrorViewModel.cs" />
     <Compile Include="Models\ListAwardsViewModel.cs" />
     <Compile Include="DAL\DBContext\MainDBContext.cs" />
     <Compile Include="DAL\EntityModels\Awards.cs" />
@@ -259,7 +263,9 @@
     <Content Include="Content\bootstrap.css.map" />
     <Content Include="Content\bootstrap-theme.min.css.map" />
     <Content Include="Content\bootstrap-theme.css.map" />
-    <Content Include="Mvc.sitemap" />
+    <Content Include="Mvc.sitemap">
+      <SubType>Designer</SubType>
+    </Content>
     <None Include="MvcSiteMapSchema.xsd">
       <SubType>Designer</SubType>
     </None>
@@ -366,6 +372,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="TestDeployPackage\" />
+    <Folder Include="Views\Error\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />

@@ -1,13 +1,36 @@
-﻿<!DOCTYPE html>
-<html>
-<head>
-    <meta name="viewport" content="width=device-width" />
-    <title>Error</title>
-</head>
-<body>
-    <hgroup>
-        <h1>Error</h1>
-        <h2>An error occurred while processing your request.</h2>
-    </hgroup>
-</body>
-</html>
+﻿@model MVCPeopleAwards.Models.ErrorViewModel
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>@ViewBag.Title</h2>
+
+<p>
+    @if (@Model.BackUrl != null && !@Model.BackUrl.Trim().Equals(""))
+    {
+        <a href="@Model.BackUrl">Вернуться назад</a>
+    }
+    else
+    {
+        @Html.ActionLink("На главную", "Index", "PeoplesAward")
+    }
+</p>
+
+<dl class="dl-horizontal">
+    <dt>
+        @Html.DisplayNameFor(model => model.MessageError)
+    </dt>
+    <dd>
+        @Html.DisplayFor(model => model.MessageError)
+    </dd>
+
+    <dt>
+        @Html.DisplayNameFor(model => model.StackTraceError)
+    </dt>
+    <dd>
+        <div>
+            @Html.TextAreaFor(model => model.StackTraceError,
+            new { @class = "form-control", @rows = "20", @cols = "300", @style = "width:100%; padding:5px; overflow:auto", @readonly = "readonly" })
+        </div>
+    </dd>
+</dl>

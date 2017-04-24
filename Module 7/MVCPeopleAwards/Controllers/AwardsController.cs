@@ -5,6 +5,7 @@ using MVCPeopleAwards.Models;
 using MVCPeopleAwards.Repositories;
 using System;
 using MvcSiteMapProvider;
+using MVCPeopleAwards.Filters;
 
 namespace MVCPeopleAwards.Controllers
 {
@@ -60,20 +61,22 @@ namespace MVCPeopleAwards.Controllers
         }
 
         [Route("award/{id:int:min(1)}", Order = 1)]
+        [ExceptionFilter]
         public ActionResult GetAwardById(int id)
         {
             AwardViewModel awardModel;
-            try
-            {
-                awardModel = repository.GetAwardById(id);
-                if (awardModel == null)
-                    return HttpNotFound("Не найдена награда с таким идентификатором");
-            }
-            catch (Exception e)
-            {
-                Logger.LogException(e);
-                return HttpNotFound("Ошибка на сервере");
-            }
+            //try
+            //{
+            awardModel = repository.GetAwardById(id);
+            if (awardModel == null)
+                throw new Exception("Не найдена награда с таким идентификатором");
+                    //return HttpNotFound("Не найдена награда с таким идентификатором");
+            //}
+            //catch (Exception e)
+            //{
+            //    Logger.LogException(e);
+            //    return HttpNotFound("Ошибка на сервере");
+            //}
 
             ViewBag.Title = "Информация о записи";
             SiteMaps.Current.CurrentNode.Title = ViewBag.Title;
@@ -243,10 +246,10 @@ namespace MVCPeopleAwards.Controllers
 
                     repository.SaveAward(awardModel);
                     if (saveCreateMode)
-                        Logger.logger.Info(String.Format("Добавлена награда:\n NameAward = {0}, DescriptionAward = {1}",
+                        Logger.logger.Trace(String.Format("Добавлена награда:\n NameAward = {0}, DescriptionAward = {1}",
                                 awardModel.NameAward, awardModel.DescriptionAward));
                     else
-                        Logger.logger.Info(String.Format("Изменена награда:\n Id={0}, NameAward = {1}, DescriptionAward = {2}",
+                        Logger.logger.Trace(String.Format("Изменена награда:\n Id={0}, NameAward = {1}, DescriptionAward = {2}",
                                 awardModel.Id, awardModel.NameAward, awardModel.DescriptionAward));
 
                     return RedirectToAction("Index");
@@ -273,7 +276,7 @@ namespace MVCPeopleAwards.Controllers
             try
             {
                 repository.DeleteAward(id);
-                Logger.logger.Info(String.Format("Удалена награда:\n Id={0}", id));
+                Logger.logger.Trace(String.Format("Удалена награда:\n Id={0}", id));
             }
             catch (Exception e)
             {
