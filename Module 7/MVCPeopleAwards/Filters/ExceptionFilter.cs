@@ -34,8 +34,6 @@ namespace MVCPeopleAwards.Filters
 
                 SiteMaps.Current.CurrentNode.Title = "Ошибка";
 
-                //filterContext.Result = new ViewResult() { ViewName = "Error", ViewData = new ViewDataDictionary(errorModel) };
-
                 filterContext.Controller.TempData["errorModel"] = errorModel;
                 filterContext.Result = new RedirectToRouteResult(routeValues);
 
