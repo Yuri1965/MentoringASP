@@ -105,15 +105,20 @@ namespace MVCPeopleAwards.Repositories
         //получает запись по идентификатору
         public AwardViewModel GetAwardById(int id)
         {
-            AwardViewModel awardModel = new AwardViewModel();
             try
             {
-                AwardMapToAwardModel(dbContext.ListAwards.Find(id), ref awardModel);
+                AwardViewModel awardModel = new AwardViewModel();
+                var sourceAward = dbContext.ListAwards.Find(id);
+
+                if (sourceAward == null)
+                    return null;
+
+                AwardMapToAwardModel(sourceAward, ref awardModel);
                 return awardModel;
             }
             catch (Exception ex)
             {
-                //    Logger.LogException(new Exception(String.Format("Ошибка:\n{0}\n{1}\n{2}", ex.Message, ex.StackTrace, ex.InnerException.StackTrace)));
+                Logger.LogException(new Exception(String.Format("Ошибка:\n{0}\n{1}\n{2}", ex.Message, ex.StackTrace, ex.InnerException.StackTrace)));
                 throw ex;
             }
         }
@@ -166,8 +171,12 @@ namespace MVCPeopleAwards.Repositories
             try
             {
                 Awards award = dbContext.ListAwards.Find(id);
-                dbContext.ListAwards.Remove(award);
-                dbContext.SaveChanges();
+
+                if (award != null)
+                {
+                    dbContext.ListAwards.Remove(award);
+                    dbContext.SaveChanges();
+                }
             }
             catch (Exception ex)
             {

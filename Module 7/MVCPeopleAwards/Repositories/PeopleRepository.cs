@@ -50,7 +50,7 @@ namespace MVCPeopleAwards.Repositories
             catch (Exception ex)
             {
                 Logger.LogException(new Exception(String.Format("Ошибка:\n{0}\n{1}\n{2}", ex.Message, ex.StackTrace, ex.InnerException.StackTrace)));
-                throw;
+                throw ex;
             }
         }
 
@@ -115,7 +115,7 @@ namespace MVCPeopleAwards.Repositories
             catch (Exception ex)
             {
                 Logger.LogException(new Exception(String.Format("Ошибка:\n{0}\n{1}\n{2}", ex.Message, ex.StackTrace, ex.InnerException.StackTrace)));
-                throw;
+                throw ex;
             }
         }
 
@@ -177,7 +177,7 @@ namespace MVCPeopleAwards.Repositories
             catch (Exception ex)
             {
                 Logger.LogException(new Exception(String.Format("Ошибка:\n{0}\n{1}\n{2}", ex.Message, ex.StackTrace, ex.InnerException.StackTrace)));
-                throw;
+                throw ex;
             }
         }
 
@@ -187,13 +187,19 @@ namespace MVCPeopleAwards.Repositories
             try
             {
                 PeopleViewModel peopleModel = new PeopleViewModel();
-                PeopleMapToPeopleModel(dbContext.ListPeoples.Find(id), ref peopleModel);
+
+                var sourcePeople = dbContext.ListPeoples.Find(id);
+
+                if (sourcePeople == null)
+                    return null;
+
+                PeopleMapToPeopleModel(sourcePeople, ref peopleModel);
                 return peopleModel;
             }
             catch (Exception ex)
             {
                 Logger.LogException(new Exception(String.Format("Ошибка:\n{0}\n{1}\n{2}", ex.Message, ex.StackTrace, ex.InnerException.StackTrace)));
-                throw;
+                throw ex;
             }
         }
 
@@ -225,7 +231,7 @@ namespace MVCPeopleAwards.Repositories
             catch (Exception ex)
             {
                 Logger.LogException(new Exception(String.Format("Ошибка:\n{0}\n{1}\n{2}", ex.Message, ex.StackTrace, ex.InnerException.StackTrace)));
-                throw;
+                throw ex;
             }
         }
 
@@ -245,24 +251,25 @@ namespace MVCPeopleAwards.Repositories
             catch (Exception ex)
             {
                 Logger.LogException(new Exception(String.Format("Ошибка:\n{0}\n{1}\n{2}", ex.Message, ex.StackTrace, ex.InnerException.StackTrace)));
-                throw;
+                throw ex;
             }
         }
 
         // сохраняет человека
         public void SavePeople(PeopleViewModel peopleModel)
         {
-            People savePeople = new People();
-            PeopleModelMapToPeoples(peopleModel, ref savePeople, true);
             try
             {
+                People savePeople = new People();
+
+                PeopleModelMapToPeoples(peopleModel, ref savePeople, true);
                 dbContext.Set<People>().AddOrUpdate(savePeople);
                 dbContext.SaveChanges();
             }
             catch (Exception ex)
             {
                 Logger.LogException(new Exception(String.Format("Ошибка:\n{0}\n{1}\n{2}", ex.Message, ex.StackTrace, ex.InnerException.StackTrace)));
-                throw;
+                throw ex;
             }
         }
 
@@ -282,7 +289,7 @@ namespace MVCPeopleAwards.Repositories
             catch (Exception ex)
             {
                 Logger.LogException(new Exception(String.Format("Ошибка:\n{0}\n{1}\n{2}", ex.Message, ex.StackTrace, ex.InnerException.StackTrace)));
-                throw;
+                throw ex;
             }
         }
 
@@ -293,22 +300,25 @@ namespace MVCPeopleAwards.Repositories
             {
                 People people = dbContext.ListPeoples.Find(id);
 
-                // сначала удалим награды человека
-                var lstAwards = people.PeopleAwards.ToList();
-                foreach (var item in lstAwards)
+                if (people != null)
                 {
-                    dbContext.ListPeopleAwards.Remove(item);
+                    // сначала удалим награды человека
+                    var lstAwards = people.PeopleAwards.ToList();
+                    foreach (var item in lstAwards)
+                    {
+                        dbContext.ListPeopleAwards.Remove(item);
+                        dbContext.SaveChanges();
+                    }
+
+                    // удалим человека
+                    dbContext.ListPeoples.Remove(people);
                     dbContext.SaveChanges();
                 }
-
-                // удалим человека
-                dbContext.ListPeoples.Remove(people);
-                dbContext.SaveChanges();
             }
             catch (Exception ex)
             {
                 Logger.LogException(new Exception(String.Format("Ошибка:\n{0}\n{1}\n{2}", ex.Message, ex.StackTrace, ex.InnerException.StackTrace)));
-                throw;
+                throw ex;
             }
         }
 
@@ -319,13 +329,16 @@ namespace MVCPeopleAwards.Repositories
             {
                 PeopleAwards award = dbContext.ListPeopleAwards.Find(id);
 
-                dbContext.ListPeopleAwards.Remove(award);
-                dbContext.SaveChanges();
+                if (award != null)
+                {
+                    dbContext.ListPeopleAwards.Remove(award);
+                    dbContext.SaveChanges();
+                }
             }
             catch (Exception ex)
             {
                 Logger.LogException(new Exception(String.Format("Ошибка:\n{0}\n{1}\n{2}", ex.Message, ex.StackTrace, ex.InnerException.StackTrace)));
-                throw;
+                throw ex;
             }
         }
 
@@ -342,7 +355,7 @@ namespace MVCPeopleAwards.Repositories
             catch (Exception ex)
             {
                 Logger.LogException(new Exception(String.Format("Ошибка:\n{0}\n{1}\n{2}", ex.Message, ex.StackTrace, ex.InnerException.StackTrace)));
-                throw;
+                throw ex;
             }
         }
 

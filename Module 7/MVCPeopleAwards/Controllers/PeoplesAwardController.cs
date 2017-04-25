@@ -1,4 +1,5 @@
-﻿using MVCPeopleAwards.Models;
+﻿using MVCPeopleAwards.Helpers;
+using MVCPeopleAwards.Models;
 using MVCPeopleAwards.Repositories;
 using MvcSiteMapProvider;
 using System;
@@ -67,14 +68,15 @@ namespace MVCPeopleAwards.Controllers
             {
                 peopleModel = repository.GetPeopleByFullName(fullNamePeople);
                 if (peopleModel == null)
-                    return HttpNotFound("Не найден человек с такими параметрами");
+                    return View("Error", ErrorHelper.GetErrorModel("Не найден человек с такими параметрами", "",
+                        ControllerContext.HttpContext.Request.UrlReferrer.AbsoluteUri));
 
                 peopleModel.Awards = repository.GetAwards();
             }
             catch (Exception e)
             {
                 Logger.LogException(e);
-                return HttpNotFound("Ошибка на сервере");
+                throw e;
             }
 
             ViewBag.Title = "Список наград человека";
@@ -108,12 +110,14 @@ namespace MVCPeopleAwards.Controllers
             {
                 peopleModel = repository.GetPeople(id);
                 if (peopleModel == null)
-                    return HttpNotFound("Не найден человек с таким идентификатором");
+                    return View("Error", ErrorHelper.GetErrorModel("Не найден человек с таким идентификатором", "",
+                        ControllerContext.HttpContext.Request.UrlReferrer.AbsoluteUri));
             }
             catch (Exception e)
             {
                 Logger.LogException(e);
-                return HttpNotFound("Ошибка на сервере");
+                return View("Error", ErrorHelper.GetErrorModel(e.Message, e.StackTrace,
+                    ControllerContext.HttpContext.Request.UrlReferrer.AbsoluteUri));
             }
 
             ViewBag.Title = "Изменение записи";
@@ -128,12 +132,14 @@ namespace MVCPeopleAwards.Controllers
             {
                 peopleModel = repository.GetPeople(id);
                 if (peopleModel == null)
-                    return HttpNotFound("Не найден человек с таким идентификатором");
+                    return View("Error", ErrorHelper.GetErrorModel("Не найден человек с таким идентификатором", "",
+                        ControllerContext.HttpContext.Request.UrlReferrer.AbsoluteUri));
             }
             catch (Exception e)
             {
                 Logger.LogException(e);
-                return HttpNotFound("Ошибка на сервере");
+                return View("Error", ErrorHelper.GetErrorModel(e.Message, e.StackTrace,
+                    ControllerContext.HttpContext.Request.UrlReferrer.AbsoluteUri));
             }
 
             ViewBag.Title = "Удаление записи";
@@ -158,8 +164,9 @@ namespace MVCPeopleAwards.Controllers
                 else
                     peopleModel.Error = "Не удалось сформировать список награжденных из БД";
             }
-            catch
+            catch (Exception e)
             {
+                Logger.LogException(e);
                 // создаем пустой список в случае неудачи и заполняем текст ошибки
                 peopleModel.ListPeople = new List<PeopleViewModel>();
                 peopleModel.Error = "Не удалось получить список награжденных из БД";
@@ -171,9 +178,7 @@ namespace MVCPeopleAwards.Controllers
         public ActionResult GetPhotoPeople(int id)
         {
             if (id <= 0)
-            {
                 return null;
-            }
 
             PeopleViewModel peopleModel;
             try
@@ -184,8 +189,9 @@ namespace MVCPeopleAwards.Controllers
 
                 return File(UtilHelper.HttpPostedFileBaseToByte(peopleModel.PhotoPeople), peopleModel.PhotoMIMEType);
             }
-            catch
+            catch (Exception e)
             {
+                Logger.LogException(e);
                 return null;
             }
         }
@@ -242,11 +248,11 @@ namespace MVCPeopleAwards.Controllers
                 catch (Exception e)
                 {
                     Logger.LogException(e);
+                    return View("Error", ErrorHelper.GetErrorModel(e.Message, e.StackTrace,
+                        ControllerContext.HttpContext.Request.UrlReferrer.AbsoluteUri));
                 }
             }
             else return View("CreateEditPeople", peopleModel);
-
-            return RedirectToAction("CreateEditPeople", peopleModel.Id);
         }
 
         [HttpPost]
@@ -261,7 +267,8 @@ namespace MVCPeopleAwards.Controllers
             catch (Exception e)
             {
                 Logger.LogException(e);
-                return HttpNotFound("Ошибка на сервере");
+                return View("Error", ErrorHelper.GetErrorModel(e.Message, e.StackTrace,
+                    ControllerContext.HttpContext.Request.UrlReferrer.AbsoluteUri));
             }
             return RedirectToAction("Index");
         }
@@ -289,18 +296,10 @@ namespace MVCPeopleAwards.Controllers
 
         public ActionResult EditPeopleAwards(int id)
         {
-            PeopleViewModel peopleModel;
-            try
-            {
-                peopleModel = GetPeopleModelForEdit(id);
-                if (peopleModel == null)
-                    return HttpNotFound("Не найден человек с таким идентификатором");
-            }
-            catch (Exception e)
-            {
-                Logger.LogException(e);
-                return HttpNotFound("Ошибка на сервере");
-            }
+            PeopleViewModel peopleModel = GetPeopleModelForEdit(id);
+            if (peopleModel == null)
+                return View("Error", ErrorHelper.GetErrorModel("Не найден человек с таким идентификатором", "",
+                    ControllerContext.HttpContext.Request.UrlReferrer.AbsoluteUri));
 
             ViewBag.Title = "Список наград человека";
             return View("EditPeopleAwards", peopleModel);
@@ -312,38 +311,33 @@ namespace MVCPeopleAwards.Controllers
         {
             if (id <= 0 || peopleID <= 0)
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "Переданы некорректные параметры");
+                return View("Error", ErrorHelper.GetErrorModel("Переданы некорректные параметры", "",
+                    ControllerContext.HttpContext.Request.UrlReferrer.AbsoluteUri));
             }
 
             PeopleViewModel peopleModel;
+            peopleModel = GetPeopleModelForEdit(peopleID);
+            if (peopleModel == null)
+                return View("Error", ErrorHelper.GetErrorModel("Не найден человек с таким идентификатором", "",
+                    ControllerContext.HttpContext.Request.UrlReferrer.AbsoluteUri));
+
             try
             {
+                repository.DeletePeopleAward(id);
+                Logger.logger.Trace(String.Format("Удалена награда человека:\n Id={0}, PeopleID={1}", id, peopleID));
+
                 peopleModel = GetPeopleModelForEdit(peopleID);
                 if (peopleModel == null)
-                    return HttpNotFound("Не найден человек с таким идентификатором");
-
-                try
-                {
-                    repository.DeletePeopleAward(id);
-                    Logger.logger.Trace(String.Format("Удалена награда человека:\n Id={0}, PeopleID={1}", id, peopleID));
-
-                    peopleModel = GetPeopleModelForEdit(peopleID);
-                    if (peopleModel == null)
-                        return HttpNotFound("Не найден человек с таким идентификатором");
-                }
-                catch (Exception e)
-                {
-                    Logger.LogException(e);
-                    peopleModel.Error = "Запись не удалена! Ошибка на сервере";
-                }
-
-                return RedirectToAction("EditPeopleAwards", new { id = peopleID });
+                    return View("Error", ErrorHelper.GetErrorModel("Не найден человек с таким идентификатором", "",
+                        ControllerContext.HttpContext.Request.UrlReferrer.AbsoluteUri));
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                Logger.LogException(ex);
-                return HttpNotFound("Ошибка на сервере");
+                Logger.LogException(e);
+                peopleModel.Error = "Запись не удалена! Ошибка на сервере";
             }
+
+            return RedirectToAction("EditPeopleAwards", new { id = peopleID });
         }
 
         [HttpPost]
@@ -352,46 +346,42 @@ namespace MVCPeopleAwards.Controllers
         {
             if (peopleId <= 0 || SelectedAwardID <= 0)
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest, "Переданы некорректные параметры");
+                return View("Error", ErrorHelper.GetErrorModel("Переданы некорректные параметры", "",
+                    ControllerContext.HttpContext.Request.UrlReferrer.AbsoluteUri));
             }
 
             if (ModelState.IsValid)
             {
                 PeopleViewModel peopleModel;
+                peopleModel = GetPeopleModelForEdit(peopleId);
+                if (peopleModel == null)
+                    return View("Error", ErrorHelper.GetErrorModel("Не найден человек с таким идентификатором", "",
+                        ControllerContext.HttpContext.Request.UrlReferrer.AbsoluteUri));
+
                 try
                 {
+                    repository.SavePeopleAward(peopleId, SelectedAwardID);
+                    Logger.logger.Trace(String.Format("Добавлена награда человека:\n PeopleID={0}, AwardID={1}", peopleId, SelectedAwardID));
+
                     peopleModel = GetPeopleModelForEdit(peopleId);
                     if (peopleModel == null)
-                        return HttpNotFound("Не найден человек с таким идентификатором");
-
-                    try
-                    {
-                        repository.SavePeopleAward(peopleId, SelectedAwardID);
-                        Logger.logger.Trace(String.Format("Добавлена награда человека:\n PeopleID={0}, AwardID={1}", peopleId, SelectedAwardID));
-
-                        peopleModel = GetPeopleModelForEdit(peopleId);
-                        if (peopleModel == null)
-                            return HttpNotFound("Не найден человек с таким идентификатором");
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.LogException(ex);
-                        peopleModel.Error = "Запись не добавлена! Ошибка на сервере";
-                    }
-
-                    return RedirectToAction("EditPeopleAwards", new { id = peopleId });
+                        return View("Error", ErrorHelper.GetErrorModel("Не найден человек с таким идентификатором", "",
+                            ControllerContext.HttpContext.Request.UrlReferrer.AbsoluteUri));
                 }
-                catch (Exception e)
+                catch (Exception ex)
                 {
-                    Logger.LogException(e);
-                    return HttpNotFound("Ошибка на сервере");
+                    Logger.LogException(ex);
+                    peopleModel.Error = "Запись не добавлена! Ошибка на сервере";
                 }
+
+                return RedirectToAction("EditPeopleAwards", new { id = peopleId });
             }
             else
             {
                 PeopleViewModel peopleModel = GetPeopleModelForEdit(peopleId);
                 if (peopleModel == null)
-                    return HttpNotFound("Не найден человек с таким идентификатором");
+                    return View("Error", ErrorHelper.GetErrorModel("Не найден человек с таким идентификатором", "",
+                        ControllerContext.HttpContext.Request.UrlReferrer.AbsoluteUri));
 
                 return View("EditPeopleAwards", peopleModel);
             }
@@ -409,7 +399,8 @@ namespace MVCPeopleAwards.Controllers
             catch (Exception e)
             {
                 Logger.LogException(e);
-                return HttpNotFound("Ошибка на сервере");
+                return View("Error", ErrorHelper.GetErrorModel(e.Message, e.StackTrace,
+                    ControllerContext.HttpContext.Request.UrlReferrer.AbsoluteUri));
             }
             return Json(true, JsonRequestBehavior.AllowGet);
         }

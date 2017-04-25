@@ -6,6 +6,7 @@ using MVCPeopleAwards.Repositories;
 using System;
 using MvcSiteMapProvider;
 using MVCPeopleAwards.Filters;
+using MVCPeopleAwards.Helpers;
 
 namespace MVCPeopleAwards.Controllers
 {
@@ -65,18 +66,19 @@ namespace MVCPeopleAwards.Controllers
         public ActionResult GetAwardById(int id)
         {
             AwardViewModel awardModel;
-            //try
-            //{
-            awardModel = repository.GetAwardById(id);
-            if (awardModel == null)
-                throw new Exception("Не найдена награда с таким идентификатором");
-                    //return HttpNotFound("Не найдена награда с таким идентификатором");
-            //}
-            //catch (Exception e)
-            //{
-            //    Logger.LogException(e);
-            //    return HttpNotFound("Ошибка на сервере");
-            //}
+            try
+            {
+                awardModel = repository.GetAwardById(id);
+                if (awardModel == null)
+                    return View("Error", ErrorHelper.GetErrorModel("Не найдена награда с таким идентификатором", "",
+                        ControllerContext.HttpContext.Request.UrlReferrer.AbsoluteUri));
+            }
+            catch (Exception e)
+            {
+                Logger.LogException(e);
+                return View("Error", ErrorHelper.GetErrorModel(e.Message, e.StackTrace,
+                    ControllerContext.HttpContext.Request.UrlReferrer.AbsoluteUri));
+            }
 
             ViewBag.Title = "Информация о записи";
             SiteMaps.Current.CurrentNode.Title = ViewBag.Title;
@@ -91,7 +93,8 @@ namespace MVCPeopleAwards.Controllers
             {
                 awardModel = repository.GetAwardByName(nameAward);
                 if (awardModel == null)
-                    return HttpNotFound(String.Format("Не найдена награда с наименованием = {0}", nameAward));
+                    return View("Error", ErrorHelper.GetErrorModel(String.Format("Не найдена награда с наименованием = {0}", nameAward), "",
+                        ControllerContext.HttpContext.Request.UrlReferrer.AbsoluteUri));
 
                 ViewBag.Title = "Информация о записи";
                 SiteMaps.Current.CurrentNode.Title = ViewBag.Title;
@@ -100,7 +103,8 @@ namespace MVCPeopleAwards.Controllers
             catch (Exception e)
             {
                 Logger.LogException(e);
-                return HttpNotFound("Ошибка на сервере");
+                return View("Error", ErrorHelper.GetErrorModel(e.Message, e.StackTrace,
+                    ControllerContext.HttpContext.Request.UrlReferrer.AbsoluteUri));
             }
         }
 
@@ -111,12 +115,14 @@ namespace MVCPeopleAwards.Controllers
             {
                 awardModel = repository.GetAwardById(id);
                 if (awardModel == null)
-                    return HttpNotFound("Не найдена награда с таким идентификатором");
+                    return View("Error", ErrorHelper.GetErrorModel("Не найдена награда с таким идентификатором", "",
+                        ControllerContext.HttpContext.Request.UrlReferrer.AbsoluteUri));
             }
             catch (Exception e)
             {
                 Logger.LogException(e);
-                return HttpNotFound("Ошибка на сервере");
+                return View("Error", ErrorHelper.GetErrorModel(e.Message, e.StackTrace,
+                    ControllerContext.HttpContext.Request.UrlReferrer.AbsoluteUri));
             }
 
             return PartialView("ModalAwardDetail", awardModel);
@@ -148,12 +154,14 @@ namespace MVCPeopleAwards.Controllers
             {
                 awardModel = repository.GetAwardById(id);
                 if (awardModel == null)
-                    return HttpNotFound("Не найдена награда с таким идентификатором");
+                    return View("Error", ErrorHelper.GetErrorModel("Не найдена награда с таким идентификатором", "",
+                        ControllerContext.HttpContext.Request.UrlReferrer.AbsoluteUri));
             }
             catch (Exception e)
             {
                 Logger.LogException(e);
-                return HttpNotFound("Ошибка на сервере");
+                return View("Error", ErrorHelper.GetErrorModel(e.Message, e.StackTrace,
+                    ControllerContext.HttpContext.Request.UrlReferrer.AbsoluteUri));
             }
 
             ViewBag.Title = "Изменение записи";
@@ -169,12 +177,14 @@ namespace MVCPeopleAwards.Controllers
             {
                 awardModel = repository.GetAwardById(id);
                 if (awardModel == null)
-                    return HttpNotFound("Не найдена награда с таким идентификатором");
+                    return View("Error", ErrorHelper.GetErrorModel("Не найдена награда с таким идентификатором", "",
+                        ControllerContext.HttpContext.Request.UrlReferrer.AbsoluteUri));
             }
             catch (Exception e)
             {
                 Logger.LogException(e);
-                return HttpNotFound("Ошибка на сервере");
+                return View("Error", ErrorHelper.GetErrorModel(e.Message, e.StackTrace,
+                    ControllerContext.HttpContext.Request.UrlReferrer.AbsoluteUri));
             }
 
             ViewBag.Title = "Удаление записи";
@@ -185,9 +195,7 @@ namespace MVCPeopleAwards.Controllers
         public ActionResult GetPhotoAward(int id)
         {
             if (id <= 0)
-            {
                 return null;
-            }
 
             AwardViewModel awardModel;
             try
@@ -257,11 +265,11 @@ namespace MVCPeopleAwards.Controllers
                 catch (Exception e)
                 {
                     Logger.LogException(e);
+                    return View("Error", ErrorHelper.GetErrorModel(e.Message, e.StackTrace,
+                        ControllerContext.HttpContext.Request.UrlReferrer.AbsoluteUri));
                 }
             }
             else return View("CreateEditAward", awardModel);
-
-            return RedirectToAction("CreateEditAward", awardModel.Id);
         }
 
         [HttpPost]
@@ -269,9 +277,8 @@ namespace MVCPeopleAwards.Controllers
         public ActionResult SaveDeleteAward(int id)
         {
             if (id <= 0)
-            {
-                return HttpNotFound("Не найдена награда с таким идентификатором");
-            }
+                return View("Error", ErrorHelper.GetErrorModel("Не найдена награда с таким идентификатором", "",
+                    ControllerContext.HttpContext.Request.UrlReferrer.AbsoluteUri));
 
             try
             {
@@ -287,7 +294,8 @@ namespace MVCPeopleAwards.Controllers
                 {
                     awardModel = repository.GetAwardById(id);
                     if (awardModel == null)
-                        return HttpNotFound("Не найдена награда с таким идентификатором");
+                        return View("Error", ErrorHelper.GetErrorModel("Не найдена награда с таким идентификатором", "",
+                            ControllerContext.HttpContext.Request.UrlReferrer.AbsoluteUri));
                     else
                     {
                         awardModel.Error = "Запись не удалена! Возможно на нее есть ссылки в списке награжденных";
@@ -297,8 +305,9 @@ namespace MVCPeopleAwards.Controllers
                 catch (Exception ex)
                 {
                     Logger.LogException(ex);
+                    return View("Error", ErrorHelper.GetErrorModel(ex.Message, ex.StackTrace,
+                        ControllerContext.HttpContext.Request.UrlReferrer.AbsoluteUri));
                 }
-                return HttpNotFound("Ошибка на сервере");
             }
             return RedirectToAction("Index");
         }
@@ -315,7 +324,8 @@ namespace MVCPeopleAwards.Controllers
             catch (Exception ex)
             {
                 Logger.LogException(ex);
-                return HttpNotFound("Ошибка на сервере");
+                return View("Error", ErrorHelper.GetErrorModel(ex.Message, ex.StackTrace,
+                    ControllerContext.HttpContext.Request.UrlReferrer.AbsoluteUri));
             }
             return Json(true, JsonRequestBehavior.AllowGet);
         }

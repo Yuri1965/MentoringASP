@@ -1,4 +1,5 @@
-﻿using MVCPeopleAwards.Models;
+﻿using MVCPeopleAwards.Helpers;
+using MVCPeopleAwards.Models;
 using MvcSiteMapProvider;
 using System;
 using System.Collections.Generic;
@@ -15,13 +16,11 @@ namespace MVCPeopleAwards.Filters
         {
             if (!filterContext.ExceptionHandled)
             {
-                ErrorViewModel errorModel = new ErrorViewModel();
-                errorModel.MessageError = filterContext.Exception.Message;
-                errorModel.StackTraceError = filterContext.Exception.StackTrace;
+                string backUrl = "";
                 if (filterContext.HttpContext.Request.UrlReferrer != null)
-                    errorModel.BackUrl = filterContext.HttpContext.Request.UrlReferrer.AbsoluteUri;
-                else
-                    errorModel.BackUrl = "";
+                    backUrl = filterContext.HttpContext.Request.UrlReferrer.AbsoluteUri;
+
+                ErrorViewModel errorModel = ErrorHelper.GetErrorModel(filterContext.Exception.Message, filterContext.Exception.StackTrace, backUrl);
 
                 Logger.LogException(new Exception(String.Format("Ошибка:\n{0}\n{1}\n{2}", 
                     filterContext.Exception.Message,
@@ -31,8 +30,6 @@ namespace MVCPeopleAwards.Filters
                 var routeValues = new RouteValueDictionary();
                 routeValues.Add("Action", "ShowError");
                 routeValues.Add("Controller", "Error");
-
-                SiteMaps.Current.CurrentNode.Title = "Ошибка";
 
                 filterContext.Controller.TempData["errorModel"] = errorModel;
                 filterContext.Result = new RedirectToRouteResult(routeValues);
