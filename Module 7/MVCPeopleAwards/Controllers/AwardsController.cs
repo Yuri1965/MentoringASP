@@ -12,6 +12,8 @@ namespace MVCPeopleAwards.Controllers
 {
     public class AwardsController : Controller
     {
+        private const string DEFAULT_BACK_ERROR_URL = "/awards";
+
         private IRepositoryAward repository;
 
         public AwardsController(IRepositoryAward rep)
@@ -70,14 +72,12 @@ namespace MVCPeopleAwards.Controllers
             {
                 awardModel = repository.GetAwardById(id);
                 if (awardModel == null)
-                    return View("Error", ErrorHelper.GetErrorModel("Не найдена награда с таким идентификатором", "",
-                        ControllerContext.HttpContext.Request.UrlReferrer.AbsoluteUri));
+                    return View("Error", ErrorHelper.GetErrorModel("Не найдена награда с таким идентификатором", "", DEFAULT_BACK_ERROR_URL));
             }
             catch (Exception e)
             {
                 Logger.LogException(e);
-                return View("Error", ErrorHelper.GetErrorModel(e.Message, e.StackTrace,
-                    ControllerContext.HttpContext.Request.UrlReferrer.AbsoluteUri));
+                return View("Error", ErrorHelper.GetErrorModel(e.Message, e.StackTrace, DEFAULT_BACK_ERROR_URL));
             }
 
             ViewBag.Title = "Информация о записи";
@@ -93,8 +93,7 @@ namespace MVCPeopleAwards.Controllers
             {
                 awardModel = repository.GetAwardByName(nameAward);
                 if (awardModel == null)
-                    return View("Error", ErrorHelper.GetErrorModel(String.Format("Не найдена награда с наименованием = {0}", nameAward), "",
-                        ControllerContext.HttpContext.Request.UrlReferrer.AbsoluteUri));
+                    return View("Error", ErrorHelper.GetErrorModel(String.Format("Не найдена награда с наименованием = {0}", nameAward), "", DEFAULT_BACK_ERROR_URL));
 
                 ViewBag.Title = "Информация о записи";
                 SiteMaps.Current.CurrentNode.Title = ViewBag.Title;
@@ -103,8 +102,7 @@ namespace MVCPeopleAwards.Controllers
             catch (Exception e)
             {
                 Logger.LogException(e);
-                return View("Error", ErrorHelper.GetErrorModel(e.Message, e.StackTrace,
-                    ControllerContext.HttpContext.Request.UrlReferrer.AbsoluteUri));
+                return View("Error", ErrorHelper.GetErrorModel(e.Message, e.StackTrace, DEFAULT_BACK_ERROR_URL));
             }
         }
 
@@ -115,14 +113,12 @@ namespace MVCPeopleAwards.Controllers
             {
                 awardModel = repository.GetAwardById(id);
                 if (awardModel == null)
-                    return View("Error", ErrorHelper.GetErrorModel("Не найдена награда с таким идентификатором", "",
-                        ControllerContext.HttpContext.Request.UrlReferrer.AbsoluteUri));
+                    return View("Error", ErrorHelper.GetErrorModel("Не найдена награда с таким идентификатором", "", DEFAULT_BACK_ERROR_URL));
             }
             catch (Exception e)
             {
                 Logger.LogException(e);
-                return View("Error", ErrorHelper.GetErrorModel(e.Message, e.StackTrace,
-                    ControllerContext.HttpContext.Request.UrlReferrer.AbsoluteUri));
+                return View("Error", ErrorHelper.GetErrorModel(e.Message, e.StackTrace, DEFAULT_BACK_ERROR_URL));
             }
 
             return PartialView("ModalAwardDetail", awardModel);
@@ -154,14 +150,12 @@ namespace MVCPeopleAwards.Controllers
             {
                 awardModel = repository.GetAwardById(id);
                 if (awardModel == null)
-                    return View("Error", ErrorHelper.GetErrorModel("Не найдена награда с таким идентификатором", "",
-                        ControllerContext.HttpContext.Request.UrlReferrer.AbsoluteUri));
+                    return View("Error", ErrorHelper.GetErrorModel("Не найдена награда с таким идентификатором", "", DEFAULT_BACK_ERROR_URL));
             }
             catch (Exception e)
             {
                 Logger.LogException(e);
-                return View("Error", ErrorHelper.GetErrorModel(e.Message, e.StackTrace,
-                    ControllerContext.HttpContext.Request.UrlReferrer.AbsoluteUri));
+                return View("Error", ErrorHelper.GetErrorModel(e.Message, e.StackTrace, DEFAULT_BACK_ERROR_URL));
             }
 
             ViewBag.Title = "Изменение записи";
@@ -177,14 +171,12 @@ namespace MVCPeopleAwards.Controllers
             {
                 awardModel = repository.GetAwardById(id);
                 if (awardModel == null)
-                    return View("Error", ErrorHelper.GetErrorModel("Не найдена награда с таким идентификатором", "",
-                        ControllerContext.HttpContext.Request.UrlReferrer.AbsoluteUri));
+                    return View("Error", ErrorHelper.GetErrorModel("Не найдена награда с таким идентификатором", "", DEFAULT_BACK_ERROR_URL));
             }
             catch (Exception e)
             {
                 Logger.LogException(e);
-                return View("Error", ErrorHelper.GetErrorModel(e.Message, e.StackTrace,
-                    ControllerContext.HttpContext.Request.UrlReferrer.AbsoluteUri));
+                return View("Error", ErrorHelper.GetErrorModel(e.Message, e.StackTrace, DEFAULT_BACK_ERROR_URL));
             }
 
             ViewBag.Title = "Удаление записи";
@@ -265,8 +257,7 @@ namespace MVCPeopleAwards.Controllers
                 catch (Exception e)
                 {
                     Logger.LogException(e);
-                    return View("Error", ErrorHelper.GetErrorModel(e.Message, e.StackTrace,
-                        ControllerContext.HttpContext.Request.UrlReferrer.AbsoluteUri));
+                    return View("Error", ErrorHelper.GetErrorModel(e.Message, e.StackTrace, DEFAULT_BACK_ERROR_URL));
                 }
             }
             else return View("CreateEditAward", awardModel);
@@ -277,8 +268,7 @@ namespace MVCPeopleAwards.Controllers
         public ActionResult SaveDeleteAward(int id)
         {
             if (id <= 0)
-                return View("Error", ErrorHelper.GetErrorModel("Не найдена награда с таким идентификатором", "",
-                    ControllerContext.HttpContext.Request.UrlReferrer.AbsoluteUri));
+                return View("Error", ErrorHelper.GetErrorModel("Не найдена награда с таким идентификатором", "", DEFAULT_BACK_ERROR_URL));
 
             try
             {
@@ -294,8 +284,7 @@ namespace MVCPeopleAwards.Controllers
                 {
                     awardModel = repository.GetAwardById(id);
                     if (awardModel == null)
-                        return View("Error", ErrorHelper.GetErrorModel("Не найдена награда с таким идентификатором", "",
-                            ControllerContext.HttpContext.Request.UrlReferrer.AbsoluteUri));
+                        return View("Error", ErrorHelper.GetErrorModel("Не найдена награда с таким идентификатором", "", DEFAULT_BACK_ERROR_URL));
                     else
                     {
                         awardModel.Error = "Запись не удалена! Возможно на нее есть ссылки в списке награжденных";
@@ -305,8 +294,7 @@ namespace MVCPeopleAwards.Controllers
                 catch (Exception ex)
                 {
                     Logger.LogException(ex);
-                    return View("Error", ErrorHelper.GetErrorModel(ex.Message, ex.StackTrace,
-                        ControllerContext.HttpContext.Request.UrlReferrer.AbsoluteUri));
+                    return View("Error", ErrorHelper.GetErrorModel(ex.Message, ex.StackTrace, DEFAULT_BACK_ERROR_URL));
                 }
             }
             return RedirectToAction("Index");
@@ -324,8 +312,7 @@ namespace MVCPeopleAwards.Controllers
             catch (Exception ex)
             {
                 Logger.LogException(ex);
-                return View("Error", ErrorHelper.GetErrorModel(ex.Message, ex.StackTrace,
-                    ControllerContext.HttpContext.Request.UrlReferrer.AbsoluteUri));
+                return View("Error", ErrorHelper.GetErrorModel(ex.Message, ex.StackTrace, DEFAULT_BACK_ERROR_URL));
             }
             return Json(true, JsonRequestBehavior.AllowGet);
         }

@@ -16,11 +16,7 @@ namespace MVCPeopleAwards.Filters
         {
             if (!filterContext.ExceptionHandled)
             {
-                string backUrl = "";
-                if (filterContext.HttpContext.Request.UrlReferrer != null)
-                    backUrl = filterContext.HttpContext.Request.UrlReferrer.AbsoluteUri;
-
-                ErrorViewModel errorModel = ErrorHelper.GetErrorModel(filterContext.Exception.Message, filterContext.Exception.StackTrace, backUrl);
+                ErrorViewModel errorModel = ErrorHelper.GetErrorModel(filterContext.Exception.Message, filterContext.Exception.StackTrace, "");
 
                 Logger.LogException(new Exception(String.Format("Ошибка:\n{0}\n{1}\n{2}", 
                     filterContext.Exception.Message,

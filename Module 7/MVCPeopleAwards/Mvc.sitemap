@@ -18,9 +18,9 @@
       <mvcSiteMapNode title="Добавление записи" controller="Awards" action="CreateAward"/>
       <mvcSiteMapNode title="Изменение записи" controller="Awards" action="EditAward" preservedRouteParameters="id"/>
       <mvcSiteMapNode title="Удаление записи" controller="Awards" action="DeleteAward" preservedRouteParameters="id"/>
-      <mvcSiteMapNode title="Информация о записи1" controller="Awards" action="GetAwardInfo" preservedRouteParameters="id"/>
-      <mvcSiteMapNode title="Информация о записи2" controller="Awards" action="GetAwardById" preservedRouteParameters="id"/>
-      <mvcSiteMapNode title="Информация о записи3" controller="Awards" action="GetAwardByName" preservedRouteParameters="nameAward"/>
+      <mvcSiteMapNode title="Информация о записи" controller="Awards" action="GetAwardInfo" preservedRouteParameters="id"/>
+      <mvcSiteMapNode title="Информация о записи" controller="Awards" action="GetAwardById" preservedRouteParameters="id"/>
+      <mvcSiteMapNode title="Информация о записи" controller="Awards" action="GetAwardByName" preservedRouteParameters="nameAward"/>
     </mvcSiteMapNode>
 
     <mvcSiteMapNode title="Ошибка" controller="Error" action="ShowError"/>

@@ -13,6 +13,8 @@ namespace MVCPeopleAwards.Controllers
 {
     public class PeoplesAwardController : Controller
     {
+        private const string DEFAULT_BACK_ERROR_URL = "/peoples";
+
         private IRepositoryPeople repository;
 
         public PeoplesAwardController(IRepositoryPeople rep)
@@ -68,8 +70,7 @@ namespace MVCPeopleAwards.Controllers
             {
                 peopleModel = repository.GetPeopleByFullName(fullNamePeople);
                 if (peopleModel == null)
-                    return View("Error", ErrorHelper.GetErrorModel("Не найден человек с такими параметрами", "",
-                        ControllerContext.HttpContext.Request.UrlReferrer.AbsoluteUri));
+                    return View("Error", ErrorHelper.GetErrorModel("Не найден человек с такими параметрами", "", DEFAULT_BACK_ERROR_URL));
 
                 peopleModel.Awards = repository.GetAwards();
             }
@@ -110,14 +111,12 @@ namespace MVCPeopleAwards.Controllers
             {
                 peopleModel = repository.GetPeople(id);
                 if (peopleModel == null)
-                    return View("Error", ErrorHelper.GetErrorModel("Не найден человек с таким идентификатором", "",
-                        ControllerContext.HttpContext.Request.UrlReferrer.AbsoluteUri));
+                    return View("Error", ErrorHelper.GetErrorModel("Не найден человек с таким идентификатором", "", DEFAULT_BACK_ERROR_URL));
             }
             catch (Exception e)
             {
                 Logger.LogException(e);
-                return View("Error", ErrorHelper.GetErrorModel(e.Message, e.StackTrace,
-                    ControllerContext.HttpContext.Request.UrlReferrer.AbsoluteUri));
+                return View("Error", ErrorHelper.GetErrorModel(e.Message, e.StackTrace, DEFAULT_BACK_ERROR_URL));
             }
 
             ViewBag.Title = "Изменение записи";
@@ -132,14 +131,12 @@ namespace MVCPeopleAwards.Controllers
             {
                 peopleModel = repository.GetPeople(id);
                 if (peopleModel == null)
-                    return View("Error", ErrorHelper.GetErrorModel("Не найден человек с таким идентификатором", "",
-                        ControllerContext.HttpContext.Request.UrlReferrer.AbsoluteUri));
+                    return View("Error", ErrorHelper.GetErrorModel("Не найден человек с таким идентификатором", "", DEFAULT_BACK_ERROR_URL));
             }
             catch (Exception e)
             {
                 Logger.LogException(e);
-                return View("Error", ErrorHelper.GetErrorModel(e.Message, e.StackTrace,
-                    ControllerContext.HttpContext.Request.UrlReferrer.AbsoluteUri));
+                return View("Error", ErrorHelper.GetErrorModel(e.Message, e.StackTrace, DEFAULT_BACK_ERROR_URL));
             }
 
             ViewBag.Title = "Удаление записи";
@@ -248,8 +245,7 @@ namespace MVCPeopleAwards.Controllers
                 catch (Exception e)
                 {
                     Logger.LogException(e);
-                    return View("Error", ErrorHelper.GetErrorModel(e.Message, e.StackTrace,
-                        ControllerContext.HttpContext.Request.UrlReferrer.AbsoluteUri));
+                    return View("Error", ErrorHelper.GetErrorModel(e.Message, e.StackTrace, DEFAULT_BACK_ERROR_URL));
                 }
             }
             else return View("CreateEditPeople", peopleModel);
@@ -267,8 +263,7 @@ namespace MVCPeopleAwards.Controllers
             catch (Exception e)
             {
                 Logger.LogException(e);
-                return View("Error", ErrorHelper.GetErrorModel(e.Message, e.StackTrace,
-                    ControllerContext.HttpContext.Request.UrlReferrer.AbsoluteUri));
+                return View("Error", ErrorHelper.GetErrorModel(e.Message, e.StackTrace, DEFAULT_BACK_ERROR_URL));
             }
             return RedirectToAction("Index");
         }
@@ -298,8 +293,7 @@ namespace MVCPeopleAwards.Controllers
         {
             PeopleViewModel peopleModel = GetPeopleModelForEdit(id);
             if (peopleModel == null)
-                return View("Error", ErrorHelper.GetErrorModel("Не найден человек с таким идентификатором", "",
-                    ControllerContext.HttpContext.Request.UrlReferrer.AbsoluteUri));
+                return View("Error", ErrorHelper.GetErrorModel("Не найден человек с таким идентификатором", "", DEFAULT_BACK_ERROR_URL));
 
             ViewBag.Title = "Список наград человека";
             return View("EditPeopleAwards", peopleModel);
@@ -311,15 +305,13 @@ namespace MVCPeopleAwards.Controllers
         {
             if (id <= 0 || peopleID <= 0)
             {
-                return View("Error", ErrorHelper.GetErrorModel("Переданы некорректные параметры", "",
-                    ControllerContext.HttpContext.Request.UrlReferrer.AbsoluteUri));
+                return View("Error", ErrorHelper.GetErrorModel("Переданы некорректные параметры", "", DEFAULT_BACK_ERROR_URL));
             }
 
             PeopleViewModel peopleModel;
             peopleModel = GetPeopleModelForEdit(peopleID);
             if (peopleModel == null)
-                return View("Error", ErrorHelper.GetErrorModel("Не найден человек с таким идентификатором", "",
-                    ControllerContext.HttpContext.Request.UrlReferrer.AbsoluteUri));
+                return View("Error", ErrorHelper.GetErrorModel("Не найден человек с таким идентификатором", "", DEFAULT_BACK_ERROR_URL));
 
             try
             {
@@ -328,8 +320,7 @@ namespace MVCPeopleAwards.Controllers
 
                 peopleModel = GetPeopleModelForEdit(peopleID);
                 if (peopleModel == null)
-                    return View("Error", ErrorHelper.GetErrorModel("Не найден человек с таким идентификатором", "",
-                        ControllerContext.HttpContext.Request.UrlReferrer.AbsoluteUri));
+                    return View("Error", ErrorHelper.GetErrorModel("Не найден человек с таким идентификатором", "", DEFAULT_BACK_ERROR_URL));
             }
             catch (Exception e)
             {
@@ -346,8 +337,7 @@ namespace MVCPeopleAwards.Controllers
         {
             if (peopleId <= 0 || SelectedAwardID <= 0)
             {
-                return View("Error", ErrorHelper.GetErrorModel("Переданы некорректные параметры", "",
-                    ControllerContext.HttpContext.Request.UrlReferrer.AbsoluteUri));
+                return View("Error", ErrorHelper.GetErrorModel("Переданы некорректные параметры", "", DEFAULT_BACK_ERROR_URL));
             }
 
             if (ModelState.IsValid)
@@ -355,8 +345,7 @@ namespace MVCPeopleAwards.Controllers
                 PeopleViewModel peopleModel;
                 peopleModel = GetPeopleModelForEdit(peopleId);
                 if (peopleModel == null)
-                    return View("Error", ErrorHelper.GetErrorModel("Не найден человек с таким идентификатором", "",
-                        ControllerContext.HttpContext.Request.UrlReferrer.AbsoluteUri));
+                    return View("Error", ErrorHelper.GetErrorModel("Не найден человек с таким идентификатором", "", DEFAULT_BACK_ERROR_URL));
 
                 try
                 {
@@ -365,8 +354,7 @@ namespace MVCPeopleAwards.Controllers
 
                     peopleModel = GetPeopleModelForEdit(peopleId);
                     if (peopleModel == null)
-                        return View("Error", ErrorHelper.GetErrorModel("Не найден человек с таким идентификатором", "",
-                            ControllerContext.HttpContext.Request.UrlReferrer.AbsoluteUri));
+                        return View("Error", ErrorHelper.GetErrorModel("Не найден человек с таким идентификатором", "", DEFAULT_BACK_ERROR_URL));
                 }
                 catch (Exception ex)
                 {
@@ -380,8 +368,7 @@ namespace MVCPeopleAwards.Controllers
             {
                 PeopleViewModel peopleModel = GetPeopleModelForEdit(peopleId);
                 if (peopleModel == null)
-                    return View("Error", ErrorHelper.GetErrorModel("Не найден человек с таким идентификатором", "",
-                        ControllerContext.HttpContext.Request.UrlReferrer.AbsoluteUri));
+                    return View("Error", ErrorHelper.GetErrorModel("Не найден человек с таким идентификатором", "", DEFAULT_BACK_ERROR_URL));
 
                 return View("EditPeopleAwards", peopleModel);
             }
@@ -399,8 +386,7 @@ namespace MVCPeopleAwards.Controllers
             catch (Exception e)
             {
                 Logger.LogException(e);
-                return View("Error", ErrorHelper.GetErrorModel(e.Message, e.StackTrace,
-                    ControllerContext.HttpContext.Request.UrlReferrer.AbsoluteUri));
+                return View("Error", ErrorHelper.GetErrorModel(e.Message, e.StackTrace, DEFAULT_BACK_ERROR_URL));
             }
             return Json(true, JsonRequestBehavior.AllowGet);
         }
