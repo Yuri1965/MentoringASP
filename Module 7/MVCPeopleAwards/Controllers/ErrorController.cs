@@ -10,12 +10,17 @@ namespace MVCPeopleAwards.Controllers
 {
     public class ErrorController : Controller
     {
-        public ActionResult ShowError()
+        public ActionResult ShowError(int? errorCode)
         {
             ErrorViewModel errorModel = (ErrorViewModel)TempData["errorModel"];
 
             if (errorModel == null)
-                errorModel = new ErrorViewModel() { MessageError = "Неизвестная ошибка", StackTraceError = "", BackUrl = ""};
+            {
+                if (errorCode == 404)
+                    errorModel = new ErrorViewModel() { MessageError = "Код 404. Указанный ресурс не найден", StackTraceError = "", BackUrl = "" };
+                else
+                    errorModel = new ErrorViewModel() { MessageError = "Ошибка приложения", StackTraceError = "", BackUrl = "" };
+            }
 
             ViewBag.Title = "Ошибка";
             SiteMaps.Current.CurrentNode.Title = "Ошибка";

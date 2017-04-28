@@ -19,8 +19,8 @@ namespace MVCPeopleAwards
 
             routes.MapRoute(
                 name: "Error",
-                url: "error",
-                defaults: new { controller = "Error", action = "ShowError" }
+                url: "error/{errorCode}",
+                defaults: new { controller = "Error", action = "ShowError", errorCode = UrlParameter.Optional }
             );
 
             #region People Routes

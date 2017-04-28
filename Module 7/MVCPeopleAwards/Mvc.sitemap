@@ -23,7 +23,7 @@
       <mvcSiteMapNode title="Информация о записи" controller="Awards" action="GetAwardByName" preservedRouteParameters="nameAward"/>
     </mvcSiteMapNode>
 
-    <mvcSiteMapNode title="Ошибка" controller="Error" action="ShowError"/>
+    <mvcSiteMapNode title="Ошибка" controller="Error" action="ShowError" preservedRouteParameters="errorCode"/>
 
   </mvcSiteMapNode>
 
