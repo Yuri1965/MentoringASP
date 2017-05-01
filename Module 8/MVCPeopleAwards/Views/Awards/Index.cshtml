@@ -1,0 +1,61 @@
+﻿@model MVCPeopleAwards.Models.ListAwardsViewModel
+
+@* на общую верстку для списка Наград*@
+@{
+    Layout = "~/Views/Awards/PartialView/LayoutAwards.cshtml";
+}
+
+@if (Request.IsAuthenticated && (HttpContext.Current.User.IsInRole("Admin") || HttpContext.Current.User.IsInRole("CandidateAdmin")))
+{
+    <p>
+        @Html.ActionLink("Добавить запись", "CreateAward")
+    </p>
+}
+
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayName("Фото награды")
+        </th>
+        <th>
+            @Html.DisplayName("Наименование награды")
+        </th>
+        <th>
+            @Html.DisplayName("Описание награды")
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model.ListAwards)
+    {
+        <tr>
+            <td>
+                @if (item.PhotoAward == null)
+                {
+                    @Html.ActionLink("Нет фото", "GetAwardById", "Awards", new { id = item.Id }, new { @class = "awardItem" })
+                }
+                else
+                {
+                    <a href="@Url.Action("GetAwardById", "Awards", new { id = item.Id })" class="awardItem">
+                        <img width="75" height="75" src="@Url.Action("GetPhotoAward", "Awards", new { item.Id })" title=@item.NameAward />
+                    </a>
+                }
+            </td>
+
+            <td>
+                @Html.DisplayFor(modelItem => item.NameAward)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.DescriptionAward)
+            </td>
+
+            @if (Request.IsAuthenticated && (HttpContext.Current.User.IsInRole("Admin") || HttpContext.Current.User.IsInRole("CandidateAdmin")))
+            {
+                <td>
+                    @Html.ActionLink("Изменить", "EditAward", new { id = item.Id }) |
+                    @Html.ActionLink("Удалить", "DeleteAward", new { id = item.Id })
+                </td>
+            }
+        </tr>
+    }
+</table>
