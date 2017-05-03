@@ -53,6 +53,9 @@ namespace MVCPeopleAwards.Controllers
         {
             ApplicationUser user = UserManager.FindAsync(details.Name, details.Password).Result;
 
+            if (returnUrl == null || returnUrl.Trim() == "")
+                returnUrl = DEFAULT_BACK_ERROR_URL;
+
             if (user == null)
             {
                 ModelState.AddModelError("", "Неверное имя пользователя или пароль.");
@@ -72,6 +75,7 @@ namespace MVCPeopleAwards.Controllers
                 return Redirect(returnUrl);
             }
 
+            ViewBag.ReturnUrl = returnUrl;
             ViewBag.Title = "Авторизация пользователя";
             return View("Login", details);
         }
