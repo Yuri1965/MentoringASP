@@ -1,0 +1,91 @@
+﻿@model MVCPeopleAwards.Models.ListAwardsViewModel
+
+@* на общую верстку для списка Наград*@
+@{
+    Layout = "~/Views/Awards/PartialView/LayoutAwards.cshtml";
+}
+
+@* модальная форма для добавления или редактирования награды*@
+<div id="modDialogAward" class="modal fade">
+    <div id="dialogContent" class="modal-dialog"></div>
+</div>
+
+<p>
+    @if (Request.IsAuthenticated && (HttpContext.Current.User.IsInRole("Admin") || HttpContext.Current.User.IsInRole("CandidateAdmin")))
+    {
+        @Html.ActionLink("Добавить запись", "CreateAward", "Awards", new { }, new { @class = "btn btn-default" })
+        @*@Html.ActionLink("Добавить запись", "CreateAward", "Awards", new { }, new { @id = "awardAdd", @class = "btn btn-default" })*@
+    }
+
+    @Ajax.ActionLink("Обновить список", "Index", "Awards", new { }, new AjaxOptions { HttpMethod = "GET", UpdateTargetId = "awardsList", InsertionMode = InsertionMode.Replace }, new { @class = "btn btn-default" })
+</p>
+
+<div id="awardsList">
+    @Html.Partial("~/Views/Awards/ListAwardsPartial.cshtml")
+</div>
+
+@section Scripts{
+
+    @Scripts.Render("~/bundles/jqueryval")
+
+    @*<script type="text/javascript">
+        var $imageupload = $('.imageupload');
+        $imageupload.imageupload();
+    </script>*@
+
+    <script type="text/javascript">
+        $('#PhotoAward').on('filecleared', function (event) {
+            $('#ImageIsEmpty').val('true');
+        });
+
+        $('#PhotoAward').on('fileloaded', function (event) {
+            $('#ImageIsEmpty').val('false');
+        });
+    </script>
+
+    <script type="text/javascript">
+
+        function OnAwardRemove(data, status, request) {
+            if (data.error) {
+                OnError(request, status, data.error);
+                return;
+            }
+            var awardId = data.id;
+            $('tr[data-award-id = ' + awardId + ']').remove();
+        }
+
+        function OnError(request, status, error) {
+            alert(error);
+        }
+
+        //$(function () {
+        //    $.ajaxSetup({ cache: false });
+
+        //    $("#awardDelete").click(function (e) {
+        //        e.preventDefault();
+        //        $.get(this.href, function (data) {
+        //            $('#dialogContent').html(data);
+        //            $('#modDialogAward').modal('show');
+        //        });
+        //    });
+
+        //    $("#awardEdit").click(function (e) {
+        //        e.preventDefault();
+        //        $.get(this.href, function (data) {
+        //            $('#dialogContent').html(data);
+        //            $('#modDialogAward').modal('show');
+        //        });
+        //    });
+
+        //    $("#awardAdd").click(function (e) {
+        //        e.preventDefault();
+        //        $.get(this.href, function (data) {
+        //            $('#dialogContent').html(data);
+        //            $('#modDialogAward').modal('show');
+        //        });
+        //    });
+        //})
+
+    </script>
+
+}

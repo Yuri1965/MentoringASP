@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<mvcSiteMap xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xmlns="http://mvcsitemap.codeplex.com/schemas/MvcSiteMap-File-4.0"
+            xsi:schemaLocation="http://mvcsitemap.codeplex.com/schemas/MvcSiteMap-File-4.0 MvcSiteMapSchema.xsd">
+
+  <mvcSiteMapNode title="Главная" controller="PeoplesAward" action="Index">
+    <mvcSiteMapNode title="Список награжденных" controller="PeoplesAward" action="Index">
+      <mvcSiteMapNode title="Список награжденных по имени" controller="PeoplesAward" action="GetPeoplesByName" preservedRouteParameters="namePeople"/>
+      <mvcSiteMapNode title="Добавление записи" controller="PeoplesAward" action="CreatePeople"/>
+      <mvcSiteMapNode title="Изменение записи" controller="PeoplesAward" action="EditPeople" preservedRouteParameters="id"/>
+      <mvcSiteMapNode title="Удаление записи" controller="PeoplesAward" action="DeletePeople" preservedRouteParameters="id"/>
+      <mvcSiteMapNode title="Информация о человеке со Списком наград" controller="PeoplesAward" action="EditPeopleAwards" preservedRouteParameters="id"/>
+      <mvcSiteMapNode title="Информация о записи" controller="PeoplesAward" action="GetPeopleByFullName" preservedRouteParameters="fullNamePeople"/>
+    </mvcSiteMapNode>
+
+    <mvcSiteMapNode title="Справочник Награды" controller="Awards" action="Index" >
+      <mvcSiteMapNode title="Справочник Награды" controller="Awards" action="GetAwardsByName" preservedRouteParameters="nameAward"/>
+      <mvcSiteMapNode title="Добавление записи" controller="Awards" action="CreateAward"/>
+      <mvcSiteMapNode title="Изменение записи" controller="Awards" action="EditAward" preservedRouteParameters="id"/>
+      <mvcSiteMapNode title="Информация о записи" controller="Awards" action="GetAwardInfo" preservedRouteParameters="id"/>
+      <mvcSiteMapNode title="Информация о записи" controller="Awards" action="GetAwardById" preservedRouteParameters="id"/>
+      <mvcSiteMapNode title="Информация о записи" controller="Awards" action="GetAwardByName" preservedRouteParameters="nameAward"/>
+    </mvcSiteMapNode>
+
+    <mvcSiteMapNode title="Ошибка" controller="Error" action="ShowError" preservedRouteParameters="errorCode"/>
+
+    <mvcSiteMapNode title="Регистрация пользователя" controller="Account" action="Register"/>
+    <mvcSiteMapNode title="Авторизация пользователя" controller="Account" action="Login" preservedRouteParameters="returnUrl"/>
+    <mvcSiteMapNode title="Профиль пользователя" controller="Account" action="Index"/>
+
+    <mvcSiteMapNode title="Администрирование пользователей" controller="Admin" action="Index" >
+      <mvcSiteMapNode title="Роли пользователя" controller="Admin" action="EditAccountRoles" preservedRouteParameters="id"/>
+    </mvcSiteMapNode>
+
+  </mvcSiteMapNode>
+  
+</mvcSiteMap>

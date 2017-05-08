@@ -1,0 +1,22 @@
+﻿@model MVCPeopleAwards.Models.AwardViewModel
+
+<div class="modal-content">
+    <div class="modal-header">
+        <button class="close" data-dismiss="modal" area-hidden="true">X</button>
+        <h4>Вы хотите удалить награду?</h4>
+    </div>
+    <div class="modal-body">
+        @* частичное представление для вывода информации о награде*@
+        @Html.Partial("~/Views/Awards/PartialView/AwardInfo.cshtml", Model)
+
+        @using (Ajax.BeginForm("SaveDeleteAward", "Awards", new AjaxOptions() { HttpMethod = "POST" }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(model => model.Id)
+
+            <div class="form-actions">
+                <input type="submit" value="Удалить" class="btn btn-danger" />
+            </div>
+        }
+    </div>
+</div>

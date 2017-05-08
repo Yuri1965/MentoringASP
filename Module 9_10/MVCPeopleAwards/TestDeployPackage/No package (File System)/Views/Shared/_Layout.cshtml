@@ -1,0 +1,75 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title</title>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+</head>
+<body>
+    <div class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li>@Html.ActionLink("Список награжденных", "Index", "PeoplesAward")</li>
+                    <li>@Html.ActionLink("Справочник Награды", "Index", "Awards")</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="container body-content">
+        @RenderBody()
+        <hr />
+        <footer>
+            <p>&copy; @DateTime.Now.Year - EPAM Systems, ASP.NET MVC 5 Mentoring Program, г. Караганда</p>
+        </footer>
+    </div>
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @Styles.Render("~/Content/themes/base/css")
+    @Scripts.Render("~/bundles/jqueryui")
+
+
+    @RenderSection("scripts", required: false)
+    <!--если браузер не создает специального поля для date, то добавляем datepicker-->
+    <script type="text/javascript">
+    $(function () {
+        if (!Modernizr.inputtypes.date) {
+            $(function () {
+                $("input[type='date']")
+                    .datepicker({ dateFormat: 'dd.mm.yy' })
+                    .get(0).setAttribute("type", "text");
+                });
+                $.datepicker.regional['ru'] = {
+                    closeText: 'Закрыть',
+                    prevText: 'Пред',
+                    nextText: 'След',
+                    currentText: 'Сегодня',
+                    monthNames: ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
+                    'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'],
+                    monthNamesShort: ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн',
+                    'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'],
+                    dayNames: ['воскресенье', 'понедельник', 'вторник', 'среда', 'четверг', 'пятница', 'суббота'],
+                    dayNamesShort: ['вск', 'пнд', 'втр', 'срд', 'чтв', 'птн', 'сбт'],
+                    dayNamesMin: ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'],
+                    weekHeader: 'Не',
+                    dateFormat: 'dd.MM.yyyy',
+                    firstDay: 1,
+                    isRTL: false,
+                    showMonthAfterYear: false,
+                    yearSuffix: ''
+                };
+         $.datepicker.setDefaults($.datepicker.regional['ru']);
+        }
+    });
+    </script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+﻿@model MVCPeopleAwards.Models.ListAwardsViewModel
+
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayName("Фото награды")
+        </th>
+        <th>
+            @Html.DisplayName("Наименование награды")
+        </th>
+        <th>
+            @Html.DisplayName("Описание награды")
+        </th>
+        <th></th>
+    </tr>
+    
+    <tbody id="awardsListBody">
+        @foreach (var item in Model.ListAwards)
+        {
+            Html.RenderPartial("AwardSinglePartial", item);
+        }
+    </tbody>
+
+</table>

@@ -1,0 +1,119 @@
+﻿@model MVCPeopleAwards.Models.PeopleViewModel
+
+@* на общую верстку для списка Наград*@
+@{
+    Layout = "~/Views/PeoplesAward/PartialView/LayoutPeople.cshtml";
+}
+
+@* частичное представление для вывода информации о человеке*@
+@Html.Partial("~/Views/PeoplesAward/PartialView/PeopleInfo.cshtml", Model)
+
+@* модальная форма для вывода информации о награде человека*@
+<div id="modDialog" class="modal fade">
+    <div id="dialogContent" class="modal-dialog"></div>
+</div>
+
+<p>
+    @Html.ActionLink("Назад к списку", "Index")
+</p>
+
+@if (Request.IsAuthenticated && (HttpContext.Current.User.IsInRole("Admin") || HttpContext.Current.User.IsInRole("CandidateAdmin")))
+{
+    <p>
+        @using (Html.BeginForm("CreatePeopleAward", "PeoplesAward", FormMethod.Post))
+        {
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+            <input type="hidden" value=@Model.Id name="peopleId" />
+
+            <div class="editor-label">
+                @Html.LabelFor(m => m.SelectedAwardID)
+            </div>
+
+            <div class="editor-field">
+                @Html.DropDownListFor(m => m.SelectedAwardID, @Model.Awards)
+                @Html.ValidationMessageFor(m => m.SelectedAwardID, "", new { @class = "text-danger" })
+            </div>
+
+            <div class="form-actions no-color">
+                <input type="submit" value="Добавить награду" class="btn btn-default" />
+            </div>
+        }
+    </p>
+}
+
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayName("Фото награды")
+        </th>
+        <th>
+            @Html.DisplayName("Наименование награды")
+        </th>
+        <th>
+            @Html.DisplayName("Описание награды")
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model.PeopleAwards)
+    {
+        <tr>
+            <td>
+                @if (item.Award.PhotoAward == null)
+                {
+                    @Html.ActionLink("Нет фото", "GetAwardInfo", "Awards", new { id = item.Award.Id }, new { @class = "awardItem" })
+                }
+                else
+                {
+                    <a href="@Url.Action("GetAwardInfo", "Awards", new { id = item.Award.Id })" class = "awardItem">
+                        <img width="75" height="75" src="@Url.Action("GetPhotoAward", "Awards", new { item.Award.Id })" title = @item.Award.NameAward />
+                    </a>
+                }
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Award.NameAward)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Award.DescriptionAward)
+            </td>
+
+            @if (Request.IsAuthenticated && (HttpContext.Current.User.IsInRole("Admin") || HttpContext.Current.User.IsInRole("CandidateAdmin")))
+            {
+                <td>
+                    @using (Html.BeginForm("DeletePeopleAward", "PeoplesAward", FormMethod.Post))
+                    {
+                        @Html.AntiForgeryToken()
+
+                        <input type="hidden" value=@item.Id name="id" />
+                        <input type="hidden" value=@item.PeopleID name="peopleId" />
+
+                        <div class="form-actions no-color">
+                            <input type="submit" value="Удалить" class="btn btn-default" />
+                        </div>
+                    }
+                </td>
+            }
+        </tr>
+    }
+</table>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+
+    <script type="text/javascript">
+
+        $(function () {
+           $.ajaxSetup({ cache: false });
+           $(".awardItem").click(function (e) {
+                e.preventDefault();
+                $.get(this.href, function (data) {
+                    $('#dialogContent').html(data);
+                    $('#modDialog').modal('show');
+                });
+            });
+        })
+    </script>
+}
+

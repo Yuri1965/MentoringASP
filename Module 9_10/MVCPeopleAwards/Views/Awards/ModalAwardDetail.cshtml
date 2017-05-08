@@ -1,0 +1,12 @@
+﻿@model MVCPeopleAwards.Models.AwardViewModel
+
+<div class="modal-content">
+    <div class="modal-header">
+        <button class="close" data-dismiss="modal" area-hidden="true">X</button>
+        <h4>Награда</h4>
+    </div>
+    <div class="modal-body">
+        @* частичное представление для вывода информации о награде*@
+        @Html.Partial("~/Views/Awards/PartialView/AwardInfo.cshtml", Model)
+    </div>
+</div>

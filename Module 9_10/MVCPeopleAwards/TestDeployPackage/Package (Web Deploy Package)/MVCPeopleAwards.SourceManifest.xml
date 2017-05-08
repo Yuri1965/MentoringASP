@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<sitemanifest>
+  <IisApp path="d:\Projects\EPAM\Mentoring ASP\Homework\Module 3\MVCPeopleAwards\obj\MyTestWebPublish\Package\PackageTmp" />
+  <setAcl path="d:\Projects\EPAM\Mentoring ASP\Homework\Module 3\MVCPeopleAwards\obj\MyTestWebPublish\Package\PackageTmp" setAclResourceType="Directory" />
+  <setAcl path="d:\Projects\EPAM\Mentoring ASP\Homework\Module 3\MVCPeopleAwards\obj\MyTestWebPublish\Package\PackageTmp" setAclUser="anonymousAuthenticationUser" setAclResourceType="Directory" />
+</sitemanifest>

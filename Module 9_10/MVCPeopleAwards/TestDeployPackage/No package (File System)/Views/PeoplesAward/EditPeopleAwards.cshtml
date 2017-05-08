@@ -1,0 +1,118 @@
+﻿@model MVCPeopleAwards.Models.PeopleModel
+
+@{
+    ViewBag.Title = "Список наград человека";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div>
+    <h4>Список наград человека</h4>
+    <hr />
+
+    @{
+        if (Model.Error != null && Model.Error.Trim() != "")
+        {
+            <h4>@Model.Error.ToString()</h4>
+            <hr />
+        }
+    }
+
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.LastName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.LastName)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.FirstName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.FirstName)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.BirthDate)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.BirthDateStr)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Age)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Age)
+        </dd>
+    </dl>
+</div>
+
+<p>
+    @Html.ActionLink("Назад к списку", "Index")
+</p>
+
+<p>
+    @using (Html.BeginForm("CreatePeopleAward", "PeoplesAward", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+
+        <input type="hidden" value=@Model.Id name="peopleID" />
+
+        <div class="editor-label">
+            @Html.LabelFor(m => m.SelectedAwardID)
+        </div>
+
+        <div class="editor-field">
+            @Html.DropDownListFor(m => m.SelectedAwardID, @Model.Awards)
+        </div>
+
+        <div class="form-actions no-color">
+            <input type="submit" value="Добавить награду" class="btn btn-default" />
+        </div>
+    }
+
+    @*    @Html.ActionLink("Добавить награду", "CreatePeopleAward")*@
+</p>
+
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayName("Наименование награды")
+        </th>
+        <th>
+            @Html.DisplayName("Описание награды")
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model.PeopleAwards)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Award.NameAward)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Award.DescriptionAward)
+            </td>
+            <td>
+                @using (Html.BeginForm("DeletePeopleAward", "PeoplesAward", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden" value=@item.Id name="id" />
+                    <input type="hidden" value=@item.PeopleID name="peopleID" />
+
+                    <div class="form-actions no-color">
+                        <input type="submit" value="Удалить" class="btn btn-default" />
+                    </div>
+                }
+            </td>
+        </tr>
+    }
+</table>
+
