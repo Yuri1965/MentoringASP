@@ -25,12 +25,13 @@
     {
         <td>
             @Html.ActionLink("Изменить", "EditAward", new { id = @Model.Id }, new { @class = "btn btn-default" })        
-            @*@Html.ActionLink("Изменить", "EditAward", "Awards", new { id = @Model.Id }, new { @id = "awardEdit", @class = "btn btn-default" })*@
 
-            @using (Ajax.BeginForm("DeleteAward", "Awards", new { id = @Model.Id }, new AjaxOptions() { Confirm = "Удалить награду " + @Model.NameAward + "?", HttpMethod = "POST", OnSuccess = "OnAwardRemove", OnFailure = "OnError" }))
+            @using (Ajax.BeginForm("DeleteAward", "Awards", new { id = @Model.Id }, 
+                new AjaxOptions() { Confirm = "Удалить награду " + @Model.NameAward + "?", HttpMethod = "POST", OnSuccess = "OnAwardRemove", OnFailure = "OnError" },
+                new { @style = "display: inline-block" }))
             {
                 @Html.AntiForgeryToken()
-                @Html.Hidden("Id", @Model.Id)
+                <input data-val="true" data-val-number="Это поле должно быть целым числом." data-val-required="Требуется поле Id." id="Id" name="Id" type="hidden" value="@Model.Id" />
                 <input type="submit" value="Удалить" class="btn btn-danger" />
             }
         </td>

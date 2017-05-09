@@ -1,0 +1,51 @@
+﻿@model MVCPeopleAwards.Models.PeopleViewModel
+
+<tr data-people-id="@Model.Id">
+    <td>
+        @if (@Model.PhotoPeople == null)
+        {
+            <div class="form-control-static">Нет фото</div>
+        }
+        else
+        {
+            <img width="75" height="75" src="@Url.Action("GetPhotoPeople", "PeoplesAward", new { @Model.Id })" />
+        }
+    </td>
+    <td>
+        @Html.DisplayFor(model => model.LastName)
+    </td>
+    <td>
+        @Html.DisplayFor(model => model.FirstName)
+    </td>
+    <td>
+        @Html.DisplayFor(model => model.BirthDateStr)
+    </td>
+    <td>
+        @Html.DisplayFor(model => model.Age)
+    </td>
+
+    <td>
+
+        @if (Request.IsAuthenticated && (HttpContext.Current.User.IsInRole("Admin") || HttpContext.Current.User.IsInRole("CandidateAdmin")
+                        || HttpContext.Current.User.IsInRole("User")))
+        {
+            @Html.ActionLink("Награды", "EditPeopleAwards", new { id = @Model.Id }, new { @class = "btn btn-default" })
+        }
+
+        @if (Request.IsAuthenticated && (HttpContext.Current.User.IsInRole("Admin") || HttpContext.Current.User.IsInRole("CandidateAdmin")))
+        {
+            @Html.ActionLink("Изменить", "EditPeople", new { id = @Model.Id }, new { @class = "btn btn-default" })
+
+            using (Ajax.BeginForm("DeletePeople", "PeoplesAward", new { id = @Model.Id },
+                new AjaxOptions() { Confirm = "Удалить человека " + @Model.FirstName + " " + @Model.LastName + "?", HttpMethod = "POST", OnSuccess = "OnPeopleRemove", OnFailure = "OnError" },
+                new { @style = "display: inline-block" }))
+            {
+                @Html.AntiForgeryToken()
+                <input data-val="true" data-val-number="Это поле должно быть целым числом." data-val-required="Требуется поле Id." id="Id" name="Id" type="hidden" value="@Model.Id" />
+                <input type="submit" value="Удалить" class="btn btn-danger" />
+            }
+        }
+    </td>
+
+
+</tr>

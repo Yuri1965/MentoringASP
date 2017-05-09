@@ -9,7 +9,7 @@ namespace MVCPeopleAwards.Repositories
         IEnumerable<PeopleViewModel> GetListPeople(string namePeople = "");
         PeopleViewModel GetPeople(int id);
         PeopleViewModel GetPeopleByFullName(string fullNamePeople);
-        void SavePeople(PeopleViewModel item);
+        int SavePeople(PeopleViewModel item);
         void DeletePeople(int id);
         void PeopleMapToPeopleModel(People source, ref PeopleViewModel dest);
         void PeopleModelMapToPeoples(PeopleViewModel source, ref People dest, bool isPeoplePart = false);

@@ -431,9 +431,11 @@
     <Content Include="Views\Admin\EditAccountRoles.cshtml" />
     <Content Include="Views\Awards\ListAwardsPartial.cshtml" />
     <Content Include="Views\Awards\AwardSinglePartial.cshtml" />
-    <Content Include="Views\Awards\ModalDeleteAward.cshtml" />
     <Content Include="Views\PeoplesAward\DeletePeople.cshtml" />
-    <Content Include="Views\Awards\ModalCreateEditAward.cshtml" />
+    <Content Include="Views\Awards\CreateAwardPartial.cshtml" />
+    <Content Include="Views\PeoplesAward\ListPeoplesPartial.cshtml" />
+    <Content Include="Views\PeoplesAward\PeopleSinglePartial.cshtml" />
+    <Content Include="Views\PeoplesAward\CreatePeoplePartial.cshtml" />
     <None Include="Web.MyTestWebPublish.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

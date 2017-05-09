@@ -149,7 +149,7 @@ namespace MVCPeopleAwards.Repositories
         }
 
         //сохраняет запись - награду
-        public void SaveAward(AwardViewModel awardModel)
+        public int SaveAward(AwardViewModel awardModel)
         {
             Awards saveAward = new Awards();
             AwardModelMapToAward(awardModel, ref saveAward);
@@ -157,6 +157,7 @@ namespace MVCPeopleAwards.Repositories
             {
                 dbContext.Set<Awards>().AddOrUpdate(saveAward);
                 dbContext.SaveChanges();
+                return saveAward.Id;
             }
             catch (Exception ex)
             {

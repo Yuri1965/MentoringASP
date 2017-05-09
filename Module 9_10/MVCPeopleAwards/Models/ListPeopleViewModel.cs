@@ -1,10 +1,29 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace MVCPeopleAwards.Models
 {
     public class ListPeopleViewModel
     {
+        public ListPeopleViewModel()
+        {
+            error = "";
+            ListPeople = new List<PeopleViewModel>();
+            PeopleModel = new PeopleViewModel()
+            {
+                Id = 0,
+                FirstName = "",
+                LastName = "",
+                PhotoPeople = null,
+                ImageIsEmpty = true,
+                PhotoMIMEType = "",
+                BirthDate = DateTime.Now.Date.AddYears(-16)
+            };
+        }
+
+        public PeopleViewModel PeopleModel { get; set; }
+
         private string error = "";
         public string Error { get { return error; } set { error = value; } }
 

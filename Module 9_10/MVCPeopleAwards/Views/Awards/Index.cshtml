@@ -5,18 +5,25 @@
     Layout = "~/Views/Awards/PartialView/LayoutAwards.cshtml";
 }
 
-@* модальная форма для добавления или редактирования награды*@
-<div id="modDialogAward" class="modal fade">
-    <div id="dialogContent" class="modal-dialog"></div>
-</div>
+@if (Request.IsAuthenticated && (HttpContext.Current.User.IsInRole("Admin") || HttpContext.Current.User.IsInRole("CandidateAdmin")))
+{
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h4 class="panel-title">
+                <a class="accordion-toggle" data-toggle="collapse" href="#collapseOne" aria-expanded="false">
+                    Добавление новой записи
+                </a>
+            </h4>
+        </div>
+        <div id="collapseOne" class="panel-collapse collapse in">
+            <div class="panel-body">
+                @Html.Partial("~/Views/Awards/CreateAwardPartial.cshtml", ViewData.Model.AwardModel)
+            </div>
+        </div>
+    </div>
+}
 
 <p>
-    @if (Request.IsAuthenticated && (HttpContext.Current.User.IsInRole("Admin") || HttpContext.Current.User.IsInRole("CandidateAdmin")))
-    {
-        @Html.ActionLink("Добавить запись", "CreateAward", "Awards", new { }, new { @class = "btn btn-default" })
-        @*@Html.ActionLink("Добавить запись", "CreateAward", "Awards", new { }, new { @id = "awardAdd", @class = "btn btn-default" })*@
-    }
-
     @Ajax.ActionLink("Обновить список", "Index", "Awards", new { }, new AjaxOptions { HttpMethod = "GET", UpdateTargetId = "awardsList", InsertionMode = InsertionMode.Replace }, new { @class = "btn btn-default" })
 </p>
 
@@ -27,21 +34,6 @@
 @section Scripts{
 
     @Scripts.Render("~/bundles/jqueryval")
-
-    @*<script type="text/javascript">
-        var $imageupload = $('.imageupload');
-        $imageupload.imageupload();
-    </script>*@
-
-    <script type="text/javascript">
-        $('#PhotoAward').on('filecleared', function (event) {
-            $('#ImageIsEmpty').val('true');
-        });
-
-        $('#PhotoAward').on('fileloaded', function (event) {
-            $('#ImageIsEmpty').val('false');
-        });
-    </script>
 
     <script type="text/javascript">
 
@@ -57,35 +49,6 @@
         function OnError(request, status, error) {
             alert(error);
         }
-
-        //$(function () {
-        //    $.ajaxSetup({ cache: false });
-
-        //    $("#awardDelete").click(function (e) {
-        //        e.preventDefault();
-        //        $.get(this.href, function (data) {
-        //            $('#dialogContent').html(data);
-        //            $('#modDialogAward').modal('show');
-        //        });
-        //    });
-
-        //    $("#awardEdit").click(function (e) {
-        //        e.preventDefault();
-        //        $.get(this.href, function (data) {
-        //            $('#dialogContent').html(data);
-        //            $('#modDialogAward').modal('show');
-        //        });
-        //    });
-
-        //    $("#awardAdd").click(function (e) {
-        //        e.preventDefault();
-        //        $.get(this.href, function (data) {
-        //            $('#dialogContent').html(data);
-        //            $('#modDialogAward').modal('show');
-        //        });
-        //    });
-        //})
-
     </script>
 
 }

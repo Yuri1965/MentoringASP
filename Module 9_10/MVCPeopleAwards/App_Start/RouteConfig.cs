@@ -35,7 +35,7 @@ namespace MVCPeopleAwards
             //Список Награжденных с указанным именем
             routes.MapRoute(
                 name: "GetListPeoplesByName",
-                url: "peoples/{namePeople}",
+                url: "peoplesByName/{namePeople}",
                 defaults: new { controller = "PeoplesAward", action = "GetPeoplesByName" },
                 constraints: 
                     new { namePeople = new CompoundRouteConstraint(new IRouteConstraint[] 
@@ -58,12 +58,12 @@ namespace MVCPeopleAwards
             );
 
             //Удалить человека
-            routes.MapRoute(
-                name: "GetDeletePeople",
-                url: "people/{id}/delete",
-                defaults: new { controller = "PeoplesAward", action = "DeletePeople" },
-                constraints: new { id = new CompoundRouteConstraint(new IRouteConstraint[] { new IntRouteConstraint(), new MinRouteConstraint(1) }) }
-            );
+            //routes.MapRoute(
+            //    name: "GetDeletePeople",
+            //    url: "people/{id}/delete",
+            //    defaults: new { controller = "PeoplesAward", action = "DeletePeople" },
+            //    constraints: new { id = new CompoundRouteConstraint(new IRouteConstraint[] { new IntRouteConstraint(), new MinRouteConstraint(1) }) }
+            //);
 
             //Информация о человеке с наградами
             routes.MapRoute(

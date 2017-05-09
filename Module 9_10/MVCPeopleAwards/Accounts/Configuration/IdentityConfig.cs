@@ -16,21 +16,17 @@ namespace MVCPeopleAwards.Accounts.Configuration
         {
             app.CreatePerOwinContext<AppIdentityDbContext>(AppIdentityDbContext.Create);
             app.CreatePerOwinContext<AppUserManager>(AppUserManager.Create);
-            //app.CreatePerOwinContext<AppRoleManager>(AppRoleManager.Create);
 
             app.UseCookieAuthentication(new CookieAuthenticationOptions
             {
                 AuthenticationType = DefaultAuthenticationTypes.ApplicationCookie,
-                LoginPath = new PathString("/Account/Login")
+                LoginPath = new PathString("/Account/Login"),
+                // время, в течении которого пользователь считается авторизованным, даже если он ничего не делает
+                ExpireTimeSpan = TimeSpan.FromMinutes(2),
+                // это если пользователь что-то сделал, то время сбрасывается и по новой считается 180 минут
+                SlidingExpiration = true,
 
-                //Provider = new CookieAuthenticationProvider
-                //{
-                //    // Enables the application to validate the security stamp when the user logs in.
-                //    // This is a security feature which is used when you change a password or add an external login to your account.  
-                //    OnValidateIdentity = SecurityStampValidator.OnValidateIdentity<AppUserManager, ApplicationUser>(
-                //            validateInterval: TimeSpan.FromMinutes(30),
-                //            regenerateIdentity: (manager, user) => user.GenerateUserIdentityAsync(manager))
-                //}
+                LogoutPath = new PathString("/Account/LogOff")
             });
         }
     }

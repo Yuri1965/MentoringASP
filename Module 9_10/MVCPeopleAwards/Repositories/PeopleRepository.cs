@@ -256,7 +256,7 @@ namespace MVCPeopleAwards.Repositories
         }
 
         // сохраняет человека
-        public void SavePeople(PeopleViewModel peopleModel)
+        public int SavePeople(PeopleViewModel peopleModel)
         {
             try
             {
@@ -264,7 +264,9 @@ namespace MVCPeopleAwards.Repositories
 
                 PeopleModelMapToPeoples(peopleModel, ref savePeople, true);
                 dbContext.Set<People>().AddOrUpdate(savePeople);
+
                 dbContext.SaveChanges();
+                return savePeople.Id;
             }
             catch (Exception ex)
             {

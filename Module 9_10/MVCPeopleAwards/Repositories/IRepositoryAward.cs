@@ -8,7 +8,7 @@ namespace MVCPeopleAwards.Repositories
         IEnumerable<AwardViewModel> GetListAward(string nameAward = "");
         AwardViewModel GetAwardById(int id);
         AwardViewModel GetAwardByName(string nameAward);
-        void SaveAward(AwardViewModel item);
+        int SaveAward(AwardViewModel item);
         void DeleteAward(int id);
         void AwardMapToAwardModel(Awards source, ref AwardViewModel dest);
         void AwardModelMapToAward(AwardViewModel source, ref Awards dest);

@@ -14,7 +14,7 @@
 </div>
 
 <p>
-    @Html.ActionLink("Назад к списку", "Index")
+    @Html.ActionLink("Назад к списку", "Index", "PeoplesAward", new { }, new { @class = "btn btn-default" })
 </p>
 
 @if (Request.IsAuthenticated && (HttpContext.Current.User.IsInRole("Admin") || HttpContext.Current.User.IsInRole("CandidateAdmin")))
@@ -34,10 +34,10 @@
             <div class="editor-field">
                 @Html.DropDownListFor(m => m.SelectedAwardID, @Model.Awards)
                 @Html.ValidationMessageFor(m => m.SelectedAwardID, "", new { @class = "text-danger" })
-            </div>
 
-            <div class="form-actions no-color">
-                <input type="submit" value="Добавить награду" class="btn btn-default" />
+                <div class="form-actions no-color" style="display: inline-block">
+                    <input type="submit" value="Добавить награду" class="btn btn-default" />
+                </div>
             </div>
         }
     </p>
@@ -90,7 +90,7 @@
                         <input type="hidden" value=@item.PeopleID name="peopleId" />
 
                         <div class="form-actions no-color">
-                            <input type="submit" value="Удалить" class="btn btn-default" />
+                            <input type="submit" value="Удалить" class="btn btn-danger" />
                         </div>
                     }
                 </td>

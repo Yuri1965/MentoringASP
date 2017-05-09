@@ -1,11 +1,8 @@
 ﻿@model MVCPeopleAwards.Models.AwardViewModel
 
-@* на общую верстку для списка Наград*@
-@{
-    Layout = "~/Views/Awards/PartialView/LayoutAwards.cshtml";
-}
-
-@using (Html.BeginForm("SaveAward", "Awards", FormMethod.Post, new { enctype = "multipart/form-data" }))
+@using (Ajax.BeginForm("SaveAward", "Awards", 
+    new AjaxOptions() { HttpMethod = "POST", UpdateTargetId = "awardsListBody", InsertionMode = InsertionMode.InsertAfter }, 
+    new { enctype = "multipart/form-data" }))
 {
     @Html.AntiForgeryToken()
 
@@ -33,28 +30,14 @@
         </div>
 
         @* частичное представление на элемент Фото*@
-        @Html.Partial("~/Views/Awards/PartialView/PhotoElement.cshtml", ViewData.Model)
+        @*@Html.Partial("~/Views/Awards/PartialView/PhotoElement.cshtml", ViewData.Model)*@
 
         <div class="form-group">
             <div class="col-md-offset-2 col-md-10">
-                @Html.ActionLink("Назад к списку", "Index", "Awards") |
-                <input type="submit" value="Сохранить" class="btn btn-default" />
+                <input type="submit" value="Добавить запись" class="btn btn-default" />
             </div>
         </div>
     </div>
 }
 
-@section Scripts {
 
-    @Scripts.Render("~/bundles/jqueryval")
-
-    <script type="text/javascript">
-        $('#PhotoAward').on('filecleared', function (event) {
-                    $('#ImageIsEmpty').val('true');
-                });
-
-        $('#PhotoAward').on('fileloaded', function (event) {
-                    $('#ImageIsEmpty').val('false');
-                });
-    </script>
-}

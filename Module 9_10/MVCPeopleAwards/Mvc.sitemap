@@ -6,20 +6,21 @@
   <mvcSiteMapNode title="Главная" controller="PeoplesAward" action="Index">
     <mvcSiteMapNode title="Список награжденных" controller="PeoplesAward" action="Index">
       <mvcSiteMapNode title="Список награжденных по имени" controller="PeoplesAward" action="GetPeoplesByName" preservedRouteParameters="namePeople"/>
-      <mvcSiteMapNode title="Добавление записи" controller="PeoplesAward" action="CreatePeople"/>
+      <!--<mvcSiteMapNode title="Добавление записи" controller="PeoplesAward" action="CreatePeople"/>-->
       <mvcSiteMapNode title="Изменение записи" controller="PeoplesAward" action="EditPeople" preservedRouteParameters="id"/>
-      <mvcSiteMapNode title="Удаление записи" controller="PeoplesAward" action="DeletePeople" preservedRouteParameters="id"/>
+      <!--<mvcSiteMapNode title="Удаление записи" controller="PeoplesAward" action="DeletePeople" preservedRouteParameters="id"/>-->
       <mvcSiteMapNode title="Информация о человеке со Списком наград" controller="PeoplesAward" action="EditPeopleAwards" preservedRouteParameters="id"/>
       <mvcSiteMapNode title="Информация о записи" controller="PeoplesAward" action="GetPeopleByFullName" preservedRouteParameters="fullNamePeople"/>
     </mvcSiteMapNode>
 
     <mvcSiteMapNode title="Справочник Награды" controller="Awards" action="Index" >
+
       <mvcSiteMapNode title="Справочник Награды" controller="Awards" action="GetAwardsByName" preservedRouteParameters="nameAward"/>
-      <mvcSiteMapNode title="Добавление записи" controller="Awards" action="CreateAward"/>
       <mvcSiteMapNode title="Изменение записи" controller="Awards" action="EditAward" preservedRouteParameters="id"/>
       <mvcSiteMapNode title="Информация о записи" controller="Awards" action="GetAwardInfo" preservedRouteParameters="id"/>
       <mvcSiteMapNode title="Информация о записи" controller="Awards" action="GetAwardById" preservedRouteParameters="id"/>
-      <mvcSiteMapNode title="Информация о записи" controller="Awards" action="GetAwardByName" preservedRouteParameters="nameAward"/>
+      <mvcSiteMapNode title="Информация о записи" controller="Awards" action="GetAwardByName" preservedRouteParameters ="nameAward"/>
+
     </mvcSiteMapNode>
 
     <mvcSiteMapNode title="Ошибка" controller="Error" action="ShowError" preservedRouteParameters="errorCode"/>

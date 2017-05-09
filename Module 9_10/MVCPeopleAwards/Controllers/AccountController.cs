@@ -36,7 +36,7 @@ namespace MVCPeopleAwards.Controllers
 
         [AllowAnonymous]
         [Route("login")]
-        public ActionResult Login(string returnUrl)
+        public ActionResult Login(string returnUrl = DEFAULT_BACK_ERROR_URL)
         {
             ViewBag.ReturnUrl = returnUrl;
 

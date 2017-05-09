@@ -53,7 +53,7 @@ namespace MVCPeopleAwards.Controllers
             return View("Index", awardsModel);
         }
 
-        [Route("awards/{nameAward:regex(^([a-zA-Zа-яА-Я0-9 -]+)$)}")]
+        [Route("awardsByName/{nameAward:regex(^([a-zA-Zа-яА-Я0-9 -]+)$)}")]
         public ActionResult GetAwardsByName(string nameAward)
         {
             ListAwardsViewModel awardsModel = new ListAwardsViewModel();
@@ -135,27 +135,6 @@ namespace MVCPeopleAwards.Controllers
             return PartialView("ModalAwardDetail", awardModel);
         }
 
-        [Route("create-award")]
-        public ActionResult CreateAward()
-        {
-            AwardViewModel awardModel = new AwardViewModel()
-            {
-                Id = 0,
-                NameAward = "",
-                DescriptionAward = "",
-                PhotoAward = null,
-                ImageIsEmpty = true,
-                PhotoMIMEType = ""
-            };
-
-            ViewBag.Title = "Добавление записи";
-            SiteMaps.Current.CurrentNode.Title = ViewBag.Title;
-            return View("CreateEditAward", awardModel);
-            
-            //ViewBag.Title = "Добавление записи";
-            //return PartialView("ModalCreateEditAward", awardModel);
-        }
-
         [Route("award/{id:int:min(1)}/edit")]
         public ActionResult EditAward(int id)
         {
@@ -178,25 +157,6 @@ namespace MVCPeopleAwards.Controllers
             //ViewBag.Title = "Изменение записи";
             //return PartialView("ModalCreateEditAward", awardModel);
         }
-
-        //[Route("award/{id:int:min(1)}/delete")]
-        //public ActionResult DeleteAward(int id)
-        //{
-        //    AwardViewModel awardModel;
-        //    try
-        //    {
-        //        awardModel = repository.GetAwardById(id);
-        //        if (awardModel == null)
-        //            return View("Error", ErrorHelper.GetErrorModel("Не найдена награда с таким идентификатором", "", DEFAULT_BACK_ERROR_URL));
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        Logger.LogException(e);
-        //        return View("Error", ErrorHelper.GetErrorModel(e.Message, e.StackTrace, DEFAULT_BACK_ERROR_URL));
-        //    }
-
-        //    return PartialView("ModalDeleteAward", awardModel);
-        //}
 
         [AllowAnonymous]
         public ActionResult GetPhotoAward(int id)
@@ -230,6 +190,15 @@ namespace MVCPeopleAwards.Controllers
             {
                 try
                 {
+                    if (!CheckNameAward(awardModel.NameAward, awardModel.Id))
+                    {
+                        ModelState.AddModelError("NameAward", "Такое название награды уже имеется");
+                        if (saveCreateMode)
+                            return PartialView("CreateAwardPartial", awardModel);
+                        else
+                            return View("CreateEditAward", awardModel);
+                    }
+
                     // если изменяем запись
                     if (!saveCreateMode && awardModel.PhotoAward == null)
                         // если фото было удалено пользователем
@@ -255,11 +224,14 @@ namespace MVCPeopleAwards.Controllers
                     // проверка на обязательный ввод Фото награды
                     if (awardModel.PhotoAward == null || awardModel.PhotoAward.ContentLength <= 0)
                     {
-                        ModelState.AddModelError("PhotoAward", "Это поле должно быть заполнено");
-                        return View("CreateEditAward", awardModel);
+                        if (!saveCreateMode)
+                        {
+                            ModelState.AddModelError("PhotoAward", "Это поле должно быть заполнено");
+                            return View("CreateEditAward", awardModel);
+                        }
                     }
 
-                    repository.SaveAward(awardModel);
+                    int saveID = repository.SaveAward(awardModel);
                     if (saveCreateMode)
                         Logger.logger.Trace(String.Format("Добавлена награда:\n NameAward = {0}, DescriptionAward = {1}",
                                 awardModel.NameAward, awardModel.DescriptionAward));
@@ -267,15 +239,27 @@ namespace MVCPeopleAwards.Controllers
                         Logger.logger.Trace(String.Format("Изменена награда:\n Id={0}, NameAward = {1}, DescriptionAward = {2}",
                                 awardModel.Id, awardModel.NameAward, awardModel.DescriptionAward));
 
-                    return RedirectToAction("Index");
+                    if (saveCreateMode)
+                    {
+                        awardModel = repository.GetAwardById(saveID);
+                        return PartialView("AwardSinglePartial", awardModel);
+                    }
+                    else
+                        return RedirectToAction("Index");
                 }
                 catch (Exception e)
                 {
                     Logger.LogException(e);
-                    return View("Error", ErrorHelper.GetErrorModel(e.Message, e.StackTrace, DEFAULT_BACK_ERROR_URL));
+                    return View("Error", ErrorHelper.GetErrorModel(e.Message, e.InnerException + e.StackTrace, DEFAULT_BACK_ERROR_URL));
                 }
             }
-            else return View("CreateEditAward", awardModel);
+            else
+            {
+                if (saveCreateMode)
+                    return PartialView("CreateAwardPartial", awardModel);
+                else
+                    return View("CreateEditAward", awardModel);
+            }
         }
 
         [HttpPost]
@@ -310,20 +294,14 @@ namespace MVCPeopleAwards.Controllers
         }
 
         // проверка на уникальность наименования
-        [HttpPost]
-        public ActionResult CheckNameAward(string nameAward, int id = 0)
+        public bool CheckNameAward(string nameAward, int id)
         {
-            try
-            {
-                if (repository.CheckNameAward(nameAward, id))
-                    return Json(false, JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-                Logger.LogException(ex);
-                return View("Error", ErrorHelper.GetErrorModel(ex.Message, ex.StackTrace, DEFAULT_BACK_ERROR_URL));
-            }
-            return Json(true, JsonRequestBehavior.AllowGet);
+            if (id < 0) id = 0;
+
+            if (repository.CheckNameAward(nameAward, id))
+                return false;
+
+            return true;
         }
 
         protected override void Dispose(bool disposing)

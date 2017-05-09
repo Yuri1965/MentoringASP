@@ -47,6 +47,11 @@ namespace MVCPeopleAwards.Controllers
             }
 
             ViewBag.Title = "Список награжденных";
+
+            if (Request.IsAjaxRequest())
+            {
+                return PartialView("ListPeoplesPartial", peopleModel);
+            }
             return View("Index", peopleModel);
         }
 
@@ -95,26 +100,6 @@ namespace MVCPeopleAwards.Controllers
 
         #region People part
         [Authorize(Roles = "Admin,CandidateAdmin")]
-        public ActionResult CreatePeople()
-        {
-            PeopleViewModel peopleModel = new PeopleViewModel()
-            {
-                Id = 0,
-                FirstName = "",
-                LastName = "",
-                BirthDate = DateTime.Now.Date.AddYears(-16),
-                ImageIsEmpty = true,
-                PhotoMIMEType = "",
-                PhotoPeople = null,
-                PeopleAwards = new List<ListPeopleAwardsViewModel>()
-            };
-
-            ViewBag.Title = "Добавление записи";
-            SiteMaps.Current.CurrentNode.Title = ViewBag.Title;
-            return View("CreateEditPeople", peopleModel);
-        }
-
-        [Authorize(Roles = "Admin,CandidateAdmin")]
         public ActionResult EditPeople(int id)
         {
             PeopleViewModel peopleModel;
@@ -133,26 +118,6 @@ namespace MVCPeopleAwards.Controllers
             ViewBag.Title = "Изменение записи";
             SiteMaps.Current.CurrentNode.Title = ViewBag.Title;
             return View("CreateEditPeople", peopleModel);
-        }
-
-        [Authorize(Roles = "Admin,CandidateAdmin")]
-        public ActionResult DeletePeople(int id)
-        {
-            PeopleViewModel peopleModel;
-            try
-            {
-                peopleModel = repository.GetPeople(id);
-                if (peopleModel == null)
-                    return View("Error", ErrorHelper.GetErrorModel("Не найден человек с таким идентификатором", "", DEFAULT_BACK_ERROR_URL));
-            }
-            catch (Exception e)
-            {
-                Logger.LogException(e);
-                return View("Error", ErrorHelper.GetErrorModel(e.Message, e.StackTrace, DEFAULT_BACK_ERROR_URL));
-            }
-
-            ViewBag.Title = "Удаление записи";
-            return View(peopleModel);
         }
 
         // получает список награжденных в виде файла txt (отчет)
@@ -222,7 +187,10 @@ namespace MVCPeopleAwards.Controllers
                     if (!UtilHelper.CheckBirthDate(peopleModel.BirthDate))
                     {
                         ModelState.AddModelError("BirthDate", "Возраст может быть от 5 до 150 лет! Введите корректную дату рождения");
-                        return View("CreateEditPeople", peopleModel);
+                        if (saveCreateMode)
+                            return PartialView("CreatePeoplePartial", peopleModel);
+                        else
+                            return View("CreateEditPeople", peopleModel);
                     }
 
                     // если изменяем запись
@@ -247,7 +215,7 @@ namespace MVCPeopleAwards.Controllers
                             peopleModel.PhotoMIMEType = "";
                     }
 
-                    repository.SavePeople(peopleModel);
+                    int saveID = repository.SavePeople(peopleModel);
                     if (saveCreateMode)
                         Logger.logger.Trace(String.Format("Добавлен человек:\n LastName={0}, FirstName={1}, BirthDate={2}",
                                 peopleModel.LastName, peopleModel.FirstName, peopleModel.BirthDateStr));
@@ -255,7 +223,13 @@ namespace MVCPeopleAwards.Controllers
                         Logger.logger.Trace(String.Format("Изменен человек:\n Id={0}, LastName={1}, FirstName={2}, BirthDate={3}",
                                 peopleModel.Id, peopleModel.LastName, peopleModel.FirstName, peopleModel.BirthDateStr));
 
-                    return RedirectToAction("Index");
+                    if (saveCreateMode)
+                    {
+                        peopleModel = repository.GetPeople(saveID);
+                        return PartialView("PeopleSinglePartial", peopleModel);
+                    }
+                    else
+                        return RedirectToAction("Index");
                 }
                 catch (Exception e)
                 {
@@ -269,19 +243,33 @@ namespace MVCPeopleAwards.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin,CandidateAdmin")]
-        public ActionResult SaveDeletePeople(int id)
+        public ActionResult DeletePeople(int id)
         {
+            if (id <= 0)
+                if (Request.IsAjaxRequest())
+                    return Json(new { error = "Не найден человек с таким идентификатором" });
+                else
+                    return View("Error", ErrorHelper.GetErrorModel("Не найден человек с таким идентификатором", "", DEFAULT_BACK_ERROR_URL));
+
             try
             {
                 repository.DeletePeople(id);
                 Logger.logger.Trace(String.Format("Удален человек:\n Id={0}", id));
+
+                if (Request.IsAjaxRequest())
+                    return Json(new { id });
+                else
+                    return RedirectToAction("Index");
             }
             catch (Exception e)
             {
                 Logger.LogException(e);
-                return View("Error", ErrorHelper.GetErrorModel(e.Message, e.StackTrace, DEFAULT_BACK_ERROR_URL));
+
+                if (Request.IsAjaxRequest())
+                    return Json(new { error = e.InnerException.Message });
+                else
+                    return View("Error", ErrorHelper.GetErrorModel(e.Message, e.InnerException + e.StackTrace, DEFAULT_BACK_ERROR_URL));
             }
-            return RedirectToAction("Index");
         }
 
         #endregion
