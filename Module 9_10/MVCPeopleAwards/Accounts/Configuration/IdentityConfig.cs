@@ -22,7 +22,7 @@ namespace MVCPeopleAwards.Accounts.Configuration
                 AuthenticationType = DefaultAuthenticationTypes.ApplicationCookie,
                 LoginPath = new PathString("/Account/Login"),
                 // время, в течении которого пользователь считается авторизованным, даже если он ничего не делает
-                ExpireTimeSpan = TimeSpan.FromMinutes(2),
+                ExpireTimeSpan = TimeSpan.FromMinutes(180),
                 // это если пользователь что-то сделал, то время сбрасывается и по новой считается 180 минут
                 SlidingExpiration = true,
 
