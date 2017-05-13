@@ -31,6 +31,10 @@
                         <li>@Html.ActionLink("Справочник Награды", "Index", "Awards")</li>
                         <li>@Html.ActionLink("Администрирование пользователей", "Index", "Admin")</li>
                     }
+                    @if (HttpContext.Current.User.IsInRole("CandidateAdmin"))
+                    {
+                        <li>@Html.ActionLink("Применить изменения", "Index", "AppCache")</li>
+                    }
                 </ul>
                 @Html.Partial("_LoginPartial")
             </div>

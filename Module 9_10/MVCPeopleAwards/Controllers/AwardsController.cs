@@ -14,12 +14,14 @@ namespace MVCPeopleAwards.Controllers
     public class AwardsController : Controller
     {
         private const string DEFAULT_BACK_ERROR_URL = "/awards";
+        private AppCache appCache;
 
         private IRepositoryAward repository;
 
         public AwardsController()
         {
             this.repository = new AwardsRepository();
+            appCache = new AppCache();
         }
 
         public AwardsController(IRepositoryAward rep)
@@ -181,10 +183,23 @@ namespace MVCPeopleAwards.Controllers
         }
 
         [HttpPost]
+        public ActionResult ApplyAwardsChanges()
+        {
+            var result = appCache.GetValues();
+            foreach (var award in result)
+            {
+                if(award!=null)
+                    repository.SaveAward(award);
+            }
+            return RedirectToAction("Index");
+        }
+
+
+        [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult SaveAward([Bind(Include = "Id,NameAward,DescriptionAward,PhotoAward,ImageIsEmpty")] AwardViewModel awardModel)
         {
-            bool saveCreateMode = (awardModel.Id == 0) ? true : false;
+            bool saveCreateMode = (awardModel.Id == 0) ? true : false;           
 
             if (ModelState.IsValid)
             {
@@ -229,6 +244,12 @@ namespace MVCPeopleAwards.Controllers
                             ModelState.AddModelError("PhotoAward", "Это поле должно быть заполнено");
                             return View("CreateEditAward", awardModel);
                         }
+                    }
+
+                    if (HttpContext.User.IsInRole("CandidateAdmin"))
+                    {
+                        appCache.AddAward(awardModel);
+                        return RedirectToAction("Index");
                     }
 
                     int saveID = repository.SaveAward(awardModel);

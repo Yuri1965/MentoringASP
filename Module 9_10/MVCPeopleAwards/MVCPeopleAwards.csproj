@@ -128,6 +128,7 @@
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Runtime.Caching" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Security" />
     <Reference Include="System.Web.DynamicData" />
@@ -200,6 +201,8 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\AdminController.cs" />
+    <Compile Include="Controllers\AppCache.cs" />
+    <Compile Include="Controllers\AppCacheController.cs" />
     <Compile Include="Controllers\AwardsController.cs" />
     <Compile Include="Controllers\ErrorController.cs" />
     <Compile Include="Controllers\PeoplesAwardController.cs" />
@@ -436,6 +439,7 @@
     <Content Include="Views\PeoplesAward\ListPeoplesPartial.cshtml" />
     <Content Include="Views\PeoplesAward\PeopleSinglePartial.cshtml" />
     <Content Include="Views\PeoplesAward\CreatePeoplePartial.cshtml" />
+    <Content Include="Views\AppCache\Index.cshtml" />
     <None Include="Web.MyTestWebPublish.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
