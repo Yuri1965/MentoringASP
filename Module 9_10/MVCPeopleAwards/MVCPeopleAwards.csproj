@@ -126,8 +126,10 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Activities" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Runtime.Caching" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Security" />
     <Reference Include="System.Web.DynamicData" />
@@ -200,8 +202,11 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\AdminController.cs" />
+    <Compile Include="Controllers\AppCache.cs" />
+    <Compile Include="Controllers\AppCacheController.cs" />
     <Compile Include="Controllers\AwardsController.cs" />
     <Compile Include="Controllers\ErrorController.cs" />
+    <Compile Include="Controllers\EventUserController.cs" />
     <Compile Include="Controllers\PeoplesAwardController.cs" />
     <Compile Include="Accounts\Managers\AppUserManager.cs" />
     <Compile Include="Accounts\DAL\EntityModels\ApplicationUser.cs" />
@@ -216,6 +221,7 @@
     <Compile Include="Logger\Logger.cs" />
     <Compile Include="Models\Accounts\AccountViewModels.cs" />
     <Compile Include="Models\AwardViewModel.cs" />
+    <Compile Include="Models\EventsUserViewModel.cs" />
     <Compile Include="Models\ErrorViewModel.cs" />
     <Compile Include="Models\ListAwardsViewModel.cs" />
     <Compile Include="DAL\DBContext\MainDBContext.cs" />
@@ -436,6 +442,11 @@
     <Content Include="Views\PeoplesAward\ListPeoplesPartial.cshtml" />
     <Content Include="Views\PeoplesAward\PeopleSinglePartial.cshtml" />
     <Content Include="Views\PeoplesAward\CreatePeoplePartial.cshtml" />
+    <Content Include="Views\AppCache\Index.cshtml" />
+    <Content Include="Views\EventUser\Index.cshtml" />
+    <Content Include="Views\EventUser\ListEventsPartial.cshtml" />
+    <Content Include="Views\EventUser\EventSinglePartial.cshtml" />
+    <Content Include="Views\EventUser\LayoutEvents.cshtml" />
     <None Include="Web.MyTestWebPublish.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

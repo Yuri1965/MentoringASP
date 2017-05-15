@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿@using MVCPeopleAwards.Models
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
@@ -30,6 +31,18 @@
                     {
                         <li>@Html.ActionLink("Справочник Награды", "Index", "Awards")</li>
                         <li>@Html.ActionLink("Администрирование пользователей", "Index", "Admin")</li>
+                    }
+                    @if (HttpContext.Current.User.IsInRole("CandidateAdmin") && Session["EventsUserCandidate"] != null)
+                    {
+                        var events = Session["EventsUserCandidate"] as EventsUserViewModel;
+                        if (events != null && events.ListEvents.Count > 0)
+                        {
+                            <li>@Html.ActionLink("Список изменений(" + events.ListEvents.Count.ToString() + ")", "Index", "EventUser")</li>
+                        }
+                        else
+                        {
+                            <li>@Html.ActionLink("Список изменений", "Index", "EventUser")</li>
+                        }
                     }
                 </ul>
                 @Html.Partial("_LoginPartial")

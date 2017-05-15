@@ -13,7 +13,5 @@ namespace MVCPeopleAwards.Accounts.DAL.DBContext
         {
             return new AppIdentityDbContext();
         }
-
-
     }
 }

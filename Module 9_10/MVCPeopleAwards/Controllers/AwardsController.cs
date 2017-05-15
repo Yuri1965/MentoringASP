@@ -7,6 +7,8 @@ using System;
 using MvcSiteMapProvider;
 using MVCPeopleAwards.Filters;
 using MVCPeopleAwards.Helpers;
+using System.Web;
+using System.IO;
 
 namespace MVCPeopleAwards.Controllers
 {
@@ -14,12 +16,14 @@ namespace MVCPeopleAwards.Controllers
     public class AwardsController : Controller
     {
         private const string DEFAULT_BACK_ERROR_URL = "/awards";
+        //private AppCache appCache;
 
         private IRepositoryAward repository;
 
         public AwardsController()
         {
             this.repository = new AwardsRepository();
+            //appCache = new AppCache();
         }
 
         public AwardsController(IRepositoryAward rep)
@@ -154,8 +158,6 @@ namespace MVCPeopleAwards.Controllers
             ViewBag.Title = "Изменение записи";
             SiteMaps.Current.CurrentNode.Title = ViewBag.Title;
             return View("CreateEditAward", awardModel);
-            //ViewBag.Title = "Изменение записи";
-            //return PartialView("ModalCreateEditAward", awardModel);
         }
 
         [AllowAnonymous]
@@ -171,7 +173,7 @@ namespace MVCPeopleAwards.Controllers
                 if (awardModel == null)
                     return null;
 
-                return File(UtilHelper.HttpPostedFileBaseToByte(awardModel.PhotoAward), awardModel.PhotoMIMEType);
+                return File(awardModel.PhotoAward, awardModel.PhotoMIMEType);
             }
             catch (Exception e)
             {
@@ -180,11 +182,24 @@ namespace MVCPeopleAwards.Controllers
             }
         }
 
+        //[HttpPost]
+        //public ActionResult ApplyAwardsChanges()
+        //{
+        //    var result = appCache.GetValues();
+        //    foreach (var award in result)
+        //    {
+        //        if(award!=null)
+        //            repository.SaveAward(award);
+        //    }
+        //    return RedirectToAction("Index");
+        //}
+
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult SaveAward([Bind(Include = "Id,NameAward,DescriptionAward,PhotoAward,ImageIsEmpty")] AwardViewModel awardModel)
+        public ActionResult SaveAward([Bind(Include = "Id,NameAward,DescriptionAward,ImageIsEmpty")] AwardViewModel awardModel)
         {
-            bool saveCreateMode = (awardModel.Id == 0) ? true : false;
+            bool saveCreateMode = (awardModel.Id == 0) ? true : false;           
 
             if (ModelState.IsValid)
             {
@@ -197,6 +212,19 @@ namespace MVCPeopleAwards.Controllers
                             return PartialView("CreateAwardPartial", awardModel);
                         else
                             return View("CreateEditAward", awardModel);
+                    }
+
+                    if (Request.Files.Count > 0)
+                    {
+                        HttpPostedFileBase file = Request.Files["PhotoAward"];
+                        using (var bin = new BinaryReader(file.InputStream))
+                        {
+                            if (file.ContentLength >= 10)
+                            {
+                                awardModel.PhotoAward = bin.ReadBytes(file.ContentLength);
+                                awardModel.PhotoMIMEType = file.ContentType;
+                            }
+                        }
                     }
 
                     // если изменяем запись
@@ -215,20 +243,42 @@ namespace MVCPeopleAwards.Controllers
                         }
                     else
                     {
-                        if (awardModel.PhotoAward != null && awardModel.PhotoAward.ContentLength > 0)
-                            awardModel.PhotoMIMEType = awardModel.PhotoAward.ContentType;
-                        else
+                        if (awardModel.PhotoAward == null)
                             awardModel.PhotoMIMEType = "";
                     }
 
                     // проверка на обязательный ввод Фото награды
-                    if (awardModel.PhotoAward == null || awardModel.PhotoAward.ContentLength <= 0)
+                    if (awardModel.PhotoAward == null || awardModel.PhotoAward.Length <= 0)
                     {
                         if (!saveCreateMode)
                         {
                             ModelState.AddModelError("PhotoAward", "Это поле должно быть заполнено");
                             return View("CreateEditAward", awardModel);
                         }
+                    }
+
+                    if (HttpContext.User.IsInRole("CandidateAdmin"))
+                    {
+                        var events = Session["EventsUserCandidate"] as EventsUserViewModel;
+                        if (events == null)
+                        {
+                            events = new EventsUserViewModel();
+                            Session.Add("EventsUserCandidate", events);
+                        }
+
+                        EventUser userEvent;
+                        if (saveCreateMode)
+                            userEvent = new EventUser(EventOperationType.AddRecord, EventObjectType.Award, awardModel);
+                        else
+                            userEvent = new EventUser(EventOperationType.UpdateRecord, EventObjectType.Award, awardModel);
+
+                        events.AddEventToList(userEvent);
+                        Session["EventsUserCandidate"] = events;
+
+                        if (Request.IsAjaxRequest())
+                            return Json("");
+                        else
+                            return RedirectToAction("Index");
                     }
 
                     int saveID = repository.SaveAward(awardModel);
@@ -274,6 +324,34 @@ namespace MVCPeopleAwards.Controllers
 
             try
             {
+                if (HttpContext.User.IsInRole("CandidateAdmin"))
+                {
+                    AwardViewModel awardModel = repository.GetAwardById(id);
+                    if (awardModel == null)
+                        if (Request.IsAjaxRequest())
+                            return Json(new { error = "Не найдена награда с таким идентификатором" });
+                        else
+                            return View("Error", ErrorHelper.GetErrorModel("Не найдена награда с таким идентификатором", "", DEFAULT_BACK_ERROR_URL));
+
+                    var events = Session["EventsUserCandidate"] as EventsUserViewModel;
+                    if (events == null)
+                    {
+                        events = new EventsUserViewModel();
+                        Session.Add("EventsUserCandidate", events);
+                    }
+
+                    EventUser userEvent;
+                    userEvent = new EventUser(EventOperationType.DeleteRecord, EventObjectType.Award, awardModel);
+
+                    events.AddEventToList(userEvent);
+                    Session["EventsUserCandidate"] = events;
+
+                    if (Request.IsAjaxRequest())
+                        return Json("");
+                    else
+                        return RedirectToAction("Index");
+                }
+
                 repository.DeleteAward(id);
                 Logger.logger.Trace(String.Format("Удалена награда:\n Id={0}", id));
 
