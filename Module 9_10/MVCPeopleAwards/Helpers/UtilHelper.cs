@@ -25,6 +25,7 @@ namespace MVCPeopleAwards.Repositories
                 return null;
 
             var array = new Byte[file.ContentLength];
+
             file.InputStream.Position = 0;
             file.InputStream.Read(array, 0, file.ContentLength);
             return array;

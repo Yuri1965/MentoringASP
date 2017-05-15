@@ -100,7 +100,7 @@ namespace MVCPeopleAwards.Repositories
 
                     if (item.Award.PhotoAward != null)
                     {
-                        award.PhotoAward = (HttpPostedFileBase)new ExtHttpPostedFileBase(item.Award.PhotoAward);
+                        award.PhotoAward = item.Award.PhotoAward;
                         award.ImageIsEmpty = false;
                     }
                     else award.ImageIsEmpty = true;
@@ -164,7 +164,7 @@ namespace MVCPeopleAwards.Repositories
                     award.DescriptionAward = item.Award.DescriptionAward;
 
                     if (item.Award.PhotoAward != null)
-                        award.PhotoAward = UtilHelper.HttpPostedFileBaseToByte(item.Award.PhotoAward);
+                        award.PhotoAward = item.Award.PhotoAward;
 
                     award.PhotoMIMEType = item.Award.PhotoMIMEType;
 

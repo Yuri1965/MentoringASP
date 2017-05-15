@@ -10,6 +10,7 @@ using MVCPeopleAwards.Accounts.Managers;
 using MVCPeopleAwards.Helpers;
 using MVCPeopleAwards.Models.Accounts;
 using MvcSiteMapProvider;
+using MVCPeopleAwards.Models;
 
 namespace MVCPeopleAwards.Controllers
 {
@@ -84,6 +85,13 @@ namespace MVCPeopleAwards.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult LogOff()
         {
+            if (HttpContext.User.IsInRole("CandidateAdmin"))
+            {
+                EventsUserViewModel eventsModel = Session["EventsUserCandidate"] as EventsUserViewModel;
+                if (eventsModel != null && eventsModel.ListEvents.Count > 0)
+                    return RedirectToAction("Index", "EventUser");
+            }
+
             AuthManager.SignOut(DefaultAuthenticationTypes.ApplicationCookie);
             return RedirectToAction("Index", "PeoplesAward");
         }

@@ -66,7 +66,7 @@ namespace MVCPeopleAwards.Repositories
             if (source.PhotoAward == null)
                 dest.PhotoAward = null;
             else
-                dest.PhotoAward = (HttpPostedFileBase)new ExtHttpPostedFileBase(source.PhotoAward);
+                dest.PhotoAward = source.PhotoAward;
 
             if (source.PhotoMIMEType == null || source.PhotoAward == null)
             {
@@ -94,7 +94,7 @@ namespace MVCPeopleAwards.Repositories
             if (source.PhotoAward == null)
                 dest.PhotoAward = null;
             else
-                dest.PhotoAward = UtilHelper.HttpPostedFileBaseToByte(source.PhotoAward);
+                dest.PhotoAward = source.PhotoAward;
 
             if (source.PhotoMIMEType == null || source.PhotoAward == null)
                 dest.PhotoMIMEType = "";

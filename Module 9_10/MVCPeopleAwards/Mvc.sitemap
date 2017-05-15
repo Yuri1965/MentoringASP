@@ -33,6 +33,8 @@
       <mvcSiteMapNode title="Роли пользователя" controller="Admin" action="EditAccountRoles" preservedRouteParameters="id"/>
     </mvcSiteMapNode>
 
+    <mvcSiteMapNode title="Список изменений" controller="EventUser" action="Index"/>
+
   </mvcSiteMapNode>
   
 </mvcSiteMap>

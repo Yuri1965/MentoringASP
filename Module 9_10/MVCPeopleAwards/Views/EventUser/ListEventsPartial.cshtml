@@ -1,0 +1,25 @@
+﻿@model MVCPeopleAwards.Models.EventsUserViewModel
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayName("Дата и время события")
+        </th>
+        <th>
+            @Html.DisplayName("Операция")
+        </th>
+        <th>
+            @Html.DisplayName("Наименование объекта")
+        </th>
+        <th>
+            @Html.DisplayName("Название записи")
+        </th>
+        <th></th>
+    </tr>
+
+    <tbody id="eventsListBody">
+        @foreach (var item in Model.ListEvents)
+        {
+            Html.RenderPartial("EventSinglePartial", item);
+        }
+    </tbody>
+</table>

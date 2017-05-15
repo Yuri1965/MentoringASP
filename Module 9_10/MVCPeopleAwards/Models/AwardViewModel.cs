@@ -25,7 +25,8 @@ namespace MVCPeopleAwards.Models
         public string DescriptionAward { get; set; }
 
         [Display(Name = "Фото награды")]
-        public HttpPostedFileBase PhotoAward { get; set; }
+        public byte[] PhotoAward { get; set; }
+        //public HttpPostedFileBase PhotoAward { get; set; }
 
         public string PhotoMIMEType { get; set; }
 

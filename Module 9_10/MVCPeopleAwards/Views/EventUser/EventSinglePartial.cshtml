@@ -1,0 +1,37 @@
+﻿@model MVCPeopleAwards.Models.EventUser
+
+<tr data-event-id="@Model.KeyObjectStr">
+    <td>
+        @Html.DisplayFor(model => model.EventDateStr)
+    </td>
+    <td>
+        @Html.DisplayFor(model => model.OperationTypeStr)
+    </td>
+    <td>
+        @Html.DisplayFor(model => model.ObjectTypeStr)
+    </td>
+    <td>
+        @Html.DisplayFor(model => model.RecordName)
+    </td>
+
+    @if (Request.IsAuthenticated && HttpContext.Current.User.IsInRole("CandidateAdmin"))
+    {
+        <td>
+            @using (Html.BeginForm("ApplyOperation", "EventUser", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+                @Html.Hidden("Key", Model.KeyObjectStr)
+                <input type="submit" value="Применить" class="btn btn-danger" style = "display: inline-block"/>
+            }
+
+            @using (Html.BeginForm("RemoveOperation", "EventUser", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+                @Html.Hidden("Key", Model.KeyObjectStr)
+                <input type="submit" value="Отменить" class="btn btn-danger" style = "display: inline-block"/>
+            }
+
+        </td>
+    }
+
+</tr>
