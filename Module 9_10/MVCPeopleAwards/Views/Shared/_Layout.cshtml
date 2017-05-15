@@ -60,6 +60,16 @@
     </div>
 
     @RenderSection("scripts", required: false)
-    
+
+    @if (HttpContext.Current.User.IsInRole("CandidateAdmin") && Session["EventsUserCandidate"] != null)
+    {
+        @section Scripts{
+        
+            window.onbeforeunload = function(){
+            return confirm("У вас имеются НЕ сохраненные операции, вы действительно хотите закрыть вкладку? ");
+            }
+        }
+    }
+
 </body>
 </html>
