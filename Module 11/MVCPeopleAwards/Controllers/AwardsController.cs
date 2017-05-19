@@ -30,19 +30,31 @@ namespace MVCPeopleAwards.Controllers
             this.repository = rep;
         }
 
+        private HttpClient GetHttpClient()
+        {
+            var client = new HttpClient();
+            string baseAddress = Request.Url.Scheme + "://" + Request.Url.Authority;
+            client.BaseAddress = new Uri(baseAddress);
+            client.DefaultRequestHeaders.Accept.Clear();
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            return client;
+        }
+
         [Route("awards")]
         public ActionResult Index()
         {
             ListAwardsViewModel awardsModel = new ListAwardsViewModel();
             try
             {
-                var token = Request.Cookies.Get("__RequestVerificationToken").Value; //AllKeys[""];// ((ClaimsPrincipal)HttpContext. Current.User).FindFirst("AcessToken").Value;
-                var client = new HttpClient();
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-                var response = client.GetAsync(Request.Url.Authority + "/api/awards").Result;
-                awardsModel.ListAwards = (List<AwardViewModel>)response.Content.ReadAsAsync<IEnumerable<AwardViewModel>>().Result;
+                using (var client = GetHttpClient())
+                {
+                    //var token = Request.Cookies.Get("__RequestVerificationToken").Value;
+                    //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-                //awardsModel.ListAwards = (List<AwardViewModel>)repository.GetListAward();
+                    var response = client.GetAsync("api/awards").Result;
+
+                    awardsModel.ListAwards = (List<AwardViewModel>)response.Content.ReadAsAsync<IEnumerable<AwardViewModel>>().Result;
+                }
             }
             catch (Exception e)
             {
@@ -68,7 +80,17 @@ namespace MVCPeopleAwards.Controllers
             ListAwardsViewModel awardsModel = new ListAwardsViewModel();
             try
             {
-                awardsModel.ListAwards = (List<AwardViewModel>)repository.GetListAward(nameAward);
+                using (var client = GetHttpClient())
+                {
+                    //var token = Request.Cookies.Get("__RequestVerificationToken").Value;
+                    //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+                    var response = client.GetAsync("api/awards/").Result;
+
+                    awardsModel.ListAwards = (List<AwardViewModel>)response.Content.ReadAsAsync<IEnumerable<AwardViewModel>>().Result;
+                }
+
+                //awardsModel.ListAwards = (List<AwardViewModel>)repository.GetListAward(nameAward);
             }
             catch (Exception e)
             {
@@ -180,7 +202,6 @@ namespace MVCPeopleAwards.Controllers
                 if (awardModel == null)
                     return null;
 
-                //return File(UtilHelper.HttpPostedFileBaseToByte(awardModel.PhotoAward), awardModel.PhotoMIMEType);
                 return File(awardModel.PhotoAward, awardModel.PhotoMIMEType);
             }
             catch (Exception e)
