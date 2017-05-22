@@ -1,16 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Web.Mvc;
 using MVCPeopleAwards.Models;
-using MVCPeopleAwards.Repositories;
 using System;
 using MvcSiteMapProvider;
 using MVCPeopleAwards.Helpers;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Security.Claims;
 using System.Web;
 using System.IO;
-using System.Threading.Tasks;
 
 namespace MVCPeopleAwards.Controllers
 {
@@ -19,17 +16,9 @@ namespace MVCPeopleAwards.Controllers
     {
         private const string DEFAULT_BACK_ERROR_URL = "/awards";
 
-        //private IRepositoryAward repository;
-
         public AwardsController()
         {
-            //this.repository = new AwardsRepository();
         }
-
-        //public AwardsController(IRepositoryAward rep)
-        //{
-        //    this.repository = rep;
-        //}
 
         private HttpClient GetHttpClient()
         {
@@ -415,10 +404,6 @@ namespace MVCPeopleAwards.Controllers
 
         protected override void Dispose(bool disposing)
         {
-            //if (disposing)
-            //{
-            //    ((IDisposable)repository).Dispose();
-            //}
             base.Dispose(disposing);
         }
     }

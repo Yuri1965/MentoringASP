@@ -4,35 +4,26 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Http;
-using System.Web.Http.Routing;
-using System.Web.Http.Routing.Constraints;
 using System.Web.Http.OData;
-using System.Net.Http;
-using System.Text;
-using System.Net;
-using System.Web;
-using System.IO;
-using RazorEngine;
-using RazorEngine.Templating;
-using RazorEngine.Configuration;
-using MVCPeopleAwards.Helpers;
-using System.Net.Http.Headers;
 
 namespace MVCPeopleAwards.Controllers
 {
     //[Authorize(Roles = "Admin,CandidateAdmin")]
     public class RESTAwardsController : ApiController
     {
-        private IRepositoryAward repository;
+        private IRepositoryAward repositoryAward;
+        private IRepositoryPeople repositoryPeople;
 
         public RESTAwardsController()
         {
-            this.repository = new AwardsRepository();
+            this.repositoryAward = new AwardsRepository();
+            this.repositoryPeople = new PeopleRepository();
         }
 
-        public RESTAwardsController(IRepositoryAward rep)
+        public RESTAwardsController(IRepositoryAward repAward, IRepositoryPeople repPeople)
         {
-            this.repository = rep;
+            this.repositoryAward = repAward;
+            this.repositoryPeople = repPeople;
         }
 
         [HttpGet]
@@ -43,7 +34,7 @@ namespace MVCPeopleAwards.Controllers
             ListAwardsViewModel awardsModel = new ListAwardsViewModel();
             try
             {
-                awardsModel.ListAwards = (List<AwardViewModel>)repository.GetListAward();
+                awardsModel.ListAwards = (List<AwardViewModel>)repositoryAward.GetListAward();
             }
             catch (Exception e)
             {
@@ -63,7 +54,7 @@ namespace MVCPeopleAwards.Controllers
             ListAwardsViewModel awardsModel = new ListAwardsViewModel();
             try
             {
-                awardsModel.ListAwards = (List<AwardViewModel>)repository.GetListAward(nameAward);
+                awardsModel.ListAwards = (List<AwardViewModel>)repositoryAward.GetListAward(nameAward);
             }
             catch (Exception e)
             {
@@ -82,7 +73,7 @@ namespace MVCPeopleAwards.Controllers
             AwardViewModel awardModel;
             try
             {
-                awardModel = repository.GetAwardById(id);
+                awardModel = repositoryAward.GetAwardById(id);
 
                 if (awardModel == null)
                     return NotFound();
@@ -102,7 +93,7 @@ namespace MVCPeopleAwards.Controllers
             AwardViewModel awardModel;
             try
             {
-                awardModel = repository.GetAwardByName(nameAward);
+                awardModel = repositoryAward.GetAwardByName(nameAward);
 
                 if (awardModel == null)
                     return NotFound();
@@ -122,10 +113,10 @@ namespace MVCPeopleAwards.Controllers
         {
             if (id < 0) id = 0;
 
-            if (repository.CheckNameAward(nameAward, id))
-                return false;
+            if (repositoryAward.CheckNameAward(nameAward, id))
+                return Json(false);
 
-            return true;
+            return Json(true);
         }
 
         [HttpDelete]
@@ -135,12 +126,12 @@ namespace MVCPeopleAwards.Controllers
             AwardViewModel awardModel;
             try
             {
-                awardModel = repository.GetAwardById(id);
+                awardModel = repositoryAward.GetAwardById(id);
 
                 if (awardModel == null)
                     return NotFound();
 
-                repository.DeleteAward(id);
+                repositoryAward.DeleteAward(id);
                 Logger.logger.Trace(String.Format("Удалена награда:\n Id={0}", id));
             }
             catch (Exception e)
@@ -159,7 +150,7 @@ namespace MVCPeopleAwards.Controllers
             {
                 try
                 {
-                    int saveID = repository.SaveAward(awardModel);
+                    int saveID = repositoryAward.SaveAward(awardModel);
                     Logger.logger.Trace(String.Format("Добавлена награда:\n NameAward = {0}, DescriptionAward = {1}",
                             awardModel.NameAward, awardModel.DescriptionAward));
 
@@ -174,6 +165,47 @@ namespace MVCPeopleAwards.Controllers
             else return BadRequest(ModelState);
         }
 
+        public IHttpActionResult CreatePeopleAward(int peopleId, int awardId)
+        {
+            if (peopleId <= 0 || awardId <= 0)
+            {
+                return BadRequest("Переданы неверные параметры"); 
+            }
+
+            if (ModelState.IsValid)
+            {
+                PeopleViewModel peopleModel;
+                peopleModel = GetPeopleModelForEdit(peopleId);
+                if (peopleModel == null)
+                    return View("Error", ErrorHelper.GetErrorModel("Не найден человек с таким идентификатором", "", DEFAULT_BACK_ERROR_URL));
+
+                try
+                {
+                    repositoryAward.SavePeopleAward(peopleId, awardId);
+                    Logger.logger.Trace(String.Format("Добавлена награда человека:\n PeopleID={0}, AwardID={1}", peopleId, awardId));
+
+                    peopleModel = GetPeopleModelForEdit(peopleId);
+                    if (peopleModel == null)
+                        return View("Error", ErrorHelper.GetErrorModel("Не найден человек с таким идентификатором", "", DEFAULT_BACK_ERROR_URL));
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogException(ex);
+                    peopleModel.Error = "Запись не добавлена! Ошибка на сервере";
+                }
+
+                return RedirectToAction("EditPeopleAwards", new { id = peopleId });
+            }
+            else
+            {
+                PeopleViewModel peopleModel = GetPeopleModelForEdit(peopleId);
+                if (peopleModel == null)
+                    return View("Error", ErrorHelper.GetErrorModel("Не найден человек с таким идентификатором", "", DEFAULT_BACK_ERROR_URL));
+
+                return View("EditPeopleAwards", peopleModel);
+            }
+        }
+
         [HttpPut]
         [Route("api/award/update")]
         public IHttpActionResult UpdateAward([FromBody]AwardViewModel awardModel)
@@ -182,7 +214,7 @@ namespace MVCPeopleAwards.Controllers
             {
                 try
                 {
-                    int saveID = repository.SaveAward(awardModel);
+                    int saveID = repositoryAward.SaveAward(awardModel);
                     Logger.logger.Trace(String.Format("Изменена награда:\n Id={0}, NameAward = {1}, DescriptionAward = {2}",
                             awardModel.Id, awardModel.NameAward, awardModel.DescriptionAward));
 
@@ -201,7 +233,8 @@ namespace MVCPeopleAwards.Controllers
         {
             if (disposing)
             {
-                ((IDisposable)repository).Dispose();
+                ((IDisposable)repositoryAward).Dispose();
+                ((IDisposable)repositoryPeople).Dispose();
             }
             base.Dispose(disposing);
         }

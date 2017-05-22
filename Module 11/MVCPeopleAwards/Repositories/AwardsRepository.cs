@@ -1,11 +1,9 @@
-﻿using MVCPeopleAwards.Helpers;
-using MVCPeopleAwards.Models;
+﻿using MVCPeopleAwards.Models;
 using MVCPeopleAwards.Models.DataDBContext;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity.Migrations;
 using System.Linq;
-using System.Web;
 
 namespace MVCPeopleAwards.Repositories
 {
@@ -70,7 +68,6 @@ namespace MVCPeopleAwards.Repositories
                 dest.PhotoAward = null;
             else
                 dest.PhotoAward = source.PhotoAward;
-            //dest.PhotoAward = (HttpPostedFileBase)new ExtHttpPostedFileBase(source.PhotoAward);
 
             if (source.PhotoMIMEType == null || source.PhotoAward == null)
             {
