@@ -10,6 +10,7 @@ using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Web;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace MVCPeopleAwards.Controllers
 {
@@ -18,17 +19,17 @@ namespace MVCPeopleAwards.Controllers
     {
         private const string DEFAULT_BACK_ERROR_URL = "/awards";
 
-        private IRepositoryAward repository;
+        //private IRepositoryAward repository;
 
         public AwardsController()
         {
-            this.repository = new AwardsRepository();
+            //this.repository = new AwardsRepository();
         }
 
-        public AwardsController(IRepositoryAward rep)
-        {
-            this.repository = rep;
-        }
+        //public AwardsController(IRepositoryAward rep)
+        //{
+        //    this.repository = rep;
+        //}
 
         private HttpClient GetHttpClient()
         {
@@ -312,17 +313,26 @@ namespace MVCPeopleAwards.Controllers
                         }
                     }
 
-                    int saveID = repository.SaveAward(awardModel);
-                    if (saveCreateMode)
-                        Logger.logger.Trace(String.Format("Добавлена награда:\n NameAward = {0}, DescriptionAward = {1}",
-                                awardModel.NameAward, awardModel.DescriptionAward));
-                    else
-                        Logger.logger.Trace(String.Format("Изменена награда:\n Id={0}, NameAward = {1}, DescriptionAward = {2}",
-                                awardModel.Id, awardModel.NameAward, awardModel.DescriptionAward));
+                    int saveID = 0;
+                    using (var client = GetHttpClient())
+                    {
+                        HttpResponseMessage response;
+                        if (saveCreateMode)
+                            response = client.PostAsJsonAsync(string.Format("api/award/create"), awardModel).Result;
+                        else
+                            response = client.PutAsJsonAsync(string.Format("api/award/update"), awardModel).Result;
+
+                        if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
+                        {
+                            var errorMessage = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+                            return View("Error", ErrorHelper.GetErrorModel(errorMessage, "", DEFAULT_BACK_ERROR_URL));
+                        }
+
+                        saveID = (int)response.Content.ReadAsAsync<int>().Result;
+                    }
 
                     if (saveCreateMode)
                     {
-
                         using (var client = GetHttpClient())
                         {
                             var response = client.GetAsync(string.Format("api/award/{0}", saveID)).Result;
@@ -405,10 +415,10 @@ namespace MVCPeopleAwards.Controllers
 
         protected override void Dispose(bool disposing)
         {
-            if (disposing)
-            {
-                ((IDisposable)repository).Dispose();
-            }
+            //if (disposing)
+            //{
+            //    ((IDisposable)repository).Dispose();
+            //}
             base.Dispose(disposing);
         }
     }

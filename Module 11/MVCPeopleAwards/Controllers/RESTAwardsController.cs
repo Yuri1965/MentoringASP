@@ -118,7 +118,7 @@ namespace MVCPeopleAwards.Controllers
         // проверка на уникальность наименования
         [HttpGet]
         [Route("api/award/{id}/checkName/{nameAward:regex(^([a-zA-Zа-яА-Я0-9]+)$)}")]
-        public bool CheckNameAward(string nameAward, int id)
+        public IHttpActionResult CheckNameAward(string nameAward, int id)
         {
             if (id < 0) id = 0;
 
@@ -149,6 +149,52 @@ namespace MVCPeopleAwards.Controllers
                 return NotFound();
             }
             return Ok(awardModel.Id);
+        }
+
+        [HttpPost]
+        [Route("api/award/create")]
+        public IHttpActionResult CreateAward([FromBody]AwardViewModel awardModel)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    int saveID = repository.SaveAward(awardModel);
+                    Logger.logger.Trace(String.Format("Добавлена награда:\n NameAward = {0}, DescriptionAward = {1}",
+                            awardModel.NameAward, awardModel.DescriptionAward));
+
+                    return Ok(saveID);
+                }
+                catch (Exception e)
+                {
+                    Logger.LogException(e);
+                    return BadRequest(e.Message);
+                }
+            }
+            else return BadRequest(ModelState);
+        }
+
+        [HttpPut]
+        [Route("api/award/update")]
+        public IHttpActionResult UpdateAward([FromBody]AwardViewModel awardModel)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    int saveID = repository.SaveAward(awardModel);
+                    Logger.logger.Trace(String.Format("Изменена награда:\n Id={0}, NameAward = {1}, DescriptionAward = {2}",
+                            awardModel.Id, awardModel.NameAward, awardModel.DescriptionAward));
+
+                    return Ok(saveID);
+                }
+                catch (Exception e)
+                {
+                    Logger.LogException(e);
+                    return BadRequest(e.Message);
+                }
+            }
+            else return BadRequest(ModelState);
         }
 
         protected override void Dispose(bool disposing)
