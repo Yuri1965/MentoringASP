@@ -6,7 +6,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Web.Mvc;
 
 namespace MVCPeopleAwards.Controllers
@@ -26,6 +27,16 @@ namespace MVCPeopleAwards.Controllers
         public PeoplesAwardController(IRepositoryPeople rep)
         {
             this.repository = rep;
+        }
+
+        private HttpClient GetHttpClient()
+        {
+            var client = new HttpClient();
+            string baseAddress = Request.Url.Scheme + "://" + Request.Url.Authority;
+            client.BaseAddress = new Uri(baseAddress);
+            client.DefaultRequestHeaders.Accept.Clear();
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            return client;
         }
 
         [AllowAnonymous]
@@ -349,24 +360,16 @@ namespace MVCPeopleAwards.Controllers
 
             if (ModelState.IsValid)
             {
-                PeopleViewModel peopleModel;
-                peopleModel = GetPeopleModelForEdit(peopleId);
-                if (peopleModel == null)
-                    return View("Error", ErrorHelper.GetErrorModel("Не найден человек с таким идентификатором", "", DEFAULT_BACK_ERROR_URL));
-
-                try
+                using (var client = GetHttpClient())
                 {
-                    repository.SavePeopleAward(peopleId, SelectedAwardID);
-                    Logger.logger.Trace(String.Format("Добавлена награда человека:\n PeopleID={0}, AwardID={1}", peopleId, SelectedAwardID));
+                    HttpResponseMessage response;
+                    response = client.PostAsJsonAsync(string.Format("api/people/{0}/award/{1}", peopleId, SelectedAwardID), new { peopleId  = peopleId, awardId = SelectedAwardID }).Result;
 
-                    peopleModel = GetPeopleModelForEdit(peopleId);
-                    if (peopleModel == null)
-                        return View("Error", ErrorHelper.GetErrorModel("Не найден человек с таким идентификатором", "", DEFAULT_BACK_ERROR_URL));
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogException(ex);
-                    peopleModel.Error = "Запись не добавлена! Ошибка на сервере";
+                    if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
+                    {
+                        var errorMessage = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+                        return View("Error", ErrorHelper.GetErrorModel(errorMessage, "", DEFAULT_BACK_ERROR_URL));
+                    }
                 }
 
                 return RedirectToAction("EditPeopleAwards", new { id = peopleId });

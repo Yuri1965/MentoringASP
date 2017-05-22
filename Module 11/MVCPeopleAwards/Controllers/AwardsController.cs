@@ -363,7 +363,6 @@ namespace MVCPeopleAwards.Controllers
                     return Json(new { error = "Не найдена награда с таким идентификатором" });
                 else
                     return View("Error", ErrorHelper.GetErrorModel("Не найдена награда с таким идентификатором", "", DEFAULT_BACK_ERROR_URL));
-
             try
             {
                 using (var client = GetHttpClient())

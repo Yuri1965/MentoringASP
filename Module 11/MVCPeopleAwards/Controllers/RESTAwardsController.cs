@@ -8,7 +8,6 @@ using System.Web.Http.OData;
 
 namespace MVCPeopleAwards.Controllers
 {
-    //[Authorize(Roles = "Admin,CandidateAdmin")]
     public class RESTAwardsController : ApiController
     {
         private IRepositoryAward repositoryAward;
@@ -165,44 +164,52 @@ namespace MVCPeopleAwards.Controllers
             else return BadRequest(ModelState);
         }
 
+        private PeopleViewModel GetPeopleModelById(int id)
+        {
+            PeopleViewModel peopleModel;
+            try
+            {
+                peopleModel = repositoryPeople.GetPeople(id);
+                peopleModel.Awards = repositoryPeople.GetAwards();
+
+                return peopleModel;
+            }
+            catch (Exception e)
+            {
+                Logger.LogException(e);
+            }
+
+            return null;
+        }
+
+        [HttpPost]
+        [Route("api/people/{peopleId:int:min(1)}/award/{awardId:int:min(1)}")]
         public IHttpActionResult CreatePeopleAward(int peopleId, int awardId)
         {
             if (peopleId <= 0 || awardId <= 0)
-            {
-                return BadRequest("Переданы неверные параметры"); 
-            }
+                return BadRequest("Переданы неверные параметры");
 
-            if (ModelState.IsValid)
+            PeopleViewModel peopleModel;
+
+            peopleModel = GetPeopleModelById(peopleId);
+            if (peopleModel == null)
+                return BadRequest("Человек с таким идентификатором не найден");
+
+            try
             {
-                PeopleViewModel peopleModel;
-                peopleModel = GetPeopleModelForEdit(peopleId);
+                repositoryPeople.SavePeopleAward(peopleId, awardId);
+                Logger.logger.Trace(String.Format("Добавлена награда человека:\n PeopleID={0}, AwardID={1}", peopleId, awardId));
+
+                peopleModel = GetPeopleModelById(peopleId);
                 if (peopleModel == null)
-                    return View("Error", ErrorHelper.GetErrorModel("Не найден человек с таким идентификатором", "", DEFAULT_BACK_ERROR_URL));
+                    return BadRequest("Человек с таким идентификатором не найден");
 
-                try
-                {
-                    repositoryAward.SavePeopleAward(peopleId, awardId);
-                    Logger.logger.Trace(String.Format("Добавлена награда человека:\n PeopleID={0}, AwardID={1}", peopleId, awardId));
-
-                    peopleModel = GetPeopleModelForEdit(peopleId);
-                    if (peopleModel == null)
-                        return View("Error", ErrorHelper.GetErrorModel("Не найден человек с таким идентификатором", "", DEFAULT_BACK_ERROR_URL));
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogException(ex);
-                    peopleModel.Error = "Запись не добавлена! Ошибка на сервере";
-                }
-
-                return RedirectToAction("EditPeopleAwards", new { id = peopleId });
+                return Ok(peopleId);
             }
-            else
+            catch (Exception ex)
             {
-                PeopleViewModel peopleModel = GetPeopleModelForEdit(peopleId);
-                if (peopleModel == null)
-                    return View("Error", ErrorHelper.GetErrorModel("Не найден человек с таким идентификатором", "", DEFAULT_BACK_ERROR_URL));
-
-                return View("EditPeopleAwards", peopleModel);
+                Logger.LogException(ex);
+                return BadRequest("Запись не добавлена! Ошибка на сервере");
             }
         }
 
