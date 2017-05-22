@@ -99,7 +99,6 @@ namespace MVCPeopleAwards.Repositories
                 dest.PhotoAward = null;
             else
                 dest.PhotoAward = source.PhotoAward;
-            //dest.PhotoAward = UtilHelper.HttpPostedFileBaseToByte(source.PhotoAward);
 
             if (source.PhotoMIMEType == null || source.PhotoAward == null)
                 dest.PhotoMIMEType = "";

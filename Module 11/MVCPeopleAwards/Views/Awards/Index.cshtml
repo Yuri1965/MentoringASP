@@ -25,11 +25,6 @@
 
 <p>
     @Ajax.ActionLink("Обновить список", "Index", "Awards", new { }, new AjaxOptions { HttpMethod = "GET", UpdateTargetId = "awardsList", InsertionMode = InsertionMode.Replace }, new { @class = "btn btn-default" })
-    
-    @Ajax.ActionLink("Обновить список REST", "GetListAwards", "RESTAwards", new { area = "", httproute = "" }, new AjaxOptions { HttpMethod = "GET", UpdateTargetId = "awardsList", InsertionMode = InsertionMode.Replace }, new { @class = "btn btn-default" })
-
-    @*@Html.ActionLink("link", "Get", "Servers", new { id = r.idServer, area = "", httproute = "" }, null)
-    @Ajax.RouteLink("Обновить список REST", "GetListAwards", "RESTAwards", new AjaxOptions { HttpMethod = "GET", UpdateTargetId = "awardsList", InsertionMode = InsertionMode.Replace }, new { @class = "btn btn-default" })*@
 </p>
 
 <div id="awardsList">

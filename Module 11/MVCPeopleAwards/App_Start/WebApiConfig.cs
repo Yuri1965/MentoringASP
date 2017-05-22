@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web.Http;
+﻿using System.Web.Http;
+using System.Web.Http.Routing;
+using System.Web.Http.Routing.Constraints;
 
 namespace MVCPeopleAwards
 {
@@ -9,21 +8,7 @@ namespace MVCPeopleAwards
     {
         public static void Register(HttpConfiguration config)
         {
-            // НЕ работает
-            //config.MapHttpAttributeRoutes();
-
-            //Список Наград
-            config.Routes.MapHttpRoute(
-                name: "APIAwards",
-                routeTemplate: "api/awards",
-                defaults: new { controller = "RESTAwards", action = "Get" }
-            );
-
-            //config.Routes.MapHttpRoute(
-            //    name: "GetListAward",
-            //    routeTemplate: "api/listawards",
-            //    defaults: new { controller = "RESTAwards", action = "GetListAwards" }
-            //);
+            config.MapHttpAttributeRoutes();
 
             config.Routes.MapHttpRoute(
                 name: "DefaultApi",

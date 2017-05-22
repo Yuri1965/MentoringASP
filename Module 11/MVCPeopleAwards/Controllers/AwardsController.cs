@@ -30,19 +30,27 @@ namespace MVCPeopleAwards.Controllers
             this.repository = rep;
         }
 
+        private HttpClient GetHttpClient()
+        {
+            var client = new HttpClient();
+            string baseAddress = Request.Url.Scheme + "://" + Request.Url.Authority;
+            client.BaseAddress = new Uri(baseAddress);
+            client.DefaultRequestHeaders.Accept.Clear();
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            return client;
+        }
+
         [Route("awards")]
         public ActionResult Index()
         {
             ListAwardsViewModel awardsModel = new ListAwardsViewModel();
             try
             {
-                var token = Request.Cookies.Get("__RequestVerificationToken").Value; //AllKeys[""];// ((ClaimsPrincipal)HttpContext. Current.User).FindFirst("AcessToken").Value;
-                var client = new HttpClient();
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-                var response = client.GetAsync(Request.Url.Authority + "/api/awards").Result;
-                awardsModel.ListAwards = (List<AwardViewModel>)response.Content.ReadAsAsync<IEnumerable<AwardViewModel>>().Result;
-
-                //awardsModel.ListAwards = (List<AwardViewModel>)repository.GetListAward();
+                using (var client = GetHttpClient())
+                {
+                    var response = client.GetAsync("api/awards").Result;
+                    awardsModel.ListAwards = (List<AwardViewModel>)response.Content.ReadAsAsync<IEnumerable<AwardViewModel>>().Result;
+                }
             }
             catch (Exception e)
             {
@@ -62,13 +70,17 @@ namespace MVCPeopleAwards.Controllers
             return View("Index", awardsModel);
         }
 
-        [Route("awardsByName/{nameAward:regex(^([a-zA-Zа-яА-Я0-9 -]+)$)}")]
+        [Route("awardsByName/{nameAward:regex(^([a-zA-Zа-яА-Я0-9]+)$)}")]
         public ActionResult GetAwardsByName(string nameAward)
         {
             ListAwardsViewModel awardsModel = new ListAwardsViewModel();
             try
             {
-                awardsModel.ListAwards = (List<AwardViewModel>)repository.GetListAward(nameAward);
+                using (var client = GetHttpClient())
+                {
+                    var response = client.GetAsync(string.Format("api/awards/{0}", nameAward)).Result;
+                    awardsModel.ListAwards = (List<AwardViewModel>)response.Content.ReadAsAsync<IEnumerable<AwardViewModel>>().Result;
+                }
             }
             catch (Exception e)
             {
@@ -89,19 +101,27 @@ namespace MVCPeopleAwards.Controllers
             AwardViewModel awardModel;
             try
             {
-                awardModel = repository.GetAwardById(id);
-                if (awardModel == null)
-                    return View("Error", ErrorHelper.GetErrorModel("Не найдена награда с таким идентификатором", "", DEFAULT_BACK_ERROR_URL));
+                using (var client = GetHttpClient())
+                {
+                    var response = client.GetAsync(string.Format("api/award/{0}", id)).Result;
+
+                    if (response.StatusCode != System.Net.HttpStatusCode.OK)
+                        return View("Error", ErrorHelper.GetErrorModel("Не найдена награда с таким идентификатором", "", DEFAULT_BACK_ERROR_URL));
+
+                    awardModel = (AwardViewModel)response.Content.ReadAsAsync<AwardViewModel>().Result;
+                    if (awardModel == null)
+                        return View("Error", ErrorHelper.GetErrorModel("Не найдена награда с таким идентификатором", "", DEFAULT_BACK_ERROR_URL));
+
+                    ViewBag.Title = "Информация о записи";
+                    SiteMaps.Current.CurrentNode.Title = ViewBag.Title;
+                    return View("AwardDetail", awardModel);
+                }
             }
             catch (Exception e)
             {
                 Logger.LogException(e);
                 return View("Error", ErrorHelper.GetErrorModel(e.Message, e.StackTrace, DEFAULT_BACK_ERROR_URL));
             }
-
-            ViewBag.Title = "Информация о записи";
-            SiteMaps.Current.CurrentNode.Title = ViewBag.Title;
-            return View("AwardDetail", awardModel);
         }
 
         [Route("award/{nameAward:regex(^([a-zA-Zа-яА-Я0-9 -]+)$)}", Order = 2)]
@@ -110,13 +130,21 @@ namespace MVCPeopleAwards.Controllers
             AwardViewModel awardModel;
             try
             {
-                awardModel = repository.GetAwardByName(nameAward);
-                if (awardModel == null)
-                    return View("Error", ErrorHelper.GetErrorModel(String.Format("Не найдена награда с наименованием = {0}", nameAward), "", DEFAULT_BACK_ERROR_URL));
+                using (var client = GetHttpClient())
+                {
+                    var response = client.GetAsync(string.Format("api/award/{0}", nameAward)).Result;
 
-                ViewBag.Title = "Информация о записи";
-                SiteMaps.Current.CurrentNode.Title = ViewBag.Title;
-                return View("AwardDetail", awardModel);
+                    if (response.StatusCode != System.Net.HttpStatusCode.OK)
+                        return View("Error", ErrorHelper.GetErrorModel(String.Format("Не найдена награда с наименованием = {0}", nameAward), "", DEFAULT_BACK_ERROR_URL));
+
+                    awardModel = (AwardViewModel)response.Content.ReadAsAsync<AwardViewModel>().Result;
+                    if (awardModel == null)
+                        return View("Error", ErrorHelper.GetErrorModel(String.Format("Не найдена награда с наименованием = {0}", nameAward), "", DEFAULT_BACK_ERROR_URL));
+
+                    ViewBag.Title = "Информация о записи";
+                    SiteMaps.Current.CurrentNode.Title = ViewBag.Title;
+                    return View("AwardDetail", awardModel);
+                }
             }
             catch (Exception e)
             {
@@ -131,17 +159,25 @@ namespace MVCPeopleAwards.Controllers
             AwardViewModel awardModel;
             try
             {
-                awardModel = repository.GetAwardById(id);
-                if (awardModel == null)
-                    return View("Error", ErrorHelper.GetErrorModel("Не найдена награда с таким идентификатором", "", DEFAULT_BACK_ERROR_URL));
+                using (var client = GetHttpClient())
+                {
+                    var response = client.GetAsync(string.Format("api/award/{0}", id)).Result;
+
+                    if (response.StatusCode != System.Net.HttpStatusCode.OK)
+                        return View("Error", ErrorHelper.GetErrorModel("Не найдена награда с таким идентификатором", "", DEFAULT_BACK_ERROR_URL));
+
+                    awardModel = (AwardViewModel)response.Content.ReadAsAsync<AwardViewModel>().Result;
+                    if (awardModel == null)
+                        return View("Error", ErrorHelper.GetErrorModel("Не найдена награда с таким идентификатором", "", DEFAULT_BACK_ERROR_URL));
+
+                    return PartialView("ModalAwardDetail", awardModel);
+                }
             }
             catch (Exception e)
             {
                 Logger.LogException(e);
                 return View("Error", ErrorHelper.GetErrorModel(e.Message, e.StackTrace, DEFAULT_BACK_ERROR_URL));
             }
-
-            return PartialView("ModalAwardDetail", awardModel);
         }
 
         [Route("award/{id:int:min(1)}/edit")]
@@ -150,21 +186,27 @@ namespace MVCPeopleAwards.Controllers
             AwardViewModel awardModel;
             try
             {
-                awardModel = repository.GetAwardById(id);
-                if (awardModel == null)
-                    return View("Error", ErrorHelper.GetErrorModel("Не найдена награда с таким идентификатором", "", DEFAULT_BACK_ERROR_URL));
+                using (var client = GetHttpClient())
+                {
+                    var response = client.GetAsync(string.Format("api/award/{0}", id)).Result;
+
+                    if (response.StatusCode != System.Net.HttpStatusCode.OK)
+                        return View("Error", ErrorHelper.GetErrorModel("Не найдена награда с таким идентификатором", "", DEFAULT_BACK_ERROR_URL));
+
+                    awardModel = (AwardViewModel)response.Content.ReadAsAsync<AwardViewModel>().Result;
+                    if (awardModel == null)
+                        return View("Error", ErrorHelper.GetErrorModel("Не найдена награда с таким идентификатором", "", DEFAULT_BACK_ERROR_URL));
+
+                    ViewBag.Title = "Изменение записи";
+                    SiteMaps.Current.CurrentNode.Title = ViewBag.Title;
+                    return View("CreateEditAward", awardModel);
+                }
             }
             catch (Exception e)
             {
                 Logger.LogException(e);
-                return View("Error", ErrorHelper.GetErrorModel(e.Message, e.InnerException + e.StackTrace, DEFAULT_BACK_ERROR_URL));
+                return View("Error", ErrorHelper.GetErrorModel(e.Message, e.StackTrace, DEFAULT_BACK_ERROR_URL));
             }
-
-            ViewBag.Title = "Изменение записи";
-            SiteMaps.Current.CurrentNode.Title = ViewBag.Title;
-            return View("CreateEditAward", awardModel);
-            //ViewBag.Title = "Изменение записи";
-            //return PartialView("ModalCreateEditAward", awardModel);
         }
 
         [AllowAnonymous]
@@ -176,12 +218,19 @@ namespace MVCPeopleAwards.Controllers
             AwardViewModel awardModel;
             try
             {
-                awardModel = repository.GetAwardById(id);
-                if (awardModel == null)
-                    return null;
+                using (var client = GetHttpClient())
+                {
+                    var response = client.GetAsync(string.Format("api/award/{0}", id)).Result;
 
-                //return File(UtilHelper.HttpPostedFileBaseToByte(awardModel.PhotoAward), awardModel.PhotoMIMEType);
-                return File(awardModel.PhotoAward, awardModel.PhotoMIMEType);
+                    if (response.StatusCode != System.Net.HttpStatusCode.OK)
+                        return null;
+
+                    awardModel = (AwardViewModel)response.Content.ReadAsAsync<AwardViewModel>().Result;
+                    if (awardModel == null)
+                        return null;
+
+                    return File(awardModel.PhotoAward, awardModel.PhotoMIMEType);
+                }
             }
             catch (Exception e)
             {
@@ -219,6 +268,11 @@ namespace MVCPeopleAwards.Controllers
                                 awardModel.PhotoAward = bin.ReadBytes(file.ContentLength);
                                 awardModel.PhotoMIMEType = file.ContentType;
                             }
+                            else
+                            {
+                                awardModel.PhotoAward = null;
+                                awardModel.PhotoMIMEType = "";
+                            }
                         }
                     }
 
@@ -232,22 +286,23 @@ namespace MVCPeopleAwards.Controllers
                         }
                         else
                         {
-                            AwardViewModel tmpAwardModel = repository.GetAwardById(awardModel.Id);
-                            awardModel.PhotoAward = tmpAwardModel.PhotoAward;
-                            awardModel.PhotoMIMEType = tmpAwardModel.PhotoMIMEType;
+                            using (var client = GetHttpClient())
+                            {
+                                var response = client.GetAsync(string.Format("api/award/{0}", awardModel.Id)).Result;
+
+                                if (response.StatusCode != System.Net.HttpStatusCode.OK)
+                                    return View("Error", ErrorHelper.GetErrorModel("Не найдена награда с таким идентификатором", "", DEFAULT_BACK_ERROR_URL));
+
+                                AwardViewModel tmpAwardModel = (AwardViewModel)response.Content.ReadAsAsync<AwardViewModel>().Result;
+                                if (tmpAwardModel == null)
+                                    return View("Error", ErrorHelper.GetErrorModel("Не найдена награда с таким идентификатором", "", DEFAULT_BACK_ERROR_URL));
+
+                                awardModel.PhotoAward = tmpAwardModel.PhotoAward;
+                                awardModel.PhotoMIMEType = tmpAwardModel.PhotoMIMEType;
+                            }
                         }
-                    else
-                    {
-                        //if (awardModel.PhotoAward != null && awardModel.PhotoAward.ContentLength > 0)
-                        //    awardModel.PhotoMIMEType = awardModel.PhotoAward.ContentType;
-                        if (awardModel.PhotoAward != null && awardModel.PhotoAward.Length > 0)
-                            awardModel.PhotoMIMEType = "image/jpeg";
-                        else
-                            awardModel.PhotoMIMEType = "";
-                    }
 
                     // проверка на обязательный ввод Фото награды
-                    //if (awardModel.PhotoAward == null || awardModel.PhotoAward.ContentLength <= 0)
                     if (awardModel.PhotoAward == null || awardModel.PhotoAward.Length <= 0)
                     {
                         if (!saveCreateMode)
@@ -267,8 +322,20 @@ namespace MVCPeopleAwards.Controllers
 
                     if (saveCreateMode)
                     {
-                        awardModel = repository.GetAwardById(saveID);
-                        return PartialView("AwardSinglePartial", awardModel);
+
+                        using (var client = GetHttpClient())
+                        {
+                            var response = client.GetAsync(string.Format("api/award/{0}", saveID)).Result;
+
+                            if (response.StatusCode != System.Net.HttpStatusCode.OK)
+                                return View("Error", ErrorHelper.GetErrorModel("Не найдена награда с таким идентификатором", "", DEFAULT_BACK_ERROR_URL));
+
+                            awardModel = (AwardViewModel)response.Content.ReadAsAsync<AwardViewModel>().Result;
+                            if (awardModel == null)
+                                return View("Error", ErrorHelper.GetErrorModel("Не найдена награда с таким идентификатором", "", DEFAULT_BACK_ERROR_URL));
+
+                            return PartialView("AwardSinglePartial", awardModel);
+                        }
                     }
                     else
                         return RedirectToAction("Index");
@@ -300,13 +367,18 @@ namespace MVCPeopleAwards.Controllers
 
             try
             {
-                repository.DeleteAward(id);
-                Logger.logger.Trace(String.Format("Удалена награда:\n Id={0}", id));
+                using (var client = GetHttpClient())
+                {
+                    var response = client.DeleteAsync(string.Format("api/award/delete/{0}", id)).Result;
 
-                if (Request.IsAjaxRequest())
-                    return Json(new { id });
-                else
-                    return RedirectToAction("Index");
+                    if (response.StatusCode != System.Net.HttpStatusCode.OK)
+                        return View("Error", ErrorHelper.GetErrorModel("Не найдена награда с таким идентификатором", "", DEFAULT_BACK_ERROR_URL));
+
+                    if (Request.IsAjaxRequest())
+                        return Json(new { id });
+                    else
+                        return RedirectToAction("Index");
+                }
             }
             catch (Exception e)
             {
@@ -322,12 +394,13 @@ namespace MVCPeopleAwards.Controllers
         // проверка на уникальность наименования
         public bool CheckNameAward(string nameAward, int id)
         {
-            if (id < 0) id = 0;
-
-            if (repository.CheckNameAward(nameAward, id))
-                return false;
-
-            return true;
+            bool result = false;
+            using (var client = GetHttpClient())
+            {
+                var response = client.GetAsync(string.Format("api/award/{0}/checkName/{1}", id, nameAward)).Result;
+                result = (bool)response.Content.ReadAsAsync<bool>().Result;
+            }
+            return result;
         }
 
         protected override void Dispose(bool disposing)
