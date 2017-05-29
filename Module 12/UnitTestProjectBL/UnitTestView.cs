@@ -24,7 +24,8 @@ namespace UnitTestProjectBL
             viewIndex.ViewBag.Title = "Список наград Test";
             var htmlIndex = viewIndex.RenderAsHtml(awardsViewModel);
             var node = htmlIndex.DocumentNode.Element("h2");
-            Assert.AreEqual("Список наград Test", node.InnerText);
+            if (node != null)
+                Assert.AreEqual("Список наград Test", node.InnerText);
         }
     }
 }

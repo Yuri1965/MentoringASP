@@ -10,13 +10,8 @@ namespace MVCPeopleAwards
 {
     public class RouteConfig
     {
-        public static void RegisterRoutes(RouteCollection routes)
+        public static void RegisterAllRoutes(RouteCollection routes)
         {
-            routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
-
-            //регистрация атрибутов Route, прописанных в методах контроллеров
-            routes.MapMvcAttributeRoutes();
-
             routes.MapRoute(
                 name: "Error",
                 url: "error/{errorCode}",
@@ -37,9 +32,12 @@ namespace MVCPeopleAwards
                 name: "GetListPeoplesByName",
                 url: "peoplesByName/{namePeople}",
                 defaults: new { controller = "PeoplesAward", action = "GetPeoplesByName" },
-                constraints: 
-                    new { namePeople = new CompoundRouteConstraint(new IRouteConstraint[] 
-                        { new RegexRouteConstraint("^([a-zA-Zа-яА-Я -]+)$"), new MinLengthRouteConstraint(2), new MaxLengthRouteConstraint(50) }) }
+                constraints:
+                    new
+                    {
+                        namePeople = new CompoundRouteConstraint(new IRouteConstraint[]
+                        { new RegexRouteConstraint("^([a-zA-Zа-яА-Я -]+)$"), new MinLengthRouteConstraint(2), new MaxLengthRouteConstraint(50) })
+                    }
             );
 
             //Добавить человека
@@ -56,14 +54,6 @@ namespace MVCPeopleAwards
                 defaults: new { controller = "PeoplesAward", action = "EditPeople" },
                 constraints: new { id = new CompoundRouteConstraint(new IRouteConstraint[] { new IntRouteConstraint(), new MinRouteConstraint(1) }) }
             );
-
-            //Удалить человека
-            //routes.MapRoute(
-            //    name: "GetDeletePeople",
-            //    url: "people/{id}/delete",
-            //    defaults: new { controller = "PeoplesAward", action = "DeletePeople" },
-            //    constraints: new { id = new CompoundRouteConstraint(new IRouteConstraint[] { new IntRouteConstraint(), new MinRouteConstraint(1) }) }
-            //);
 
             //Информация о человеке с наградами
             routes.MapRoute(
@@ -93,6 +83,16 @@ namespace MVCPeopleAwards
                 url: "{controller}/{action}/{id}",
                 defaults: new { controller = "PeoplesAward", action = "Index", id = UrlParameter.Optional }
             );
+        }
+
+        public static void RegisterRoutes(RouteCollection routes)
+        {
+            routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
+
+            //регистрация атрибутов Route, прописанных в методах контроллеров
+            routes.MapMvcAttributeRoutes();
+
+            RegisterAllRoutes(routes);
         }
     }
 }

@@ -120,6 +120,8 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="UnitTestRouting.cs" />
+    <Compile Include="UnitTestValidation.cs" />
     <Compile Include="UnitTestView.cs" />
     <Compile Include="UnitTestControllers.cs" />
     <Compile Include="UnitTestBL.cs" />
