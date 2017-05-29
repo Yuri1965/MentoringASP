@@ -1,0 +1,54 @@
+﻿@model MVCPeopleAwards.Models.ListAwardsViewModel
+
+@* на общую верстку для списка Наград*@
+@{
+    Layout = "~/Views/Awards/PartialView/LayoutAwards.cshtml";
+}
+
+@if (Request.IsAuthenticated && (HttpContext.Current.User.IsInRole("Admin") || HttpContext.Current.User.IsInRole("CandidateAdmin")))
+{
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h4 class="panel-title">
+                <a class="accordion-toggle" data-toggle="collapse" href="#collapseOne" aria-expanded="false">
+                    Добавление новой записи
+                </a>
+            </h4>
+        </div>
+        <div id="collapseOne" class="panel-collapse collapse in">
+            <div class="panel-body">
+                @Html.Partial("~/Views/Awards/CreateAwardPartial.cshtml", ViewData.Model.AwardModel)
+            </div>
+        </div>
+    </div>
+}
+
+<p>
+    @Ajax.ActionLink("Обновить список", "Index", "Awards", new { }, new AjaxOptions { HttpMethod = "GET", UpdateTargetId = "awardsList", InsertionMode = InsertionMode.Replace }, new { @class = "btn btn-default" })
+</p>
+
+<div id="awardsList">
+    @Html.Partial("~/Views/Awards/ListAwardsPartial.cshtml")
+</div>
+
+@section Scripts{
+
+    @Scripts.Render("~/bundles/jqueryval")
+
+    <script type="text/javascript">
+
+        function OnAwardRemove(data, status, request) {
+            if (data.error) {
+                OnError(request, status, data.error);
+                return;
+            }
+            var awardId = data.id;
+            $('tr[data-award-id = ' + awardId + ']').remove();
+        }
+
+        function OnError(request, status, error) {
+            alert(error);
+        }
+    </script>
+
+}

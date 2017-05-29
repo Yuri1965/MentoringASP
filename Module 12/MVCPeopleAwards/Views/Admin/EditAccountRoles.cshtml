@@ -1,0 +1,86 @@
+﻿@model MVCPeopleAwards.Models.Accounts.SelectAccountRolesViewModel
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>@ViewBag.Title</h2>
+
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        Роли пользователя @Html.DisplayFor(model => model.UserName)
+    </div>
+
+@if (Request.IsAuthenticated && HttpContext.Current.User.IsInRole("Admin"))
+{
+    using (Html.BeginForm("SaveAccountRoles", "Admin", FormMethod.Post, new { encType = "multipart/form-data", name = "myform" }))
+    {
+        @Html.AntiForgeryToken()
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+        @Html.HiddenFor(model => model.UserId)
+
+        <table class="table table-striped">
+            <tr>
+                <th>Выбор</th>
+                <th>Наименование роли</th>
+            </tr>
+
+            @foreach (var role in Model.Roles)
+            {
+                <tr>
+
+                    <td>
+                        @if (role.Selected)
+                        {
+                            <input type="radio" id="@role.RoleId" name="roleNames" value="@role.RoleName" checked>
+                        }
+                        else
+                        {
+                            <input type="radio" id="@role.RoleId" name="roleNames" value="@role.RoleName">
+                        }
+                    </td>
+
+                    <td>@role.RoleName</td>
+                </tr>
+            }
+        </table>
+
+        <br />
+        @Html.ActionLink("Отмена", "Index", "Admin", null, new { @class = "btn btn-primary" })
+        <button type="submit" class="btn btn-primary">Сохранить</button>
+    }
+}
+else
+{
+    <table class="table table-striped">
+        <tr>
+            <th>Выбор</th>
+            <th>Наименование роли</th>
+        </tr>
+
+        @foreach (var role in Model.Roles)
+        {
+            <tr>
+
+                <td>
+                    @if (role.Selected)
+                    {
+                        <input type="radio" id="@role.RoleId" name="roleNames" value="@role.RoleName" checked disabled>
+                    }
+                    else
+                    {
+                        <input type="radio" id="@role.RoleId" name="roleNames" value="@role.RoleName" disabled>
+                    }
+                </td>
+
+                <td>@role.RoleName</td>
+            </tr>
+        }
+    </table>
+
+    <br />
+    @Html.ActionLink("Назад", "Index", "Admin", null, new { @class = "btn btn-primary" })
+}
+
+</div>
+

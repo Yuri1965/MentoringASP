@@ -1,0 +1,111 @@
+﻿@using MVCPeopleAwards.Models
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title</title>
+    @Styles.Render("~/Content/css")
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/jqueryunobtrusive")
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/bootstrap")
+    @Scripts.Render("~/bundles/modernizr")
+
+    @if (HttpContext.Current.User.IsInRole("CandidateAdmin") && Session["EventsUserCandidate"] != null)
+    {
+
+        <script type="text/javascript" language="javascript">
+
+            var validNavigation = false;
+
+            function wireUpEvents() {
+                window.onbeforeunload = function () {
+                    if (!validNavigation) {
+                        return confirm("У вас имеются НЕ сохраненные операции, вы действительно хотите закрыть вкладку? ");
+                    }
+                }
+
+                validNavigation = false;
+                // Attach the event keypress to exclude the F5 refresh
+                $(document).bind('keypress', function (e) {
+                    if (e.keyCode == 116) {
+                        validNavigation = true;
+                    }
+                });
+
+                // Attach the event click for all links in the page
+                $("a").bind("click", function () {
+                    validNavigation = true;
+                });
+
+                // Attach the event submit for all forms in the page
+                $("form").bind("submit", function () {
+                    validNavigation = true;
+                });
+
+                // Attach the event click for all inputs in the page
+                $("input[type=submit]").bind("click", function () {
+                    validNavigation = true;
+                });
+
+            }
+
+            // Wire up the events as soon as the DOM tree is ready
+            $(document).ready(function () {
+                wireUpEvents();
+            });
+        </script>
+    }
+
+
+</head>
+<body>
+    <div class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li>@Html.ActionLink("Список награжденных", "Index", "PeoplesAward")</li>
+
+                    @if (Request.IsAuthenticated && (HttpContext.Current.User.IsInRole("Admin") || HttpContext.Current.User.IsInRole("CandidateAdmin")))
+                    {
+                        <li>@Html.ActionLink("Справочник Награды", "Index", "Awards")</li>
+                        <li>@Html.ActionLink("Администрирование пользователей", "Index", "Admin")</li>
+                    }
+                    @if (HttpContext.Current.User.IsInRole("CandidateAdmin") && Session["EventsUserCandidate"] != null)
+                    {
+                        var events = Session["EventsUserCandidate"] as EventsUserViewModel;
+                        if (events != null && events.ListEvents.Count > 0)
+                        {
+                            <li>@Html.ActionLink("Список изменений(" + events.ListEvents.Count.ToString() + ")", "Index", "EventUser")</li>
+                        }
+                        else
+                        {
+                            <li>@Html.ActionLink("Список изменений", "Index", "EventUser")</li>
+                        }
+                    }
+                </ul>
+                @Html.Partial("_LoginPartial")
+            </div>
+        </div>
+    </div>
+    <div class="container body-content">
+        @Html.MvcSiteMap().SiteMapPath()
+
+        @RenderBody()
+        <hr />
+        <footer>
+            <p>&copy; @DateTime.Now.Year - EPAM Systems, ASP.NET MVC 5 Mentoring Program, г. Караганда</p>
+        </footer>
+    </div>
+
+    @RenderSection("scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,13 @@
+﻿
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Index</h2>
+
+@using (Html.BeginForm("ApplyAwardsChanges", "Awards", FormMethod.Post))
+{
+
+    <input type="submit" value="Применить" />
+}
+

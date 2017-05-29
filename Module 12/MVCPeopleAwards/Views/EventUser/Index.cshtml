@@ -1,0 +1,14 @@
+﻿@model MVCPeopleAwards.Models.EventsUserViewModel
+
+@* на общую верстку для списка Событий*@
+@{
+    Layout = "~/Views/EventUser/LayoutEvents.cshtml";
+}
+
+<div id="eventsList">
+    @Html.Partial("~/Views/EventUser/ListEventsPartial.cshtml")
+</div>
+
+@section Scripts{
+    @Scripts.Render("~/bundles/jqueryval")
+}
